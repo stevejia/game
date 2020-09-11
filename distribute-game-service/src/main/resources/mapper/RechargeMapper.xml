@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.RechargeMapper">
+	<!--查询字段-->
+	<sql id="columns">
+	    a.order_id,
+	    a.user_id,
+	    a.nickname,
+	    a.order_sn,
+	    a.account,
+	    a.add_time,
+	    a.pay_status,
+	    a.img_url,
+	    a.remark,
+	    a.verifier_time
+	</sql>
+	
+	<!--查询结果集-->
+	<resultMap id="beanMap" type="com.gongyu.service.distribute.game.model.dto.RechargeDto">
+	    <result property="orderId" column="order_id"/>
+	    <result property="userId" column="user_id"/>
+	    <result property="nickname" column="nickname"/>
+	    <result property="orderSn" column="order_sn"/>
+	    <result property="account" column="account"/>
+	    <result property="addTime" column="add_time"/>
+	    <result property="payStatus" column="pay_status"/>
+	    <result property="imgUrl" column="img_url"/>
+	    <result property="remark" column="remark"/>
+	    <result property="verifierTime" column="verifier_time"/>
+	</resultMap>
+
+    <select id="findPage" resultMap="beanMap">
+        select
+        <include refid="columns"></include>
+		,u.mobile AS userPhone
+        from zp_recharge AS a
+		left join zp_users AS u ON a.user_id = u.id
+        where 1=1
+		<if test="param.nickName != null and param.nickName != ''">
+			AND a.nickname like concat('%',#{param.nickName},'%')5
+		</if>
+		<if test="param.userPhone != null and param.userPhone != ''">
+			AND u.mobile =#{param.userPhone}
+		</if>
+		<if test="param.userId != null and param.userId != ''">
+			AND u.id =#{param.userId}
+		</if>
+		<if test="param.queryDate != null">
+			AND TO_DAYS(FROM_UNIXTIME(a.add_time,'%Y-%m-%d %H:%i:%s')) = TO_DAYS(FROM_UNIXTIME(#{param.queryDate},'%Y-%m-%d %H:%i:%s'))
+		</if>
+		order by a.order_id desc
+    </select>
+
+</mapper>

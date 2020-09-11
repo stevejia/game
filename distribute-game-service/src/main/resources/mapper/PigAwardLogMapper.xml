@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.PigAwardLogMapper">
+	<!--查询字段-->
+	<sql id="columns">
+	    a.id,
+	    a.join_user_list,
+	    a.award_user_list,
+	    a.pig_id,
+	    a.change_time,
+	    a.pig_list
+	</sql>
+	
+	<!--查询结果集-->
+	<resultMap id="beanMap" type="com.gongyu.service.distribute.game.model.dto.PigAwardLogPageDto">
+	    <result property="id" column="id"/>
+	    <result property="joinUserList" column="join_user_list"/>
+	    <result property="awardUserList" column="award_user_list"/>
+	    <result property="pigId" column="pig_id"/>
+	    <result property="changeTime" column="change_time"/>
+	    <result property="pigList" column="pig_list"/>
+	</resultMap>
+
+    <select id="findPage" resultMap="beanMap">
+        select
+          <include refid="columns"></include>
+        from zp_pig_award_log a
+
+        where 1=1
+			AND a.open_result = 1
+		<if test="param.pigId != null">
+			AND a.pig_id = #{param.pigId}
+		</if>
+		<if test="param.drawTime != null and param.drawTime != ''">
+			AND TO_DAYS(FROM_UNIXTIME(a.change_time,'%Y-%m-%d %H:%i:%s')) = TO_DAYS(date_format(#{param.drawTime},'%Y-%m-%d %H:%i:%s'))
+		</if>
+		order by a.id desc
+    </select>
+</mapper>

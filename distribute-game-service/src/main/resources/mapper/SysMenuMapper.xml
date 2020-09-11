@@ -1,0 +1,41 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.SysMenuMapper">
+
+    <select id="getUserMenuList" resultType="com.gongyu.service.distribute.game.model.entity.SysMenu">
+        SELECT
+            a.id,
+            a.url_path
+        FROM
+            sys_menu a
+        WHERE
+            a.id =- 1
+        UNION
+        SELECT
+            a.id,
+            a.url_path
+        FROM
+            sys_menu a
+        INNER JOIN sys_role_menu ra ON a.id = ra.menu_id
+            AND ra.role_id = (
+                SELECT
+                  role_id
+                FROM
+                  sys_user_role
+                WHERE
+                  user_id = #{userId} AND deleted=0
+            )
+            AND ra.deleted = 0
+        WHERE
+          a.deleted = 0
+    </select>
+
+    <select id="getParentList" resultType="java.lang.String">
+        SELECT
+            getParentList ( #{menuId} )
+        FROM
+            sys_menu
+        WHERE
+            id = #{menuId}
+    </select>
+</mapper>

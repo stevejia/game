@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven-compiler-plugin.version>3.6.2</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+        <!--        <swagger.version>2.6.1</swagger.version>-->
+        <!--        <swagger.layer.version> 0.0.4</swagger.layer.version>-->
+        <springfox.version>2.9.2</springfox.version>
+        <swagger-models.version>1.5.22</swagger-models.version>
+        <swagger-bootstrap-ui.version>1.9.3</swagger-bootstrap-ui.version>
+
+        <guava.version>17.0</guava.version>
+        <aliyun.oss.version>2.5.0</aliyun.oss.version>
+        <qcloud.oss.version>5.2.3</qcloud.oss.version>
+        <jcloud.oss.version>1.0.3</jcloud.oss.version>
+        <aliyun.core.version>3.5.0</aliyun.core.version>
+        <aliyun.sts.version>3.0.0</aliyun.sts.version>
+        <aliyun.dysmsapi.version>1.0.0</aliyun.dysmsapi.version>
+        <alibaba.fastjson.version>1.2.47</alibaba.fastjson.version>
+        <!--<yuntongxun.sms.version>2.6.3</yuntongxun.sms.version>-->
+        <mybatis.plus.boot.starter.version>3.0.7.1</mybatis.plus.boot.starter.version>
+        <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
+        <oracle.ojdbc6.version>11.2.0.2</oracle.ojdbc6.version>
+        <microsoft.sqlserver.sqljdbc4.version>4.0</microsoft.sqlserver.sqljdbc4.version>
+        <druid.springboot2.starter.version>1.1.10</druid.springboot2.starter.version>
+        <commons.beanutils.version>1.9.3</commons.beanutils.version>
+        <commons.io.version>2.5</commons.io.version>
+        <velocity.version>1.7</velocity.version>
+        <commons.lang3.version>3.6</commons.lang3.version>
+        <javassist.version>3.21.0-GA</javassist.version>
+        <lombok.version>1.18.2</lombok.version>
+        <google.zxing.version>3.1.0</google.zxing.version>
+        <spring.session.version>2.0.2.RELEASE</spring.session.version>
+        <org.apache.poi.version>4.0.0</org.apache.poi.version>
+        <jackson.databind.version>2.9.8</jackson.databind.version>
+        <com.google.code.gson.version>2.7</com.google.code.gson.version>
+        <org.modelmapper.modelmapper.version>2.3.0</org.modelmapper.modelmapper.version>
+        <joda-time.version>2.10.1</joda-time.version>
+        <org.codehaus.jackson.core.asl.version>1.9.13</org.codehaus.jackson.core.asl.version>
+        <org.codehaus.jackson.mapper.asl.version>1.9.13</org.codehaus.jackson.mapper.asl.version>
+        <com.fasterxml.jackson.core.version>2.9.8</com.fasterxml.jackson.core.version>
+        <javaee.api.version>7.0</javaee.api.version>
+        <pinyin4j.version>2.5.1</pinyin4j.version>
+        <httpcomponents.version>4.5</httpcomponents.version>
+        <jpush.client.version>3.3.10</jpush.client.version>
+        <javax.validation.version>2.0.1</javax.validation.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- Import dependency management from Spring Boot -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.1.2.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jpush-client</artifactId>
+            <version>${jpush.client.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpcomponents.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>fluent-hc</artifactId>
+            <version>${httpcomponents.version}</version>
+        </dependency>
+
+        <!-- pinyin4j -->
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>${pinyin4j.version}</version>
+        </dependency>
+
+        <!-- doc -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.swagger</groupId>
+                    <artifactId>swagger-models</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>${swagger-models.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+            <version>${swagger-bootstrap-ui.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+        </dependency>
+
+        <!-- mail -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+
+        <!-- file -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>${aliyun.oss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-sts</artifactId>
+            <version>${aliyun.sts.version}</version>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.qcloud</groupId>-->
+        <!--<artifactId>cos_api</artifactId>-->
+        <!--<version>${qcloud.oss.version}</version>-->
+        <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<groupId>commons-beanutils</groupId>-->
+        <!--<artifactId>commons-beanutils</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>commons-beanutils</groupId>-->
+        <!--<artifactId>commons-beanutils</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>commons-beanutils</groupId>-->
+        <!--<artifactId>commons-beanutils-core</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>javax.servlet</groupId>-->
+        <!--<artifactId>servlet-api</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>org.slf4j</groupId>-->
+        <!--<artifactId>slf4j-log4j12</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>log4j</groupId>-->
+        <!--<artifactId>log4j</artifactId>-->
+        <!--</exclusion>-->
+        <!--</exclusions>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.jcloud</groupId>
+            <artifactId>oss.sdk</artifactId>
+            <version>${jcloud.oss.version}</version>
+        </dependency>
+
+        <!-- sms -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>${aliyun.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+            <version>${aliyun.dysmsapi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${alibaba.fastjson.version}</version>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.cloopen</groupId>-->
+        <!--<artifactId>yuntongxun-sms</artifactId>-->
+        <!--<version>${yuntongxun.sms.version}</version>-->
+        <!--</dependency>-->
+
+        <!-- data -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis.plus.boot.starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>${mybatis.plus.boot.starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.drtrang</groupId>
+            <artifactId>druid-spring-boot2-starter</artifactId>
+            <version>${druid.springboot2.starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.drtrang</groupId>
+            <artifactId>druid-spring-boot2-actuator-starter</artifactId>
+            <version>${druid.springboot2.starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connector.java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>${oracle.ojdbc6.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <version>${microsoft.sqlserver.sqljdbc4.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons.beanutils.version}</version>
+        </dependency>
+
+        <!-- web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- 内嵌tomcat -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-el</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- devtools -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>${velocity.version}</version>
+        </dependency>
+
+        <!-- 通用 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${com.google.code.gson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${com.fasterxml.jackson.core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>${org.codehaus.jackson.core.asl.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${org.codehaus.jackson.mapper.asl.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>${org.modelmapper.modelmapper.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
+
+        <!-- qrcode -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${google.zxing.version}</version>
+        </dependency>
+
+        <!-- spring-session -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-core</artifactId>
+            <version>${spring.session.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+            <version>${spring.session.version}</version>
+        </dependency>
+
+        <!-- poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${org.apache.poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${org.apache.poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>${org.apache.poi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>${org.apache.poi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>${javaee.api.version}</version>
+        </dependency>
+    </dependencies>
+
+    <groupId>com.gongyu.project</groupId>
+    <artifactId>distribute-game-backend</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <modules>
+        <module>distribute-game-oss</module>
+        <module>distribute-game-app</module>
+        <module>distribute-game-service</module>
+    </modules>
+
+
+</project>

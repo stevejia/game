@@ -1,0 +1,26 @@
+package com.gongyu.service.distribute.game.model.dto;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@ApiModel
+public class PigGoodsSpellLogSaveDto{
+    @ApiModelProperty(value = "", dataType = "String")
+    private String pigIdStr;
+    @ApiModelProperty(value = "", dataType = "Integer")
+    private Integer addtime;
+    @ApiModelProperty(value = "", dataType = "Integer")
+    private Integer userId;
+    @ApiModelProperty(value = "", dataType = "BigDecimal")
+    private BigDecimal money;
+    @ApiModelProperty(value = "", dataType = "Integer")
+    private Integer isPay;
+    @ApiModelProperty(value = "", dataType = "Integer")
+    private Integer payTime;
+}

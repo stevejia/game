@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.SysUserLogMapper">
+    <sql id="insertClause">
+        <if test="sysUserLog.id != null">
+            id,
+        </if>
+        <if test="sysUserLog.createBy != null">
+            createBy,
+        </if>
+        <if test="sysUserLog.createDate != null">
+            createDate,
+        </if>
+        <if test="sysUserLog.updateBy != null">
+            updateBy,
+        </if>
+        <if test="sysUserLog.updateDate != null">
+            updateDate,
+        </if>
+        <if test="sysUserLog.version != null">
+            version,
+        </if>
+        <if test="sysUserLog.deleted != null">
+            deleted,
+        </if>
+        <if test="sysUserLog.className != null">
+            class_name,
+        </if>
+        <if test="sysUserLog.methodName != null">
+            method_name,
+        </if>
+        <if test="sysUserLog.argument != null">
+            argument,
+        </if>
+        <if test="sysUserLog.memo != null">
+            memo,
+        </if>
+        <if test="sysUserLog.modelName != null">
+            model_name,
+        </if>
+        <if test="sysUserLog.ip != null">
+            ip,
+        </if>
+        <if test="sysUserLog.operationTime != null">
+            operation_time,
+        </if>
+        <if test="sysUserLog.flag != null">
+            flag,
+        </if>
+        <if test="sysUserLog.userId != null">
+            user_id,
+        </if>
+        <if test="sysUserLog.userName != null">
+            user_name,
+        </if>
+        <if test="sysUserLog.error != null">
+            error,
+        </if>
+    </sql>
+
+    <sql id="insertValues">
+        <if test="sysUserLog.id != null">
+            #{sysUserLog.id},
+        </if>
+        <if test="sysUserLog.createBy != null">
+            #{sysUserLog.createBy},
+        </if>
+        <if test="sysUserLog.createDate != null">
+            #{sysUserLog.createDate},
+        </if>
+        <if test="sysUserLog.updateBy != null">
+            #{sysUserLog.updateBy},
+        </if>
+        <if test="sysUserLog.updateDate != null">
+            #{sysUserLog.updateDate},
+        </if>
+        <if test="sysUserLog.version != null">
+            #{sysUserLog.version},
+        </if>
+        <if test="sysUserLog.deleted != null">
+            #{sysUserLog.deleted},
+        </if>
+        <if test="sysUserLog.className != null">
+            #{sysUserLog.class_name},
+        </if>
+        <if test="sysUserLog.methodName != null">
+            #{sysUserLog.method_name},
+        </if>
+        <if test="sysUserLog.argument != null">
+            #{sysUserLog.argument},
+        </if>
+        <if test="sysUserLog.memo != null">
+            #{sysUserLog.memo},
+        </if>
+        <if test="sysUserLog.modelName != null">
+            #{sysUserLog.model_name},
+        </if>
+        <if test="sysUserLog.ip != null">
+            #{sysUserLog.ip},
+        </if>
+        <if test="sysUserLog.operationTime != null">
+            #{sysUserLog.operation_time},
+        </if>
+        <if test="sysUserLog.flag != null">
+            #{sysUserLog.flag},
+        </if>
+        <if test="sysUserLog.userId != null">
+            #{sysUserLog.user_id},
+        </if>
+        <if test="sysUserLog.userName != null">
+            #{sysUserLog.user_name},
+        </if>
+        <if test="sysUserLog.error != null">
+            #{sysUserLog.error},
+        </if>
+    </sql>
+
+    <insert id="saveSysUserLog" useGeneratedKeys="true" keyProperty="id" parameterType="com.gongyu.service.distribute.game.model.entity.SysUserLog">
+        insert into sys_user_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <include refid="insertClause" />
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <include refid="insertValues" />
+        </trim>
+    </insert>
+
+    <select id="queryUserLogModes" resultType="String">
+        SELECT
+            model_name
+        FROM
+            sys_user_log
+        GROUP BY
+            model_name
+        ORDER BY
+            model_name
+    </select>
+</mapper>

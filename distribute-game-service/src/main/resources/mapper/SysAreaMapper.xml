@@ -1,0 +1,16 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.SysAreaMapper">
+    <select id="queryCityByLetterOrder" resultType="com.gongyu.service.distribute.game.model.dto.SysAreaLetterDto">
+        SELECT
+            id AS areaId,
+            `name`
+        FROM
+            sys_area
+        WHERE
+            parent IN ( SELECT id FROM sys_area WHERE parent = 0 )
+            AND deleted = 0
+        ORDER BY
+            CONVERT ( `name` USING gbk ) ASC
+    </select>
+</mapper>

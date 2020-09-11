@@ -1,0 +1,61 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.UsersMapper">
+    <select id="newUsers" resultType="com.gongyu.service.distribute.game.model.dto.newUsersDto">
+        SELECT COUNT(*) AS number,FROM_UNIXTIME(a.`create_time`,'%Y-%m-%d') dates FROM zp_users a
+        where 1=1
+        <if test="startDate != null and startDate != ''">
+            and FROM_UNIXTIME(a.`create_time`,'%Y-%m-%d') <![CDATA[ >= ]]> #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and FROM_UNIXTIME(a.`create_time`,'%Y-%m-%d') <![CDATA[ <= ]]> #{endDate}
+        </if>
+        GROUP BY dates
+    </select>
+
+    <select id="queryTreeList" resultType="com.gongyu.service.distribute.game.model.dto.UsersTreeResponseDto">
+        SELECT
+        a.id as userId,
+        a.mobile as mobile,
+        a.`nickname` as nickname,
+        a.`first_leader` as firstLeader,
+        CASE
+        WHEN a.level = 1
+        THEN '粉丝'
+        WHEN a.level = 2
+        THEN '正式用户'
+        WHEN a.level = 3
+        THEN '初级合伙人'
+        WHEN a.level = 4
+        THEN '中级合伙人'
+        WHEN a.level = 5
+        THEN '高级合伙人'
+        WHEN a.level = 4
+        THEN '联合合伙人'
+        END AS LEVEL,
+        (SELECT
+        COUNT(*)
+        FROM
+        zp_users
+        WHERE first_leader = a.id) AS counts
+        FROM
+        zp_users a
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            AND a.first_leader = #{userId}
+        </if>
+        <if test="type!=null and type!='' and type == 'oneLevel'">
+            AND a.id IN (SELECT first_leader FROM zp_users)
+        </if>
+    </select>
+
+    <select id="getTeamLevelNum" resultType="com.gongyu.service.distribute.game.model.dto.UserTeamLevelDto">
+        SELECT
+          a.level AS level,
+          COUNT(*) number
+        FROM
+          zp_users a
+        WHERE a.first_leader = #{id}
+        GROUP BY a.level
+    </select>
+</mapper>

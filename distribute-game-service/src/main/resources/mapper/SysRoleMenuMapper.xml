@@ -1,0 +1,147 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.SysRoleMenuMapper">
+
+    <select id="getUserMenuList" resultType="com.gongyu.service.distribute.game.model.entity.SysMenu">
+        SELECT
+            a.id AS id,
+            a.url_path AS urlPath
+        FROM
+            sys_menu a
+        WHERE
+            a.id =- 1
+        UNION
+        SELECT
+            a.id AS id,
+            a.url_path AS urlPath
+        FROM
+            sys_menu a
+        INNER JOIN sys_role_menu ra ON a.id = ra.menu_id
+            AND ra.role_id = (
+                SELECT
+                  role_id
+                FROM
+                  sys_user_role
+                WHERE
+                  user_id = #{userId} AND deleted = 0
+            )
+            AND ra.deleted = 0
+        WHERE
+          a.deleted = 0
+    </select>
+
+    <select id="getRoleDetail" resultType="com.gongyu.service.distribute.game.model.entity.SysMenu">
+        SELECT
+            a.id AS id,
+            a.`name` AS `name`,
+            a.url_path AS urlPath,
+            a.orders AS orders,
+            a.grade AS grade,
+            a.parent AS parent,
+            IF (temp.roleId IS NULL, 0, 1) AS isSelected
+        FROM
+            sys_menu a
+        LEFT JOIN (
+            SELECT
+                menu_id as menuId,
+                role_id as roleId
+            FROM
+                sys_role_menu
+            WHERE
+              deleted = 0
+            AND role_id = #{roleId}
+        ) temp ON a.id = temp.menuId
+        WHERE
+          a.deleted = 0
+        <if test="parent == null">
+            AND a.parent is NULL
+        </if>
+        <if test="parent != null">
+            AND a.parent = #{parent}
+        </if>
+        ORDER BY
+          a.id,a.orders
+    </select>
+
+    <select id="getSuperAdminMenuList" resultType="com.gongyu.service.distribute.game.model.entity.SysMenu">
+        SELECT
+            a.id AS id,
+            a.`name` AS `name`,
+            a.href_link AS urlPath,
+            a.url_path AS hrefLink,
+            a.orders AS orders,
+            a.grade AS grade,
+            a.parent AS parent,
+            IF (temp.roleId IS NULL, 0, 1) AS isSelected
+        FROM
+            sys_menu a
+        LEFT JOIN (
+            SELECT
+                menu_id as menuId,
+                role_id as roleId
+            FROM
+              sys_role_menu
+            WHERE
+              deleted = 0
+            AND role_id = #{roleId}
+        ) temp ON a.id = temp.menuId
+        WHERE
+          a.deleted = 0
+        AND IF (temp.roleId IS NULL, 0, 1)=1
+        <if test="parent == null">
+            AND (a.parent=0 OR a.parent is NULL)
+        </if>
+        <if test="parent != null">
+            AND a.parent = #{parent}
+        </if>
+        ORDER BY
+        a.id,a.orders
+    </select>
+
+    <select id="getRoleMenuList" resultType="com.gongyu.service.distribute.game.model.entity.SysMenu">
+        SELECT
+            a.id AS id,
+            a.`name` AS `name`,
+            a.href_link AS urlPath,
+            a.url_path AS hrefLink,
+            a.orders AS orders,
+            a.grade AS grade,
+            a.parent AS parent,
+            IF (temp.roleId IS NULL, 0, 1) AS isSelected
+        FROM
+            sys_menu a
+        LEFT JOIN (
+            SELECT
+                menu_id as menuId,
+                role_id as roleId
+            FROM
+              sys_role_menu
+            WHERE
+              deleted = 0
+            AND role_id = #{roleId}
+        ) temp ON a.id = temp.menuId
+        WHERE
+          a.deleted = 0
+        AND IF (temp.roleId IS NULL, 0, 1)=1
+        <if test="parent == null">
+            AND a.parent is NULL
+        </if>
+        <if test="parent != null">
+            AND a.parent = #{parent}
+        </if>
+        ORDER BY
+        a.id,a.orders
+    </select>
+
+    <select id="getBtnList" resultType="com.gongyu.service.distribute.game.model.dto.SysBtnDto">
+        SELECT
+            a.href_link AS btnName,
+        IF
+            ( temp.`name` IS NULL, 0, 1 ) AS isSelect
+        FROM
+            sys_menu a
+            LEFT JOIN ( SELECT id, `name` FROM sys_menu WHERE id IN ( SELECT menu_id FROM sys_role_menu WHERE role_id = #{roleId} ) AND type = 'btn' ) temp ON a.id = temp.id
+        WHERE
+            a.type = 'btn'
+    </select>
+</mapper>

@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    username: root
+    password: Jx19910209
+    url: jdbc:mysql://localhost:3306/game?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 1
+    minIdle: 3
+    maxActive: 20
+  redis:
+    database: 0
+    host: localhost
+    password: Jx19910209
+    port: 6379
+    jedis:
+      pool.max-idle: 8
+      pool.min-idle: 0
+      pool.max-active: 8
+api:
+  doc:
+    enable: true
+    title: 【分销游戏】APP端API文档
+    description: 【分销游戏】APP端API文档
+    contact: www.softwareo2o.com
+    termsOfServiceUrl: http://app.game.softwareo2o.com
+    version: V1.0
+
+aliyun:
+  oss:
+    accessKeyId: LTAI4G2AmjZMcwPjPpffd2Fa
+    accessKeySecret: xNXyaRPs10fKCzPau0DnVAjtQ4sy87
+    endpoint : oss-cn-hongkong.aliyuncs.com
+    bucketName : bucket-game
+  sms:
+    accessKeyId: LTAI4G2AmjZMcwPjPpffd2Fa
+    accessKeySecret: xNXyaRPs10fKCzPau0DnVAjtQ4sy87
+    freeSignName: 奇木园林
+    smsSwitch: on
+
+gongyu:
+  global-config:
+    showMybatisPlusPerformanceSql: true
