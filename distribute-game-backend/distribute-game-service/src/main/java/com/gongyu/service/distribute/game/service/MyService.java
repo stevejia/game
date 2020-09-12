@@ -75,7 +75,7 @@ public interface MyService {
     * @param payment
     * @return
     */
-   BaseResponse addUpdate(UserPayment payment);
+   BaseResponse addUpdate(UserPayment payment, String paypwd, Long userId);
 
    /**
     * 实名认证

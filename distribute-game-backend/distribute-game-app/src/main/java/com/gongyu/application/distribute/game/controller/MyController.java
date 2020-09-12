@@ -1,5 +1,6 @@
 package com.gongyu.application.distribute.game.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gongyu.service.distribute.game.model.dto.*;
 import com.gongyu.service.distribute.game.model.entity.AccountLog;
@@ -83,8 +84,9 @@ public class MyController {
 
     @ApiOperation(value = "添加修改收款方式", response = BaseResponse.class)
     @PostMapping("addUpdate")
-    public BaseResponse addUpdate(UserPayment payment) {
-        return myService.addUpdate(payment);
+    public BaseResponse addUpdate(String paymentJson, String paypwd) {
+    	UserPayment payment = JSON.parseObject(paymentJson, UserPayment.class);
+        return myService.addUpdate(payment, paypwd, WebUtils.getCurrentUserId());
     }
 
     @ApiOperation(value = "实名认证", response = BaseResponse.class)

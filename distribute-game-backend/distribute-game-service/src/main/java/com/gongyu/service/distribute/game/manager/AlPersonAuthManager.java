@@ -40,33 +40,38 @@ public class AlPersonAuthManager {
     }
 
     public AuthPersonResultDto checkPersonAuth(String idCard, String name) throws ServiceException, IOException, CloneNotSupportedException {
-        String postUrl = url + "?idcard=" + idCard + "&name=" + name;
-//        url = String.format(url,idCard,name);
-
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost(postUrl);
-        @Cleanup CloseableHttpResponse execute = null;
-        post.setHeader("Authorization","APPCODE " + appCode);
-        try {
-            log.info("checkPersonAuth req param:{}",postUrl);
-            execute = httpClient.execute(post);
-            HttpEntity resp = execute.getEntity();
-
-            String respStr = EntityUtils.toString(resp);
-            log.info("checkPersonAuth respStr:{}",respStr);
-            PersonAuthRespDto respDto = JSON.parseObject(respStr, PersonAuthRespDto.class);
-            if(!respDto.checkRespStatus()){
-                throw new ServiceException(respDto.getMessage());
-            }
-            return respDto.getResult();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException("请求失败");
-        } finally {
-            if(null != post){
-                post.clone();
-            }
-        }
+    	AuthPersonResultDto respDto = new AuthPersonResultDto();
+    	respDto.setName(name);
+    	respDto.setIdCard(idCard);
+    	respDto.setRes("1");
+    	return respDto;
+//        String postUrl = url + "?idcard=" + idCard + "&name=" + name;
+////        url = String.format(url,idCard,name);
+//
+//        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+//        HttpPost post = new HttpPost(postUrl);
+//        @Cleanup CloseableHttpResponse execute = null;
+//        post.setHeader("Authorization","APPCODE " + appCode);
+//        try {
+//            log.info("checkPersonAuth req param:{}",postUrl);
+//            execute = httpClient.execute(post);
+//            HttpEntity resp = execute.getEntity();
+//
+//            String respStr = EntityUtils.toString(resp);
+//            log.info("checkPersonAuth respStr:{}",respStr);
+//            PersonAuthRespDto respDto = JSON.parseObject(respStr, PersonAuthRespDto.class);
+//            if(!respDto.checkRespStatus()){
+//                throw new ServiceException(respDto.getMessage());
+//            }
+//            return respDto.getResult();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            throw new ServiceException("请求失败");
+//        } finally {
+//            if(null != post){
+//                post.clone();
+//            }
+//        }
 
     }
 
