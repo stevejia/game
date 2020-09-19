@@ -39,6 +39,9 @@ public class MyUserDataDto {
 
     @ApiModelProperty(value = "推荐收入",dataType = "BigDecimal")
     private BigDecimal recomIncome;
+    
+    @ApiModelProperty(value = "用户编号",dataType = "Integer")
+    private Integer code;
 
 
 }

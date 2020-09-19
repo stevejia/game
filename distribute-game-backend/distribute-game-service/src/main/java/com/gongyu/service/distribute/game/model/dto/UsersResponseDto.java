@@ -49,6 +49,8 @@ public class UsersResponseDto extends BaseEntity {
     private Integer isLock;
     @ApiModelProperty(value = "银行卡信息", dataType = "Integer")
     private String bankNumber;
+    @ApiModelProperty(value = "用户编号", dataType = "Integer")
+    private Integer code;
 
     @Tolerate
     public UsersResponseDto() {

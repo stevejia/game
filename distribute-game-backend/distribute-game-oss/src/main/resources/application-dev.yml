@@ -27,13 +27,13 @@ api:
 
 aliyun:
   oss:
-    accessKeyId: LTAI4G2AmjZMcwPjPpffd2Fa
-    accessKeySecret: xNXyaRPs10fKCzPau0DnVAjtQ4sy87
+    accessKeyId: LTAI4FyChFwmLKepbgu84YTb
+    accessKeySecret: ZPBFFrkvCc8PDF8Qid0lS70g8D6PkF
     endpoint : oss-cn-hongkong.aliyuncs.com
-    bucketName : bucket-game
+    bucketName : qmyl-bucket
   sms:
-    accessKeyId: LTAI4G2AmjZMcwPjPpffd2Fa
-    accessKeySecret: xNXyaRPs10fKCzPau0DnVAjtQ4sy87
+    accessKeyId: LTAI4FyChFwmLKepbgu84YTb
+    accessKeySecret: ZPBFFrkvCc8PDF8Qid0lS70g8D6PkF
     freeSignName: 奇木园林
     smsSwitch: on
 

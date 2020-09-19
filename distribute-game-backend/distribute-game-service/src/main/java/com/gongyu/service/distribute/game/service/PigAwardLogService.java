@@ -7,11 +7,14 @@ import com.gongyu.service.distribute.game.model.dto.PigAwardLogSaveDto;
 import com.gongyu.service.distribute.game.model.entity.PigAwardLog;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudService;
 
+import java.util.List;
 import java.util.Set;
 
 public interface PigAwardLogService extends CrudService<PigAwardLog>{
 
     IPage<PigAwardLogPageDto> queryPigAwardLog(IPage<PigAwardLogPageDto> page,PigAwardLogPageDto dto);
+    
+    List<PigAwardLogPageDto> queryPigGoodsSummary(PigAwardLogPageDto dto);
 
     void savePigAwardLog(PigAwardLogSaveDto pigAwardLogSaveDto);
 

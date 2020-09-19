@@ -19,4 +19,7 @@ public class PigDeletePageReqDto {
 
     @ApiModelProperty(value = "销毁仙子ID",dataType = "Long")
     private Long delId;
+    
+    @ApiModelProperty(value = "用户ID",dataType = "Integer")
+    private Long userId;
 }

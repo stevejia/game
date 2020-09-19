@@ -25,4 +25,6 @@ public class RechargeRequestDto {
     private String paypwd;
     @ApiModelProperty(value = "手机号", dataType = "String")
     private String mobile;
+    @ApiModelProperty(value = "用户编号", dataType = "Integer")
+    private Integer code;
 }

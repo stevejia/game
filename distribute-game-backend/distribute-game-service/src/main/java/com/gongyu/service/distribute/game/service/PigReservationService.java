@@ -17,6 +17,10 @@ import java.util.Set;
 public interface PigReservationService extends CrudService<PigReservation>{
 
     IPage<PigReservationModifyDto> queryPigReservation(IPage<PigReservationModifyDto> page,PigReservationModifyDto dto);
+    
+    
+    List<PigReservationModifyDto> queryAllPigReservation(PigReservationModifyDto dto);
+    
 
     void savePigReservation(PigReservationSaveDto pigReservationSaveDto);
 

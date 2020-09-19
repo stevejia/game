@@ -53,6 +53,24 @@ public class UserExclusivePigServiceImpl extends CrudServiceSupport<UserExclusiv
         page.setRecords(list);
         return page;
     }
+    @Override
+    public List<UserExclusivePigDTO> prizeAllToday( PrizeTodayReqDto param) {
+        List<UserExclusivePigDTO> list = pigManager.prizeAllToday(param);
+        list.forEach(item ->{
+            item.setIsPigLockStatus(LockStatusEnum.parse(item.getIsPigLock()).getDesc());
+            item.setSaleStatus(SaleStatusEnum.parse(item.getIsAbleSale()).getDesc());
+            item.setGoodsType(BuyTypeEnum.parse(item.getBuyType()).getDesc());
+        });
+        for(UserExclusivePigDTO dto : list) {
+
+            if(dto.getAppointUserId()!= null && dto.getAppointUserId().longValue() == 0) {
+
+                dto.setAppointUserId(null);
+            }
+        }
+        return list;
+    }
+    
 
     @Override
     @Transactional(rollbackFor = {Exception.class, RuntimeException.class})

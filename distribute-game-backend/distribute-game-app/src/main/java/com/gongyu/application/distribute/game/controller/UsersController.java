@@ -139,6 +139,7 @@ public class UsersController {
     @ApiOperation(value = "忘记密码")
     @PostMapping("/fgPwd")
     public BaseResponse fgPwd(@Valid @ModelAttribute MemberLoginRequestDto memberLoginRequestDto) {
+    	memberLoginRequestDto.setUId(WebUtils.getCurrentUserId());
         usersService.fgPwd(memberLoginRequestDto);
         return BaseResponse.success();
     }

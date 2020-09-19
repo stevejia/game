@@ -198,4 +198,11 @@ public interface UsersService extends CrudService<Users> {
      * @return
      */
     UserTeamDto getTeamLevelNum(Long id);
+    /**
+     * 查询所有用户
+     *
+     * @param id
+     * @return
+     */
+    List<Users> queryAllUsers();
 }

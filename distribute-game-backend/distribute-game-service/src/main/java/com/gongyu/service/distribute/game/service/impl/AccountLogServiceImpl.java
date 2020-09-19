@@ -206,12 +206,12 @@ public class AccountLogServiceImpl extends CrudServiceSupport<AccountLogMapper, 
         if (!MD5.getMD5Code(rechargeRequestDto.getPaypwd()).equals(byId.getPaypwd())) {
             throw new BizException("请输入正确的交易密码");
         }
-        Users users = usersService.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getMobile, rechargeRequestDto.getMobile()));
+        Users users = usersService.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getCode, rechargeRequestDto.getCode()));
         if (users == null) {
             throw new BizException("转赠对象用户不存在");
         }
-        if(byId.getPayPoints() < rechargeRequestDto.getAccount()){
-            throw new BizException("积分不足");
+        if(byId.getPayPoints() < rechargeRequestDto.getAccount() + 100){
+            throw new BizException("转赠后的积分不能低于100");
         }
         //检查转增积分数量是否合法
         Config lowest = configService.getOne(new QueryWrapper<Config>().eq("config_name", "transferring"));

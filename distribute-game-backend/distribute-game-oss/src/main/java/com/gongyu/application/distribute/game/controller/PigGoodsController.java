@@ -3,6 +3,7 @@ package com.gongyu.application.distribute.game.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gongyu.service.distribute.game.model.dto.PigGoodsModifyDto;
 import com.gongyu.service.distribute.game.model.dto.PigGoodsSaveDto;
+import com.gongyu.service.distribute.game.model.dto.TodaySalePigSummaryReqDto;
 import com.gongyu.service.distribute.game.model.entity.PigGoods;
 import com.gongyu.service.distribute.game.service.PigGoodsService;
 import com.gongyu.snowcloud.framework.base.response.BaseResponse;
@@ -28,7 +29,12 @@ public class PigGoodsController {
     public BaseResponse queryPigGoods(Page page) {
         return BaseResponse.success(pigGoodsService.queryPigGoods(page));
     }
-
+    @ApiOperation(value = "【商品管理】详情", notes = "【商品管理】详情", response = PigGoods.class)
+    @PostMapping("queryTodaySalePigSummary")
+    public BaseResponse queryTodaySalePigSummary(TodaySalePigSummaryReqDto param) {
+    	return BaseResponse.success(pigGoodsService.queryTodaySalePigSummary(param));
+    }
+    
     @ApiOperation(value = "【商品管理】详情", notes = "【商品管理】详情", response = PigGoods.class)
     @PostMapping("getPigGoods")
     public BaseResponse getPigGoods(@ApiParam(value = "id", required = true) @RequestParam()Long id) {

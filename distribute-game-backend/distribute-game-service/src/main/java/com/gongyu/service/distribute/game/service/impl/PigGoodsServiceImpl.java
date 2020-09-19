@@ -11,6 +11,10 @@ import com.gongyu.service.distribute.game.model.dto.HomeResultDto;
 import com.gongyu.service.distribute.game.model.dto.PigGoodsModifyDto;
 import com.gongyu.service.distribute.game.model.dto.PigGoodsResultDto;
 import com.gongyu.service.distribute.game.model.dto.PigGoodsSaveDto;
+import com.gongyu.service.distribute.game.model.dto.PigReservationModifyDto;
+import com.gongyu.service.distribute.game.model.dto.PrizeTodayReqDto;
+import com.gongyu.service.distribute.game.model.dto.TodaySalePigSummaryReqDto;
+import com.gongyu.service.distribute.game.model.dto.UserExclusivePigDTO;
 import com.gongyu.service.distribute.game.model.entity.*;
 import com.gongyu.service.distribute.game.service.*;
 import com.gongyu.snowcloud.framework.base.response.BaseResponse;
@@ -50,6 +54,17 @@ public class PigGoodsServiceImpl extends CrudServiceSupport<PigGoodsMapper, PigG
         return this.page(page);
     }
 
+    @Override
+    public List<PigGoods> queryTodaySalePigSummary(TodaySalePigSummaryReqDto todaySalePigSummaryReqDto) {
+    	List<PigGoods> pigGoods = this.list();
+    	PrizeTodayReqDto todayReqDto = new PrizeTodayReqDto();
+    	List<UserExclusivePigDTO> prizeTodayList = exclusivePigService.prizeAllToday(todayReqDto);
+    	PigReservationModifyDto pigResDto = new PigReservationModifyDto();
+    	List<PigReservationModifyDto> pigReservationList = reservationService.queryAllPigReservation(pigResDto);
+        return pigGoods;
+    }
+
+    
     @Override
     @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     public void savePigGoods(PigGoodsSaveDto pigGoodsSaveDto) {

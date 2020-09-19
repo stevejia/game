@@ -68,6 +68,7 @@ public class MyManager {
         dataDto.setAvatarUrl(HeadImgEnum.URL.getImgUrl());
         dataDto.setMobile(users.getMobile());
         dataDto.setPoints(users.getPayPoints());
+        dataDto.setCode(users.getCode());
         Integer level = users.getLevel();
         if(null != level){
             UserLevel userLevel = userLevelService.getById(level);

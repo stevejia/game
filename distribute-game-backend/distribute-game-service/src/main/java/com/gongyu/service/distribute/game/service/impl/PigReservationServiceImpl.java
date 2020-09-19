@@ -69,7 +69,14 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
         List<PigReservationModifyDto> list = reservationMapper.findPage(page, dto);
         return page.setRecords(list);
     }
-
+    
+    @Override
+    public List<PigReservationModifyDto> queryAllPigReservation(PigReservationModifyDto dto) {
+        List<PigReservationModifyDto> list = reservationMapper.findAll(dto);
+        return list;
+    }
+    
+    
     @Override
     @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     public void savePigReservation(PigReservationSaveDto pigReservationSaveDto) {

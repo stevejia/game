@@ -22,6 +22,7 @@ public interface UserExclusivePigMapper extends BaseMapper<UserExclusivePig> {
     List<UserExclusivePig> findPageByUser(IPage page, @Param("userId") Long userId,@Param("ableSale") Integer ableSale, @Param("param") TransfReqDto param);
 
     List<UserExclusivePigDTO> prizeToday(IPage<UserExclusivePigDTO> page, @Param("param") PrizeTodayReqDto param);
+    List<UserExclusivePigDTO> prizeAllToday(@Param("param") PrizeTodayReqDto param);
 
     int insertForeach(List<UserExclusivePig> list);
 

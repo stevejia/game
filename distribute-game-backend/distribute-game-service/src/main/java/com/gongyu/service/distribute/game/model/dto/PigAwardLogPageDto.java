@@ -35,5 +35,8 @@ public class PigAwardLogPageDto extends PigAwardLogModifyDto{
     @ApiModelProperty(value = "开奖时间",dataType = "Date")
 //    @DateTimeFormat(pattern = "YYYY-DD-MM hh:mm:ss")
     private String drawTime;
+    
+    @ApiModelProperty(value = "当天可售出的产品数量",dataType = "Integer")
+    private Integer canSalePig;
 
 }

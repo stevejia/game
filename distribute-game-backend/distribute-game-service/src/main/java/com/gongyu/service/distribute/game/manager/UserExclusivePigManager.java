@@ -72,6 +72,10 @@ public class UserExclusivePigManager {
     public List<UserExclusivePigDTO> prizeToday(IPage<UserExclusivePigDTO> page, PrizeTodayReqDto param){
         return pigMapper.prizeToday(page,param);
     }
+    
+    public List<UserExclusivePigDTO> prizeAllToday(PrizeTodayReqDto param){
+        return pigMapper.prizeAllToday(param);
+    }
 
     public UserExclusivePig convert(Long userId, Long pigId, SaleStatusEnum saleStatusEnum, BigDecimal price
                                         , Long fromUserId, Long appoinUserId, Long buyTime, Long endTime, String buyType

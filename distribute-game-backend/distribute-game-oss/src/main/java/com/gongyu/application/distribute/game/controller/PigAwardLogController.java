@@ -29,7 +29,13 @@ public class PigAwardLogController {
     public BaseResponse queryPigAwardLog(Page page,PigAwardLogPageDto dto) {
         return BaseResponse.success(pigAwardLogService.queryPigAwardLog(page,dto));
     }
-
+    
+    @ApiOperation(value = "【今日开抢】列表", notes = "【今日开抢】列表", response = PigAwardLogPageDto.class)
+    @PostMapping("queryPigGoodsSummary")
+    public BaseResponse queryPigGoodsSummary(PigAwardLogPageDto dto) {
+    	return BaseResponse.success(pigAwardLogService.queryPigGoodsSummary(dto));
+    }
+    
     @ApiOperation(value = "【中奖纪录】详情", notes = "【中奖纪录】详情", response = PigAwardLog.class)
     @PostMapping("getPigAwardLog")
     public BaseResponse getPigAwardLog(@ApiParam(value = "id", required = true) @RequestParam()Long id) {

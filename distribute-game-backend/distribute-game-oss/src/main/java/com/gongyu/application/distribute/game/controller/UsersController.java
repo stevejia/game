@@ -68,6 +68,7 @@ public class UsersController {
             usersResponseDtoNew.setSuperiorId(e.getFirstLeader().intValue());
             usersResponseDtoNew.setExtensionAmount(e.getRecomIncome());
             usersResponseDtoNew.setContractualIncome(e.getAccumulatedIncome());
+            usersResponseDtoNew.setCode(e.getCode());
             // todo 计算合约收益 account_log  type=21  sum(contract_revenue)
             newList.add(usersResponseDtoNew);
         });
@@ -184,5 +185,21 @@ public class UsersController {
                                  @ApiParam(value = "endDate 例如2020-07-21") String endDate) {
         return BaseResponse.success(usersService.newUsers(startDate, endDate));
     }
-
+    
+    @ApiOperation(value = "查询所有用户", notes = "查询所有用户")
+    @PostMapping("queryAllUsers")
+    public BaseResponse queryAllUsers() {
+    	List<Users> allUsers = usersService.queryAllUsers();
+    	List<UsersResponseDto> newList = Lists.newArrayList();
+    	allUsers.forEach(user->{
+    		UsersResponseDto resUser = new UsersResponseDto();
+    		resUser.setId(user.getId());
+    		resUser.setCode(user.getCode());
+    		resUser.setNickname(user.getNickname());
+    		resUser.setMobile(user.getMobile());
+    		newList.add(resUser);
+    	});
+    	
+        return BaseResponse.success(newList);
+    }
 }

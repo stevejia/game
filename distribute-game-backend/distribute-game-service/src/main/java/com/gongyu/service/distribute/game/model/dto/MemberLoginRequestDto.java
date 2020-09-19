@@ -39,7 +39,14 @@ public class MemberLoginRequestDto {
     private String oncePaypwd;
     @ApiModelProperty(value = "短信类型  REGISTER=注册；LOGIN=登录；FG_PWD=修改密码；FG_PPWD=修改支付密码")
     private String codeType;
-
+    @ApiModelProperty(value = "当前登录密码")
+    private String oldPassword;
+    @ApiModelProperty(value = "当前操作密码")
+    private String oldPayPwd;
+    @ApiModelProperty(value = "会员ID")
+    private Long uId;
+    @ApiModelProperty(value = "操作类型 1=修改密码 2=修改交易密码")
+    private Integer operationType;
     @Tolerate
     public MemberLoginRequestDto() {
     }

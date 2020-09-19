@@ -16,6 +16,8 @@ public interface PigReservationMapper extends BaseMapper<PigReservation> {
 
 
     List<PigReservationModifyDto> findPage(IPage<PigReservationModifyDto> page, @Param("param") PigReservationModifyDto param);
+    
+    List<PigReservationModifyDto> findAll(@Param("param") PigReservationModifyDto param);
 
     @Select("select * from zp_pig_reservation where user_id = #{userId} and pig_id = #{pigId} and reservation_scene = #{awardId} order by id desc")
     PigReservation findByUserAndPig(@Param("userId") Long userId,@Param("pigId") Long pigId,@Param("awardId") Long awardId);

@@ -301,14 +301,14 @@ public class MyServiceImpl implements MyService {
             authRecordManager.updateIgnoreNull(record);
             return BaseResponse.success("验证通过");
         }catch (ServiceException e){
-//            log.info("MyServiceImpl auth throw ServiceException ... ",e);
+            log.info("MyServiceImpl auth throw ServiceException ... ",e);
             if(null != record){
                 record.setReqStatus(AlRespStatusEnum.PUSH_FAIL.getCode());
                 authRecordManager.updateIgnoreNull(record);
             }
             return BaseResponse.error(e.getMessage());
         } catch (Exception e) {
-//            log.info("MyServiceImpl auth throw ServiceException ... ",e);
+            log.info("MyServiceImpl auth throw ServiceException ... ",e);
             if(null != record){
                 record.setReqStatus(AlRespStatusEnum.PUSH_FAIL.getCode());
                 authRecordManager.updateIgnoreNull(record);
@@ -321,7 +321,7 @@ public class MyServiceImpl implements MyService {
     public BaseResponse recomCode(Long userId) {
         RecomCodeResultDto resultDto = new RecomCodeResultDto();
         Users users = usersService.getById(userId);
-        String url = String.format(registerUrl, users.getId());
+        String url = String.format(registerUrl, users.getCode());
 
         List<Config> list = configService.list(new QueryWrapper<Config>().eq("config_name", "share_image"));
         int i = new Random().nextInt(list.size());
@@ -375,7 +375,7 @@ public class MyServiceImpl implements MyService {
         for(Users u : firstUsers){
             MyTeamResultDto.User resultUser = new MyTeamResultDto.User();
             resultUser.setNickName(u.getNickname());
-            resultUser.setUserId(u.getId());
+            resultUser.setUserId(u.getCode().longValue());
             resultUsers.add(resultUser);
         }
         this.handleUserNum(firstUsers,firstValidNum,firstInvalidNum);
