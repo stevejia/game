@@ -31,6 +31,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,14 +73,23 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 
 	@Override
 	public List<PigAwardLogPageDto> queryPigGoodsSummary(PigAwardLogPageDto dto) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		Long drawTimeMilli = LocalDateTime.parse(dto.getDrawTime(), formatter).toInstant(ZoneOffset.of("+8"))
+				.toEpochMilli() / 1000;
 		List<PigAwardLog> list = awardLogMapper
-				.selectList(new QueryWrapper<PigAwardLog>().ge("change_time", DateUtil.getDay(dto.getDrawTime())));
-		List<PigGoods> pigGoodsList = goodsService.list();
+				.selectList(new QueryWrapper<PigAwardLog>().ge("change_time", drawTimeMilli));
+		List<PigGoods> pigGoodsList = goodsService.list(new QueryWrapper<PigGoods>().eq("is_display", 1));
 		List<PigReservation> pigReservationList = reservationService
-				.list(new QueryWrapper<PigReservation>().ge("reservation_time", DateUtil.getDay(dto.getDrawTime())));
-		List<UserExclusivePig> userExclusivePigDTOList = userExclusivePigService
-				.list(new QueryWrapper<UserExclusivePig>().eq("is_able_sale", 1).eq("is_pig_lock", 0));
+				.list(new QueryWrapper<PigReservation>().ge("reservation_time", drawTimeMilli));
+
+		List<UserExclusivePig> userAllPigList = userExclusivePigService
+				.list(new QueryWrapper<UserExclusivePig>().eq("is_pig_lock", 0));
+//		List<UserExclusivePig> userExclusivePigDTOList = userExclusivePigService
+//				.list(new QueryWrapper<UserExclusivePig>().eq("is_able_sale", 1).eq("is_pig_lock", 0));
+		List<UserExclusivePig> userExclusivePigDTOList = userAllPigList.stream().filter(pig -> pig.getIsAbleSale() == 1)
+				.collect(Collectors.toList());
 		List<PigAwardLogPageDto> pigAwardLogPageList = new ArrayList<PigAwardLogPageDto>();
+
 		pigGoodsList.forEach(pigGoods -> {
 			Long pigGoodsId = pigGoods.getId();
 			PigAwardLog pigAwardLog = null;
@@ -89,10 +102,12 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 
 			List<PigReservation> matchedPigReservationList = pigReservationList.stream()
 					.filter(pr -> pr.getPigId() == pigGoodsId).collect(Collectors.toList());
+			List<UserExclusivePig> matchedUserAllExclusivePigDTOList = userAllPigList.stream()
+					.filter(uep -> uep.getPigId() == pigGoodsId).collect(Collectors.toList());
 			List<UserExclusivePig> matchedUserExclusivePigDTOList = userExclusivePigDTOList.stream()
 					.filter(uep -> uep.getPigId() == pigGoodsId).collect(Collectors.toList());
 			PigAwardLogPageDto newDto = convertResultDto(pigAwardLog, pigGoods, matchedPigReservationList,
-					matchedUserExclusivePigDTOList);
+					matchedUserExclusivePigDTOList, matchedUserAllExclusivePigDTOList);
 			pigAwardLogPageList.add(newDto);
 		});
 
@@ -101,7 +116,7 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 
 	@SneakyThrows
 	public PigAwardLogPageDto convertResultDto(PigAwardLog pigAwardLog, PigGoods goods, List<PigReservation> pigResList,
-			List<UserExclusivePig> uepList) {
+			List<UserExclusivePig> uepList, List<UserExclusivePig> uaepList) {
 		PigAwardLogPageDto dto = new PigAwardLogPageDto();
 		// 全部参与人数
 		int robPerson = 0;
@@ -134,9 +149,17 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 		dto.setClickPerson(clickPigResList.size());
 
 		dto.setCanSalePig(uepList.size());
+		dto.setAllPig(uaepList.size());
 		dto.setGoodsName(goods.getGoodsName());
 		dto.setPigId(goods.getId().intValue());
 		dto.setDrawTime(DateUtils.format(goods.getEndTime(), DateUtils.DEFAULT_DATE_TIME_FORMAT));
+		dto.setSmallPrice(goods.getSmallPrice());
+		dto.setLargePrice(goods.getLargePrice());
+
+		dto.setReservation(goods.getReservation());
+		dto.setAdoptiveEnergy(goods.getAdoptiveEnergy());
+		dto.setContractDays(goods.getContractDays());
+		dto.setIncomeRatio(goods.getIncomeRatio());
 		return dto;
 	}
 

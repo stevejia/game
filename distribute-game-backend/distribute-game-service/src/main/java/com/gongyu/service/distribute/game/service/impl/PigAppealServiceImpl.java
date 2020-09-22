@@ -139,12 +139,13 @@ public class PigAppealServiceImpl extends CrudServiceSupport<PigAppealMapper, Pi
         appeal.setStatus(appeal.getStatus());
 
         if (AppealStatusEnum.APPEAL_PASS.getCode() == pigAppeal.getStatus()) {
+        	//买家申诉
             if (1 == pigAppeal.getComplainant().intValue()) {
                 pig.setUserId(pigAppeal.getUserId());
                 order.setPayStatus(PayStatusEnum.SUCCESS.getCode());
                 order.setBuyConfirmStatus(CommEnum.TRUE.getCode());
                 order.setSellConfirmStatus(CommEnum.TRUE.getCode());
-            } else {
+            } else { //卖家申诉成功
                 pig.setUserId(pigAppeal.getUserId());
                 pig.setIsAbleSale(SaleStatusEnum.TRUE.getCode());
 
@@ -155,11 +156,14 @@ public class PigAppealServiceImpl extends CrudServiceSupport<PigAppealMapper, Pi
             }
             this.refeshTask(order);
         } else {
+        	//申诉的其他状态 重启订单
             if(1 == pigAppeal.getComplainant().intValue()){
                 order.setPayStatus(PayStatusEnum.PROCESSING.getCode());
             }else{
                 order.setPayStatus(PayStatusEnum.PROCESSING.getCode());
             }
+            //刷新订单确认的任务
+            this.refeshTask(order);
         }
         this.updateById(appeal);
         pigManager.update(pig);
@@ -169,7 +173,7 @@ public class PigAppealServiceImpl extends CrudServiceSupport<PigAppealMapper, Pi
     }
 
     /**
-     * 审核通过刷新取消订单时间，延长半小时
+     * 审核通过刷新取消订单时间，延长2小时
      *
      * @param order
      */
@@ -177,9 +181,9 @@ public class PigAppealServiceImpl extends CrudServiceSupport<PigAppealMapper, Pi
         DelayTask task = RedisUtils.get("task:order-" + order.getPigOrderSn());
         queueManager.remove(task);
         //删除老的延时取消订单，并重新计算延时时间加入一份新的取消订单的延时任务
-        task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER, 36000L);
+        task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER, 7200000L);
         queueManager.put(task);
         RedisUtils.remove("task:order-" + order.getPigOrderSn());
-        RedisUtils.set("task:order-" + order.getPigOrderSn(), task, 36000L);
+        RedisUtils.set("task:order-" + order.getPigOrderSn(), task, 7200000L);
     }
 }

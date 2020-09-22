@@ -1,6 +1,7 @@
 package com.gongyu.service.distribute.game.factory.orderModel;
 
 import com.alibaba.fastjson.JSON;
+import com.gongyu.service.distribute.game.common.enums.CommEnum;
 import com.gongyu.service.distribute.game.common.enums.LockStatusEnum;
 import com.gongyu.service.distribute.game.common.enums.OrderTypeEnum;
 import com.gongyu.service.distribute.game.common.enums.PayStatusEnum;
@@ -109,14 +110,17 @@ public class PayOrderProcess implements OrderModelServer<PayOrderReqDto> {
         order.setImgUrl(param.getPayCertUrl());
         order.setEndTime(DateUtil.getNowDate());
         order.setPayStatus(PayStatusEnum.SUCCESS.getCode());
+    	//用户付款后 更新订单的状态 默认用户确认付款
+        order.setBuyConfirmStatus(CommEnum.TRUE.getCode());
         orderService.updateById(order);
         //accountLogService.convertAndInsert(order.getUserId(), new BigDecimal(String.valueOf(order.getPigPrice())).negate(), new BigDecimal("0"), 0, new BigDecimal("0"), IncomeTypeEnum.PAY.getDesc(), IncomeTypeEnum.PAY, order.getPigId(), "", null);
         ThreadLocalUtil.remove("order");
-        Users byId = usersService.getById(order.getSellUserId());
+        //新系统不需要短信提醒功能
+//        Users byId = usersService.getById(order.getSellUserId());
         //  发送短信
-        if (byId != null) {
-            sysSmsFpi.sendSms(byId.getMobile(), "【航海世界】尊敬的用户，您的订单有新动态，请尽快审核");
-        }
+//        if (byId != null) {
+//            sysSmsFpi.sendSms(byId.getMobile(), "【航海世界】尊敬的用户，您的订单有新动态，请尽快审核");
+//        }
         return BaseResponse.success();
     }
 

@@ -64,9 +64,9 @@ public class CancelOrderListener implements ApplicationListener<DelayQueueEvent>
                     log.info("订单超时取消订单监听器 onApplicationEvent 该订单已冻结 order:{}",JSON.toJSONString(order));
                     queueManager.remove(task);
                     //删除老的延时取消订单，并重新计算延时时间加入一份新的取消订单的延时任务
-                    task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER,30000L);// TODO: 2020/6/23 测试时间
+                    task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER,7200000L);// TODO: 2020/6/23 测试时间
                     queueManager.put(task);
-                    RedisUtils.set("task:order-"+order.getPigOrderSn(),task,36000L);
+                    RedisUtils.set("task:order-"+order.getPigOrderSn(),task,7200000L);
                 }else{
                     if(lock.tryLock()){
                         try{
@@ -104,18 +104,23 @@ public class CancelOrderListener implements ApplicationListener<DelayQueueEvent>
     public void processTask(PigOrder order){
         order.setEndTime(DateUtil.getNowDate());
         UserExclusivePig pig = pigManager.findById(order.getPigId());
-        if(PayStatusEnum.SUCCESS.getCode() == order.getPayStatus() && order.getSellConfirmStatus() == CommEnum.FALSE.getCode()){
-            order.setPayStatus(PayStatusEnum.SUCCESS.getCode());
-            pig.setIsAbleSale(SaleStatusEnum.FALSE.getCode());
-            pig.setAppointUserId(null);
-            pig.setOrderId(order.getOrderId());
-            pig.setIsPigLock(LockStatusEnum.NOT_LOCK.getCode());
-            pigManager.update(pig);
-            //精灵归属方获取一枚pig币
-            Long buyUserId = order.getPurchaseUserId();
-            Users users = usersService.getById(buyUserId);
-            users.setPigCurrency(users.getPigCurrency() + 1);
-            usersService.updateById(users);
+        //买方已付款
+        if(PayStatusEnum.SUCCESS.getCode() == order.getPayStatus()){
+        	//买方已付款 未确认时
+        	if(order.getSellConfirmStatus() == CommEnum.FALSE.getCode()) {
+        		order.setPayStatus(PayStatusEnum.SUCCESS.getCode());
+                order.setSellConfirmStatus(CommEnum.TRUE.getCode());
+                pig.setIsAbleSale(SaleStatusEnum.FALSE.getCode());
+                pig.setAppointUserId(null);
+                pig.setOrderId(order.getOrderId());
+                pig.setIsPigLock(LockStatusEnum.NOT_LOCK.getCode());
+                pigManager.update(pig);
+                //精灵归属方获取一枚pig币
+                Long buyUserId = order.getPurchaseUserId();
+                Users users = usersService.getById(buyUserId);
+                users.setPigCurrency(users.getPigCurrency() + 1);
+                usersService.updateById(users);
+        	}
         }else{
             order.setPayStatus(PayStatusEnum.TRAN_TIMEOUT.getCode());
 

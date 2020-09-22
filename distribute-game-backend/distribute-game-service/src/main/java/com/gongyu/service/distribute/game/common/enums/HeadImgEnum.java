@@ -12,7 +12,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum HeadImgEnum {
 
-    URL("http://bucket-gongyu.oss-cn-hangzhou.aliyuncs.com/root/4402b65324e7410f8ff32de79c76f9c4.png");
+    URL("http://qmyl-bucket.oss-cn-hongkong.aliyuncs.com/root/touxiang.jpg");
 
     String imgUrl;
 }

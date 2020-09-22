@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -38,5 +39,22 @@ public class PigAwardLogPageDto extends PigAwardLogModifyDto{
     
     @ApiModelProperty(value = "当天可售出的产品数量",dataType = "Integer")
     private Integer canSalePig;
+    
+    @ApiModelProperty(value = "当前木材可售出的产品数量",dataType = "Integer")
+    private Integer allPig;
+    
+    @ApiModelProperty(value = "最小价值", dataType = "BigDecimal")
+    private BigDecimal smallPrice;
+    @ApiModelProperty(value = "最大价值", dataType = "BigDecimal")
+    private BigDecimal largePrice;
+    
+    @ApiModelProperty(value = "预约数量", dataType = "Integer")
+    private Integer reservation;
+    @ApiModelProperty(value = "领养（抢）能量", dataType = "Integer")
+    private Integer adoptiveEnergy;
+    @ApiModelProperty(value = "合约收益天数", dataType = "Integer")
+    private Integer contractDays;
+    @ApiModelProperty(value = "合约收益比例", dataType = "BigDecimal")
+    private BigDecimal incomeRatio;
 
 }

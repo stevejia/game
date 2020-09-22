@@ -96,7 +96,7 @@ public class DelayQueueManager implements CommandLineRunner {
                 put(task);
             }else if(DelayTaskEnum.CANCEL_ORDER.getCode().intValue() == task.getData().getTaskType().intValue()){
                 PigOrder order = (PigOrder)task.getData().getData();
-                task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER,1800000L);// TODO: 2020/6/23 暂时固定时间 18000
+                task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER,7200000L);// TODO: 2020/6/23 暂时固定时间 18000
                 put(task);
             }
             log.info("加入到队列成功：{}", JSON.toJSONString(task));
