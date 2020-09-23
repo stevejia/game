@@ -391,6 +391,8 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		if(inviteUser == null) {
 			throw new BizException("推荐人ID不存在");
 		}
+		//将firstLeader的值Code 改成用户ID
+		memberLoginRequestDto.setFirstLeader(inviteUser.getId().intValue());
 		// 俩次密码校验
 		if (!memberLoginRequestDto.getPassword().equals(memberLoginRequestDto.getOncePassword())) {
 			throw new BizException("请输入相同的【登录密码】");

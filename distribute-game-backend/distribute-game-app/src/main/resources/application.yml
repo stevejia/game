@@ -48,6 +48,6 @@ game:
     notCheck: /version/query,/aliyunFile/upload,/aliyunFile/batchUpload,/share/regist
 
 #订单未支付超时时间
-order_time_out: 1800000
+order_time_out: 7200000
 #注册地址+邀请码
 register_url: http://app.qmyl8888.com/#/register?inviteCode=%s

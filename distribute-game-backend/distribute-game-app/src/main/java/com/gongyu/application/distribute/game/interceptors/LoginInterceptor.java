@@ -35,6 +35,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         log.info("请求地址>>>>>>>>>>>" + request.getServletPath());
         log.info("访问路径:{}", request.getServletPath());
+        
+        if(request.getServletPath().contains("websocket")) {
+        	return true;
+        }
         if (debug) {
             log.info("调试模式,登录用户:{}", 2012);
             WebUtils.setCurrentUserId(2110L);

@@ -153,7 +153,7 @@ public class WebSocketServerController {
 		Date zero = calendar.getTime();
 		Long startTime = zero.getTime() / 1000;
 		List<PigOrder> pigOrders = pigOrderService.list(new QueryWrapper<PigOrder>().ge("establish_time", startTime));
-		log.info(message);
+
 		for (WebSocketServerController item : webSocketSet) {
 			try {
 				Users user = (Users) CollectionUtils.find(allUsers,
@@ -161,21 +161,22 @@ public class WebSocketServerController {
 
 				Long userId = user.getId();
 				// 获取需要付款的记录
-				List<PigOrder> userShouldPayPigOrders = pigOrders.stream()
-						.filter(order -> order.getPurchaseUserId() == userId
-								&& order.getPayStatus() == PayStatusEnum.PROCESSING.getCode())
-						.collect(Collectors.toList());
+				List<PigOrder> userShouldPayPigOrders = pigOrders.stream().filter(order -> {
+					return userId.equals(order.getPurchaseUserId())
+							&& order.getPayStatus() == PayStatusEnum.PROCESSING.getCode();
+				}).collect(Collectors.toList());
 				// 获取需要确认的记录
-				List<PigOrder> userShouldConfirmOrders = pigOrders.stream()
-						.filter(order -> order.getSellUserId() == userId
-								&& order.getPayStatus() == PayStatusEnum.SUCCESS.getCode()
-								&& order.getSellConfirmStatus() == CommEnum.FALSE.getCode())
-						.collect(Collectors.toList());
+				List<PigOrder> userShouldConfirmOrders = pigOrders.stream().filter(order -> {
+					return userId.equals(order.getSellUserId())
+							&& order.getPayStatus() == PayStatusEnum.SUCCESS.getCode()
+							&& order.getSellConfirmStatus() == CommEnum.FALSE.getCode();
+				}).collect(Collectors.toList());
 
 				JSONObject json = new JSONObject();
 				json.put("shouldPayOrderCount", userShouldPayPigOrders.size());
 				json.put("shouldConfirmOrderCount", userShouldConfirmOrders.size());
 				json.put("allCount", userShouldConfirmOrders.size() + userShouldPayPigOrders.size());
+				log.info("当天的订单数" + pigOrders.size() + json.toString());
 				item.sendMessage(json.toString());
 			} catch (IOException e) {
 				continue;
