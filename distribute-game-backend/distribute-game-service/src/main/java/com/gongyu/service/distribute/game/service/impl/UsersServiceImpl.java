@@ -342,7 +342,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		user.setLastLoginTime(DateUtils.currentDate().getTime());
 		this.updateById(user);
 		MemberLoginResponseDto build = MemberLoginResponseDto.builder().mobile(user.getMobile()).token(user.getToken())
-				.userId(Long.valueOf(user.getId())).build();
+				.userId(Long.valueOf(user.getId())).code(user.getCode()).build();
 		return build;
 	}
 
@@ -353,10 +353,11 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		// 设置登录token 如果为空则未登录
 		user.setToken(MD5.getMD5Code(String.valueOf(DateUtils.currentDate().getTime())));
 		user.setLastLoginTime(DateUtils.currentDate().getTime());
+		
 		WebUtils.setCurrentUserId(user.getId());
 		this.updateById(user);
 		MemberLoginResponseDto build = MemberLoginResponseDto.builder().mobile(user.getMobile()).token(user.getToken())
-				.userId(Long.valueOf(user.getId())).build();
+				.userId(Long.valueOf(user.getId())).code(user.getCode()).build();
 		return build;
 	}
 

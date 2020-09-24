@@ -19,7 +19,8 @@ public class MemberLoginResponseDto {
     private String token;
     @ApiModelProperty(value = "手机号")
     private String mobile;
-
+    @ApiModelProperty(value = "会员编号")
+    private Integer code;
     @Tolerate
     public MemberLoginResponseDto() {
     }
