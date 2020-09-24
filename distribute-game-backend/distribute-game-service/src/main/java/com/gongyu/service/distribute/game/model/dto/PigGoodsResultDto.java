@@ -66,7 +66,7 @@ public class PigGoodsResultDto extends BaseEntity implements Comparable<PigGoods
     private Integer probability;
     @ApiModelProperty(value = "金额分类ID", dataType = "Integer")
     private Integer moneyCategoryId;
-    @ApiModelProperty(value = "可分裂精灵数量", dataType = "Integer")
+    @ApiModelProperty(value = "可分裂木材数量", dataType = "Integer")
     private Integer splitNum;
 
     @ApiModelProperty(value = "状态：1 修炼中，2 预约，3 抢购 4 已预约 5 暂未开放 6 待领养")

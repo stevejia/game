@@ -23,7 +23,7 @@ public class InitDataController {
     @Autowired
     private PigGoodsService goodsService;
 
-    @ApiOperation(value = "精灵列表",response = PigGoods.class)
+    @ApiOperation(value = "木材列表",response = PigGoods.class)
     @PostMapping(value = "initGoodsList")
     public BaseResponse initGoodsList(){
         return BaseResponse.success(goodsService.list());

@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class DestoryPigReqDto {
 
-    @ApiModelProperty(value = "精灵实例的ID")
-    @NotNull(message = "精灵实例ID不能为空")
+    @ApiModelProperty(value = "木材实例的ID")
+    @NotNull(message = "木材实例ID不能为空")
     private Long id;
 
     @ApiModelProperty(value = "备注")

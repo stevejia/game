@@ -106,7 +106,7 @@ public class PigOrderManager {
         List<PigOrder> orders = new ArrayList<>();
         List<UserExclusivePig> dealerPigs = new ArrayList<>();
         List<Long> dealerUsers = new ArrayList<>();
-        //找出所有被指定过的精灵
+        //找出所有被指定过的木材
         Iterator<UserExclusivePig> iterator = pigs.iterator();
         while (iterator.hasNext()){
             UserExclusivePig next = iterator.next();

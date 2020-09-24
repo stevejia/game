@@ -32,7 +32,7 @@ public class SellRecord extends BaseEntity {
    */
   private Date sellDate;
   /**
-   * 生成开奖精灵：0未生成  1已生成
+   * 生成开奖木材：0未生成  1已生成
    */
   private Integer status;
 

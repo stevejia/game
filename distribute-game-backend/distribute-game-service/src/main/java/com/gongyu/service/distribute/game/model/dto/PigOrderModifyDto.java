@@ -50,7 +50,7 @@ public class PigOrderModifyDto{
     @ApiModelProperty(value = "购买人手机号",dataType = "String")
     private String purchasePhone;
 
-    @ApiModelProperty(value = "精灵名称",dataType = "String")
+    @ApiModelProperty(value = "木材名称",dataType = "String")
     private String goodsName;
 
 }

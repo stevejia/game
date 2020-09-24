@@ -59,12 +59,12 @@ public class UserExclusivePigDeleteServiceImpl extends CrudServiceSupport<UserEx
     public BaseResponse destoryPig(DestoryPigReqDto param) {
         UserExclusivePig exclusivePig = userExclusivePigService.getById(param.getId());
         if(null == exclusivePig){
-            log.warn("销毁精灵警告 destoryPig exclusivePig is null pigId:{}",param.getId());
-            throw new BizException("没有对应精灵实例");
+            log.warn("销毁木材警告 destoryPig exclusivePig is null pigId:{}",param.getId());
+            throw new BizException("没有对应木材实例");
         }
         UserExclusivePigDelete pigDeleteDB = pigDeleteManager.convert(exclusivePig,param.getRemark());
         Long insertId = pigDeleteManager.insert(pigDeleteDB);
-        log.info("销毁精灵 添加销毁精灵实例成功 pigId:{},insertId:{}",param.getId(),insertId);
+        log.info("销毁木材 添加销毁木材实例成功 pigId:{},insertId:{}",param.getId(),insertId);
         userExclusivePigService.removeById(param.getId());
         return BaseResponse.success("销毁成功");
     }

@@ -124,7 +124,7 @@ public class UserExclusivePigManager {
     }
 
     /**
-     * 精灵分裂
+     * 木材分裂
      */
     public List<UserExclusivePig> splitPig(UserExclusivePig pig,PigGoods maxPriceGoods){
         List<UserExclusivePig> splitPigs = new ArrayList<>();
@@ -138,15 +138,15 @@ public class UserExclusivePigManager {
         PigGoods goods = list.stream()
                 .filter(item -> item.getSmallPrice().compareTo(pigPrice) < 1 && item.getLargePrice().compareTo(pigPrice) > 0)
                 .findFirst()
-                .orElseThrow(() -> new BizException("没有找到对应精灵"));
-        //根据价格查看在哪个精灵区间
+                .orElseThrow(() -> new BizException("没有找到对应木材"));
+        //根据价格查看在哪个木材区间
         for(int i = 0; i < Integer.valueOf(config.getConfigValue()); i ++){
             Date endDate = DateUtil.addDate(DateUtil.getDate(DateUtil.getNowDate()), goods.getContractDays());
             UserExclusivePig exclusivePig = this.convert(pig.getUserId(), goods.getId(), SaleStatusEnum.FALSE, pigPrice, 0L, 0L, DateUtil.getNowDate(), DateUtil.getDate(endDate), BuyTypeEnum.PIG_SPLIT.getDesc(), pig.getNowContractDays(), goods.getIncomeRatio(), LockStatusEnum.NOT_LOCK);
             exclusivePig.setPigDelId(insertId);
             this.insert(exclusivePig);
 
-            // TODO: 2020/6/30 如若允许出售收益价格为分裂价格 ，此处当添加完毕精灵后需要创建一笔已完成订单。
+            // TODO: 2020/6/30 如若允许出售收益价格为分裂价格 ，此处当添加完毕木材后需要创建一笔已完成订单。
             splitPigs.add(exclusivePig);
         }
         pig.setIsPigLock(LockStatusEnum.LOCK.getCode());
@@ -155,7 +155,7 @@ public class UserExclusivePigManager {
     }
 
     /**
-     * 将出售的推广收入转化为精灵并添加到开奖精灵中
+     * 将出售的推广收入转化为木材并添加到开奖木材中
      * @param exclusivePigs
      * @return
      */
@@ -179,7 +179,7 @@ public class UserExclusivePigManager {
             pig.setOrderId(insertOrder.getOrderId());
             pigMapper.updateById(pig);
 
-            //精灵是否分裂 暂不允许出售价值超过最大精灵的价值，防止出售时进行分裂无法绑定订单号
+            //木材是否分裂 暂不允许出售价值超过最大木材的价值，防止出售时进行分裂无法绑定订单号
             if(pig.getPrice().compareTo(maxPriceGoods.getLargePrice()) > 0){
                 splitPigs = ((UserExclusivePigManager)AopContext.currentProxy()).splitPig(pig, maxPriceGoods);
             }

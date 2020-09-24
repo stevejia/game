@@ -16,62 +16,62 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("userExclusivePig")
-@Api(tags = "精灵实例管理")
+@Api(tags = "木材实例管理")
 public class UserExclusivePigController {
 
     @Autowired
     private UserExclusivePigService userExclusivePigService;
 
-    @ApiOperation(value = "【精灵实例管理】列表", notes = "【精灵实例管理】列表", response = UserExclusivePig.class)
+    @ApiOperation(value = "【木材实例管理】列表", notes = "【木材实例管理】列表", response = UserExclusivePig.class)
     @PostMapping("queryUserExclusivePig")
     public BaseResponse queryUserExclusivePig(Page page, PigPageReqDto param) {
         return BaseResponse.success(userExclusivePigService.queryUserExclusivePig(page,param));
     }
 
-    @ApiOperation(value = "【精灵实例管理】详情", notes = "【精灵实例管理】详情", response = UserExclusivePig.class)
+    @ApiOperation(value = "【木材实例管理】详情", notes = "【木材实例管理】详情", response = UserExclusivePig.class)
     @PostMapping("getUserExclusivePig")
     public BaseResponse getUserExclusivePig(@ApiParam(value = "id", required = true) @RequestParam()Long id) {
         return BaseResponse.success(userExclusivePigService.getById(id));
     }
 
-    @ApiOperation(value = "【精灵实例管理】添加", notes = "【精灵实例管理】添加")
+    @ApiOperation(value = "【木材实例管理】添加", notes = "【木材实例管理】添加")
     @PostMapping("saveUserExclusivePig")
-    @SysUserLog(module = "精灵实例管理", action = "添加")
+    @SysUserLog(module = "木材实例管理", action = "添加")
     public BaseResponse saveUserExclusivePig(@Valid @ModelAttribute UserExclusivePigSaveDto userExclusivePigSaveDto) {
         userExclusivePigService.saveUserExclusivePig(userExclusivePigSaveDto);
         return BaseResponse.success("添加成功");
     }
 
-    @ApiOperation(value = "【精灵实例管理】修改", notes = "【精灵实例管理】修改")
+    @ApiOperation(value = "【木材实例管理】修改", notes = "【木材实例管理】修改")
     @PostMapping("modifyUserExclusivePig")
-    @SysUserLog(module = "精灵实例管理", action = "修改")
+    @SysUserLog(module = "木材实例管理", action = "修改")
     public BaseResponse modifyUserExclusivePig(@Valid @ModelAttribute UserExclusivePigModifyDto userExclusivePigModifyDto) {
         userExclusivePigService.modifyUserExclusivePig(userExclusivePigModifyDto);
         return BaseResponse.success("修改成功");
     }
 
-    @ApiOperation(value = "【精灵实例管理】删除", notes = "【精灵实例管理】删除")
+    @ApiOperation(value = "【木材实例管理】删除", notes = "【木材实例管理】删除")
     @PostMapping("deleteUserExclusivePig")
-    @SysUserLog(module = "精灵实例管理", action = "删除")
+    @SysUserLog(module = "木材实例管理", action = "删除")
     public BaseResponse deleteUserExclusivePig(@ApiParam(value = "id", required = true) @RequestParam()Long id) {
         userExclusivePigService.removeById(id);
         return BaseResponse.success("删除成功");
     }
 
-    @ApiOperation(value = "【精灵实例管理-今日开抢】今日开奖列表", notes = "【精灵实例管理-今日开抢】今日开奖列表", response = UserExclusivePigDTO.class)
+    @ApiOperation(value = "【木材实例管理-今日开抢】今日开奖列表", notes = "【木材实例管理-今日开抢】今日开奖列表", response = UserExclusivePigDTO.class)
     @PostMapping("prizeToday")
     public BaseResponse prizeToday(Page page, PrizeTodayReqDto param){
         return BaseResponse.success(userExclusivePigService.prizeToday(page,param));
     }
 
-    @ApiOperation(value = "【精灵实例管理-今日开抢】修改价格", notes = "【精灵实例管理-今日开抢】修改价格")
+    @ApiOperation(value = "【木材实例管理-今日开抢】修改价格", notes = "【木材实例管理-今日开抢】修改价格")
     @PostMapping("updatePrice")
     public BaseResponse updatePrice(PigUpdatePriceReqDto param){
         userExclusivePigService.updatePrice(param);
         return BaseResponse.success();
     }
 
-    @ApiOperation(value = "【精灵实例管理-今日开抢】指定用户ID", notes = "【精灵实例管理-今日开抢】指定用户ID")
+    @ApiOperation(value = "【木材实例管理-今日开抢】指定用户ID", notes = "【木材实例管理-今日开抢】指定用户ID")
     @PostMapping("updateAppointUserId")
     public BaseResponse updateAppointUserId(PigUpdateUserIdReqDto param){
         userExclusivePigService.updateAppointUserId(param);

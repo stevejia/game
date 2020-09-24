@@ -74,7 +74,7 @@ public class SysHandselProcess implements OrderModelServer<FreePigGoodsReqDto>{
                 .filter(item -> BigDecimalUtil.compare(item.getSmallPrice(),item.getLargePrice(), param.getGoodPrice()))
                 .findFirst()
                 .orElse(null);
-        Assert.notNull(goods,"赠送价格不在现有精灵区间");
+        Assert.notNull(goods,"赠送价格不在现有木材区间");
         List<UserExclusivePig> pigs = convertPig(param, goods);
         exclusivePigManager.insertForeach(pigs);
         ThreadLocalUtil.set("pig",pigs);
@@ -91,7 +91,7 @@ public class SysHandselProcess implements OrderModelServer<FreePigGoodsReqDto>{
             order.setBuyConfirmStatus(CommEnum.TRUE.getCode());
             orderManager.insert(order);
             order = orderManager.getByOrderNo(order.getPigOrderSn());
-            //为精灵实例绑定订单ID
+            //为木材实例绑定订单ID
             pig.setOrderId(order.getOrderId());
         }
 

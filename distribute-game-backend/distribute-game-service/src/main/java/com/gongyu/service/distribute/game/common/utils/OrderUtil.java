@@ -30,10 +30,12 @@ public class OrderUtil {
         try{
             rLock.lock();
             String orderNo = DateUtils.format(new Date(), DateUtils.DEFAULT_LONG_DATE_FORMAT + "SSS");
+            Long intOrderNo = Long.parseLong(orderNo) * 100;
             Random r = new Random(1);
-            int i = r.nextInt(10);
-            orderNo = orderNo + i;
-            return orderNo;
+            int i = r.nextInt(10000);
+            intOrderNo +=i;
+//            orderNo = orderNo + i;
+            return Long.toString(intOrderNo);
         }finally {
             rLock.unlock();
         }

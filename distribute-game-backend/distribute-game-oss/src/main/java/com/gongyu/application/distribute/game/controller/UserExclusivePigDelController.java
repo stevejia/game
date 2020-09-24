@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("userExclusivePigDel")
-@Api(tags = "裂变精灵管理")
+@Api(tags = "裂变木材管理")
 public class UserExclusivePigDelController {
 
     @Autowired
     private UserExclusivePigDelService delService;
 
-    @ApiOperation(value = "裂变精灵 - 列表",notes = "裂变精灵 - 列表",response = UserExclusivePigDelDTO.class)
+    @ApiOperation(value = "裂变木材 - 列表",notes = "裂变木材 - 列表",response = UserExclusivePigDelDTO.class)
     @PostMapping("findPage")
     public BaseResponse findPage(Page page, PigDelPageReqDto param){
         return BaseResponse.success(delService.findPage(page,param));

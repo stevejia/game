@@ -99,7 +99,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
     public BaseResponse reservat(ReservatDto param) {
         Long awardId = null;
         PigGoods goods = goodsService.getById(param.getGoodsId());
-        Assert.notNull(goods, "没有找到对应精灵");
+        Assert.notNull(goods, "没有找到对应木材");
         Date nowDate = DateUtils.parse(DateUtils.format(DateUtils.currentDate(), DateUtils.DEFAULT_TIME_FORMAT), DateUtils.DEFAULT_TIME_FORMAT);
         Date resDate = DateUtils.parse(DateUtils.format(goods.getStartTime(), DateUtils.DEFAULT_TIME_FORMAT), DateUtils.DEFAULT_TIME_FORMAT);
         if (resDate.before(nowDate)) {
@@ -115,11 +115,11 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
             return BaseResponse.error("还没做实名认证");
         }
 
-        boolean b = usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getReservation(), 2, "预约精灵", IncomeTypeEnum.RESERVAT);
+        boolean b = usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getReservation(), 2, "预约木材", IncomeTypeEnum.RESERVAT);
         if (!b) {
             return BaseResponse.error("积分不足");
         }
-        //找到该精灵的下一场次
+        //找到该木材的下一场次
         PigAwardLog awardLog = awardLogService.getOne(new QueryWrapper<PigAwardLog>().eq("open_result", CommEnum.FALSE.getCode()).eq("pig_id", param.getGoodsId()));
         if (null == awardLog) {
             //初始化中奖记录
@@ -146,7 +146,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
     public BaseResponse robProducts(RobProductsDto param) {
         Set<Long> users;
         PigGoods goods = goodsService.getById(param.getPigId());
-        Assert.notNull(goods, "没有找到对应精灵");
+        Assert.notNull(goods, "没有找到对应木材");
         Date nowDate = DateUtils.parse(DateUtils.format(DateUtils.currentDate(), DateUtils.DEFAULT_TIME_FORMAT), DateUtils.DEFAULT_TIME_FORMAT);
         Date resDate = DateUtils.parse(DateUtils.format(goods.getEndTime(), DateUtils.DEFAULT_TIME_FORMAT), DateUtils.DEFAULT_TIME_FORMAT);
         if (resDate.before(nowDate)) {
@@ -186,7 +186,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
         RedisUtils.set("robProduct:" + param.getPigId(), users);
         //扣除积分
         if (null == reservation) {
-            usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getAdoptiveEnergy(), 2, "抢购精灵", IncomeTypeEnum.PANIC_BUY);
+            usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getAdoptiveEnergy(), 2, "抢购木材", IncomeTypeEnum.PANIC_BUY);
         } else {
             reservation.setIsClickBuy(IsClickBuyEnum.TRUE.getCode());
             reservationService.updateById(reservation);
@@ -236,7 +236,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 //        if(CommEnum.FALSE.getCode() == goods.getGameOpenType().intValue()){
         String nowDate = DateUtils.format(new Date(), DateUtils.DEFAULT_DATE_FORMAT);
         exetime = nowDate + StringUtils.SPACE + DateUtils.format(goods.getEndTime(), DateUtils.DEFAULT_TIME_FORMAT);
-        log.info("找到精灵开奖时间 一 goods:{}，exetTime:{}", goods.getId(), exetime);
+        log.info("找到木材开奖时间 一 goods:{}，exetTime:{}", goods.getId(), exetime);
         Date date = DateUtils.parse(exetime, DateUtils.DEFAULT_DATE_TIME_FORMAT);
         if (date.before(new Date())) {
             //把日期往后增加一天
@@ -247,7 +247,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
         //一天开奖两次
 //        if(CommEnum.TRUE.getCode() == goods.getGameOpenType().intValue()){
 //            exetime = this.openDate(goods);
-//            log.info("找到精灵开奖时间 二 goods:{}，exetTime:{}",goods.getId(),exetime);
+//            log.info("找到木材开奖时间 二 goods:{}，exetTime:{}",goods.getId(),exetime);
 //            Date date = DateUtils.parse(exetime, DateUtils.DEFAULT_DATE_TIME_FORMAT);
 //            if(date.before(new Date())){
 //                //把日期往后增加一天
@@ -307,7 +307,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
      *
      * @param userId
      * @param awardId 场次ID
-     * @param goods   精灵
+     * @param goods   木材
      * @return
      */
     public PigReservation convert(Long userId, Long awardId, PigGoods goods) {

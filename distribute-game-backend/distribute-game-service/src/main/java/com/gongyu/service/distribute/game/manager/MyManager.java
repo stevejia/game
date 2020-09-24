@@ -37,7 +37,7 @@ public class MyManager {
     public AdoptRecordDto convertAdoptResult(PigOrder order, PigGoods goods, UserExclusivePig pig){
         AdoptRecordDto dto = new AdoptRecordDto();
         dto.setOrderNo(null == order ? StringUtils.EMPTY : order.getPigOrderSn());
-        //分裂精灵没有对应订单，给一个默认成功的
+        //分裂木材没有对应订单，给一个默认成功的
         dto.setOrderStatus(null == order ? PayStatusEnum.SUCCESS.getCode() : order.getPayStatus());
         dto.setBuyComfirm(null == order ? CommEnum.TRUE.getCode() : order.getBuyConfirmStatus());
         dto.setSellComfirm(null == order ? CommEnum.TRUE.getCode() : order.getSellConfirmStatus());

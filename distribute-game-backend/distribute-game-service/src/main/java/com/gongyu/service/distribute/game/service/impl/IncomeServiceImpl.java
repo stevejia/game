@@ -62,19 +62,19 @@ public class IncomeServiceImpl implements IncomeService {
             if(day < 1){
                 continue;
             }
-            //计算精灵收益
+            //计算木材收益
             PigOrder order = orderService.getOne(new QueryWrapper<PigOrder>().eq("pig_id", pig.getId()));
             if(null == order){
                 continue;
             }
             BigDecimal incom = this.calcuPigIncom(pig.getPigId(), order.getPigPrice());
 //            conIncome = conIncome.add(incom);
-            //精灵合约是否到期
+            //木材合约是否到期
             if(!DateUtil.before(DateUtils.format(DateUtil.getDate(pig.getEndTime()),DateUtils.DEFAULT_DATE_TIME_FORMAT))){
                 pig.setIsAbleSale(SaleStatusEnum.TRUE.getCode());
             }
             pig.setPrice(pig.getPrice().add(incom));
-            //精灵是否分裂
+            //木材是否分裂
             if(pig.getPrice().compareTo(maxPriceGoods.getLargePrice()) > 0){
                 pigManager.splitPig(pig,maxPriceGoods);
             }
@@ -175,8 +175,8 @@ public class IncomeServiceImpl implements IncomeService {
 
     /**
      * 计算pig合约收益
-     * @param pigId 精灵ID
-     * @param price 精灵现在价格
+     * @param pigId 木材ID
+     * @param price 木材现在价格
      * @return
      */
     public BigDecimal calcuPigIncom(Long pigId,BigDecimal price){

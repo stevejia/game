@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 @Data
 public class PigUpdatePriceReqDto {
 
-    @ApiModelProperty(value = "精灵实例ID", dataType = "Long", required = true)
-    @NotNull(message = "精灵ID不能为空")
+    @ApiModelProperty(value = "木材实例ID", dataType = "Long", required = true)
+    @NotNull(message = "木材ID不能为空")
     private Long id;
 
     @ApiModelProperty(value = "金额", dataType = "BigDecimal")

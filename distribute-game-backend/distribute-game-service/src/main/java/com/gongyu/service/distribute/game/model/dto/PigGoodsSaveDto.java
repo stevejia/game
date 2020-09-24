@@ -61,7 +61,7 @@ public class PigGoodsSaveDto{
     @ApiModelProperty(value = "可挖DOGE数量", dataType = "Integer")
     private Integer dogeMoney;
     @ApiModelProperty(value = "图片", dataType = "String")
-    @NotBlank(message = "精灵图片不能为空")
+    @NotBlank(message = "木材图片不能为空")
     private String images;
     @ApiModelProperty(value = "0未开奖1已开奖", dataType = "Integer")
     private Integer todayIsOpen;
@@ -90,6 +90,6 @@ public class PigGoodsSaveDto{
     private Integer probability;
     @ApiModelProperty(value = "金额分类ID", dataType = "Integer")
     private Integer moneyCategoryId;
-    @ApiModelProperty(value = "可分裂精灵数量", dataType = "Integer")
+    @ApiModelProperty(value = "可分裂木材数量", dataType = "Integer")
     private Integer splitNum;
 }

@@ -64,7 +64,7 @@ public class PigGoods extends BaseEntity implements Comparable{
     private Integer probability;
     @ApiModelProperty(value = "金额分类ID", dataType = "Integer")
     private Integer moneyCategoryId;
-    @ApiModelProperty(value = "可分裂精灵数量", dataType = "Integer")
+    @ApiModelProperty(value = "可分裂木材数量", dataType = "Integer")
     private Integer splitNum;
 
     @Override

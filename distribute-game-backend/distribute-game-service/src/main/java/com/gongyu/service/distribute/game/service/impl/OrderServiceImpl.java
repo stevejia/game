@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElse(new DefaultOrderProcess());
         //按条件开始创建
         modelServer.verif(param);
-        //创建精灵实例
+        //创建木材实例
         modelServer.createPig(param);
         //创建订单
         return modelServer.createOrder(param);
@@ -82,10 +82,10 @@ public class OrderServiceImpl implements OrderService {
         List<PigReservation> reservats = null;
         Set<Long> users = RedisUtils.get("robProduct:" + goods.getId());
 
-        //本场次所有可出售精灵
+        //本场次所有可出售木材
         List<UserExclusivePig> pigs = exclusivePigService.list(new QueryWrapper<UserExclusivePig>().eq("pig_id", goods.getId()).eq("is_able_sale", SaleStatusEnum.TRUE.getCode()).eq("is_pig_lock", LockStatusEnum.NOT_LOCK.getCode()));
         if (CollectionUtils.isEmpty(users)) {
-            log.info("精灵场次：" + goods.getId() + " 没有用户点击开抢...");
+            log.info("木材场次：" + goods.getId() + " 没有用户点击开抢...");
             //退还所有预约的积分
             PigAwardLog awardLog = awardLogService.getOne(new QueryWrapper<PigAwardLog>().eq("pig_id", goods.getId()).eq("open_result", OpenResultEnum.NOT_OPEN));
             reservats = pigReservationService.list(new QueryWrapper<PigReservation>().eq("reservation_scene", awardLog.getId()));
@@ -99,9 +99,9 @@ public class OrderServiceImpl implements OrderService {
             }
             return;
         }
-//        pigManager.addSellIncomePig(pigs);  精灵实例在出售收益时生成
+//        pigManager.addSellIncomePig(pigs);  木材实例在出售收益时生成
         if (!CollectionUtils.isEmpty(pigs) && pigs.size() >= users.size()) {
-            log.info("processTask 开奖处理，场次：{}，可出售精灵数量：{}", goods.getId(), pigs.size());
+            log.info("processTask 开奖处理，场次：{}，可出售木材数量：{}", goods.getId(), pigs.size());
             //获取所有中将用户
             luckUsers = new ArrayList<>(users);
         } else {
@@ -121,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
         handleDealerOpt(luckUsers, pigs);
 
         log.info("第二次筛选中奖用户:{}", JSON.toJSONString(luckUsers));
-        log.info("筛选开奖精灵数量:{}", JSON.toJSONString(pigs.size()));
+        log.info("筛选开奖木材数量:{}", JSON.toJSONString(pigs.size()));
 
         //更新中奖名单
         awardLogService.handleAwardLog(awardLog,users,new HashSet<>(luckUsers));
@@ -159,20 +159,20 @@ public class OrderServiceImpl implements OrderService {
         if (!CollectionUtils.isEmpty(orders)) {
             log.info("processTask 开奖处理结束,发送短信通知，-------------------------start---------------------场次：{}，本场抢中用户数量：{}", goods.getId(), luckUsers.size());
             List<Long> purchaseUserIds = orders.stream().map(PigOrder::getPurchaseUserId).collect(Collectors.toList());
-            usersService.sendSmsCodeThirdPartyBatch(purchaseUserIds, "【航海世界】尊敬的用户，您有新的订单，请尽快审核");
+//            usersService.sendSmsCodeThirdPartyBatch(purchaseUserIds, "【航海世界】尊敬的用户，您有新的订单，请尽快审核");
             log.info("processTask 开奖处理结束,发送短信通知，-------------------------end---------------------场次：{}，本场抢中用户数量：{}", goods.getId(), luckUsers.size());
         }
     }
 
     /**
-     * 获取非预约并且没有抢购到精灵的用户
+     * 获取非预约并且没有抢购到木材的用户
      *
      * @return
      */
     public List<Long> getNotLuckUsers(Set<Long> robUsers, List<Long> luckUsers, List<PigReservation> reservats) {
         List<Long> notLuckUsers = new LinkedList<>();
         Iterator<Long> iterator = robUsers.iterator();
-        log.info("获取非预约并且没有抢购到精灵的用户 去除前 users:{}", JSON.toJSONString(robUsers));
+        log.info("获取非预约并且没有抢购到木材的用户 去除前 users:{}", JSON.toJSONString(robUsers));
         while (iterator.hasNext()) {
             Long next = iterator.next();
             boolean isLuck = false;
@@ -199,7 +199,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
-        log.info("获取非预约并且没有抢购到精灵的用户 去除前 users:{}", JSON.toJSONString(notLuckUsers));
+        log.info("获取非预约并且没有抢购到木材的用户 去除前 users:{}", JSON.toJSONString(notLuckUsers));
         return notLuckUsers;
     }
 
@@ -223,7 +223,7 @@ public class OrderServiceImpl implements OrderService {
      * @return index：0 新玩家 1 老玩家
      */
     public List<Long> getUsers(Set<Long> users, Integer pigs) {
-        // 开始为抢购的人分配精灵 用户暂时按照ID序号分新玩家/老玩家 并随机取出中奖人
+        // 开始为抢购的人分配木材 用户暂时按照ID序号分新玩家/老玩家 并随机取出中奖人
         Set<Long> oldUsers = new HashSet<>();
         Set<Long> youngUsers = new HashSet<>();
         List<Long> list = new ArrayList<>(users);
@@ -235,7 +235,7 @@ public class OrderServiceImpl implements OrderService {
             point = (users.size() - 1) / 2;
         }
 
-        //计算分配两份精灵的数量
+        //计算分配两份木材的数量
         int youngNum;
         int oldNum;
         if (this.mold(pigs)) {

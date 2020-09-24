@@ -17,7 +17,7 @@ public enum BuyTypeEnum {
 
     SYS_HANDSEL("1","系统赠送"),
     BUY_ORDER("2","正常购买"),
-    PIG_SPLIT("3","精灵分裂"),
+    PIG_SPLIT("3","木材分裂"),
     SELL_INCOM("4","出售推广收益"),
 
     ;

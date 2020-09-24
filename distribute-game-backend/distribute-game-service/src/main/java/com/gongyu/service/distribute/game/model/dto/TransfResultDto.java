@@ -16,10 +16,10 @@ public class TransfResultDto {
     @ApiModelProperty(value = "英雄编号-订单号",dataType = "String")
     private String orderNo;
 
-    @ApiModelProperty(value = "精灵名称",dataType = "String")
+    @ApiModelProperty(value = "木材名称",dataType = "String")
     private String pigName;
 
-    @ApiModelProperty(value = "精灵图片url",dataType = "String")
+    @ApiModelProperty(value = "木材图片url",dataType = "String")
     private String pigUrl;
 
     @ApiModelProperty(value = "最小价格",dataType = "BigDecimal")
@@ -59,7 +59,7 @@ public class TransfResultDto {
     @ApiModelProperty(value = "付款凭证",dataType = "String")
     private String payImageUrl;
 
-    @ApiModelProperty(value = "精灵价格",dataType = "BigDecimal")
+    @ApiModelProperty(value = "木材价格",dataType = "BigDecimal")
     private BigDecimal goodsPrice;
 
 }

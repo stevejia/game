@@ -21,7 +21,7 @@ public class UserExclusivePigDTO extends UserExclusivePig {
     @ApiModelProperty(value = "出售状态",dataType = "String")
     private String saleStatus;
 
-    @ApiModelProperty(value = "精灵状态",dataType = "String")
+    @ApiModelProperty(value = "木材状态",dataType = "String")
     private String isPigLockStatus;
 
     @ApiModelProperty(value = "产品类型",dataType = "String")

@@ -115,7 +115,7 @@ public class CancelOrderListener implements ApplicationListener<DelayQueueEvent>
                 pig.setOrderId(order.getOrderId());
                 pig.setIsPigLock(LockStatusEnum.NOT_LOCK.getCode());
                 pigManager.update(pig);
-                //精灵归属方获取一枚pig币
+                //木材归属方获取一枚pig币
                 Long buyUserId = order.getPurchaseUserId();
                 Users users = usersService.getById(buyUserId);
                 users.setPigCurrency(users.getPigCurrency() + 1);

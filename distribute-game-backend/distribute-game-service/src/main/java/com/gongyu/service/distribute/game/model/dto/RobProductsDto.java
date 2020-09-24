@@ -16,7 +16,7 @@ public class RobProductsDto {
     @ApiModelProperty(value = "用户ID",dataType = "Long")
     private Long userId;
 
-    @ApiModelProperty(value = "精灵ID",dataType = "Long")
-    @NotNull(message = "精灵ID不能为空")
+    @ApiModelProperty(value = "木材ID",dataType = "Long")
+    @NotNull(message = "木材ID不能为空")
     private Long pigId;
 }

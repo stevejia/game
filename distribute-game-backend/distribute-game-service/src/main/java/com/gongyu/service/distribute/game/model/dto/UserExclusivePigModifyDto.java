@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @ApiModel
 public class UserExclusivePigModifyDto{
-    @ApiModelProperty(value = "精灵实例ID", dataType = "Long", required = true)
+    @ApiModelProperty(value = "木材实例ID", dataType = "Long", required = true)
     private Long id;
     @ApiModelProperty(value = "用户ID", dataType = "Integer")
     private Integer userId;
