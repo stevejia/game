@@ -53,12 +53,12 @@ public class CancelOrderListener implements ApplicationListener<DelayQueueEvent>
         PigOrder order = null;
         PigOrder taskOrder = null;
         DelayTask task = (DelayTask)delayQueueEvent.getSource();
-        RLock lock = redisson.getLock("cancelOrderListener");
+        
         if(task.getData().getTaskType() == DelayTaskEnum.CANCEL_ORDER.getCode()){
             log.info("订单超时取消订单监听器...delayQueueEvent:{}",JSON.toJSONString(delayQueueEvent));
             taskOrder = (PigOrder)task.getData().getData();
             order = orderManager.getByOrderNo(taskOrder.getPigOrderSn());
-
+            RLock lock = redisson.getLock("cancelOrderListener" + taskOrder.getPigOrderSn());
             try{
                 if(PayStatusEnum.FREEZE.getCode().intValue() == order.getPayStatus().intValue()){
                     log.info("订单超时取消订单监听器 onApplicationEvent 该订单已冻结 order:{}",JSON.toJSONString(order));

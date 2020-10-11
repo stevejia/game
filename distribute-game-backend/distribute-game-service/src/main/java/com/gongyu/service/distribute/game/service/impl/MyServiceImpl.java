@@ -386,7 +386,7 @@ public class MyServiceImpl implements MyService {
         teamUserNum.setTwoValidNum(twoValidNum.size());
         teamUserNum.setTwoInvalidNum(twoInvalidNum.size());
         teamUserNum.setThreeValidNum(threeValidNum.size());
-        teamUserNum.setThreeInvalidNum(threeValidNum.size());
+        teamUserNum.setThreeInvalidNum(threeInvalidNum.size());
         resultDto.setUsers(resultUsers);
         resultDto.setUserNum(teamUserNum);
         return resultDto;

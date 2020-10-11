@@ -29,8 +29,8 @@ aliyun:
   oss:
     accessKeyId: LTAI4FyChFwmLKepbgu84YTb
     accessKeySecret: ZPBFFrkvCc8PDF8Qid0lS70g8D6PkF
-    endpoint : oss-cn-hongkong.aliyuncs.com
-    bucketName : qmyl-bucket
+    endpoint : oss-accelerate.aliyuncs.com
+    bucketName : qmyl-bucket-cn
   sms:
     accessKeyId: LTAI4FyChFwmLKepbgu84YTb
     accessKeySecret: ZPBFFrkvCc8PDF8Qid0lS70g8D6PkF

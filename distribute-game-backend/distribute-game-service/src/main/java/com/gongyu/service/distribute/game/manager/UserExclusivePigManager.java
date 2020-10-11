@@ -141,8 +141,8 @@ public class UserExclusivePigManager {
                 .orElseThrow(() -> new BizException("没有找到对应木材"));
         //根据价格查看在哪个木材区间
         for(int i = 0; i < Integer.valueOf(config.getConfigValue()); i ++){
-            Date endDate = DateUtil.addDate(DateUtil.getDate(DateUtil.getNowDate()), goods.getContractDays());
-            UserExclusivePig exclusivePig = this.convert(pig.getUserId(), goods.getId(), SaleStatusEnum.FALSE, pigPrice, 0L, 0L, DateUtil.getNowDate(), DateUtil.getDate(endDate), BuyTypeEnum.PIG_SPLIT.getDesc(), pig.getNowContractDays(), goods.getIncomeRatio(), LockStatusEnum.NOT_LOCK);
+//            Date endDate = DateUtil.addDate(DateUtil.getDate(DateUtil.getNowDate()), goods.getContractDays());
+            UserExclusivePig exclusivePig = this.convert(pig.getUserId(), goods.getId(), SaleStatusEnum.TRUE, pigPrice, 0L, 0L, pig.getEndTime(), pig.getEndTime(), BuyTypeEnum.PIG_SPLIT.getCode(), pig.getNowContractDays(), goods.getIncomeRatio(), LockStatusEnum.NOT_LOCK);
             exclusivePig.setPigDelId(insertId);
             this.insert(exclusivePig);
 
