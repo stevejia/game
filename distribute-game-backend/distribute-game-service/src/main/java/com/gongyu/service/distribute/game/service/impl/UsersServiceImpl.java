@@ -68,7 +68,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	private PigOrderService pigOrderService;
 
 	@Override
-	public IPage<Users> queryUsers(IPage<Users> page, String mobile, Long id) {
+	public IPage<Users> queryUsers(IPage<Users> page, String mobile, Long id, Long regTimeStart, Long regTimeEnd) {
 		LambdaQueryWrapper<Users> eq = new LambdaQueryWrapper<>();
 		if (!StringUtils.isEmpty(mobile)) {
 			eq.eq(Users::getMobile, mobile);
@@ -76,6 +76,13 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		if (id != null) {
 			eq.eq(Users::getId, id);
 		}
+		
+		if(regTimeStart!=null && regTimeEnd!=null) {
+			eq.ge(Users::getRegTime, regTimeStart);
+			eq.le(Users::getRegTime, regTimeEnd);
+		}
+		
+		
 		return this.page(page, eq);
 	}
 	@Override

@@ -16,4 +16,8 @@ public class UsersQueryDto {
     private String mobile;
     @ApiModelProperty(value = "用户ID", dataType = "Long")
     private Long id;
+    @ApiModelProperty(value = "注册日期start", dataType = "Long")
+    private Long regTimeStart;
+    @ApiModelProperty(value = "注册日期end", dataType = "Long")
+    private Long regTimeEnd;
 }

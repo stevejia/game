@@ -48,7 +48,7 @@ public class UsersController {
     @ApiOperation(value = "【会员管理】列表", notes = "【会员管理】列表", response = UsersResponseDto.class)
     @PostMapping("queryUsers")
     public BaseResponse queryUsers(Page page, @Valid @ModelAttribute UsersQueryDto usersQueryDto) {
-        IPage iPage = usersService.queryUsers(page, usersQueryDto.getMobile(), usersQueryDto.getId());
+        IPage iPage = usersService.queryUsers(page, usersQueryDto.getMobile(), usersQueryDto.getId(), usersQueryDto.getRegTimeStart(), usersQueryDto.getRegTimeEnd());
         List<Users> userList = iPage.getRecords();
         List<UsersResponseDto> newList = Lists.newArrayList();
         userList.forEach(e -> {
