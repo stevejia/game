@@ -415,7 +415,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		}
 		// 分销关系建立
 		UsersSaveDto build = UsersSaveDto.builder().mobile(memberLoginRequestDto.getMobile())
-				.nickname(StringUtils.EMPTY).password(MD5.getMD5Code(memberLoginRequestDto.getPassword()))
+				.nickname(memberLoginRequestDto.getNickname()).password(MD5.getMD5Code(memberLoginRequestDto.getPassword()))
 				.paypwd(MD5.getMD5Code(memberLoginRequestDto.getPaypwd())).build();
 		if (null != memberLoginRequestDto.getFirstLeader()) {
 			build.setFirstLeader(memberLoginRequestDto.getFirstLeader());

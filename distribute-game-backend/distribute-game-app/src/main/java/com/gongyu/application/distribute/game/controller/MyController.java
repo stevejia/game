@@ -112,6 +112,12 @@ public class MyController {
     public BaseResponse myTeam(){
         return myService.myTeam(WebUtils.getCurrentUserId());
     }
+    
+    @ApiOperation(value = "我的团队2",response = MyTeamResultDto.class)
+    @PostMapping("myTeam2")
+    public BaseResponse myTeam2(){
+        return myService.myTeam2(WebUtils.getCurrentUserId());
+    }
 
 
     @ApiOperation(value = "检查是否拥有合法收款方式",response = BaseResponse.class)

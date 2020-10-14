@@ -24,7 +24,10 @@ public class OrderDetailsDto {
 
     @ApiModelProperty(value = "转让手机号",dataType = "String")
     private String transferMobile;
-
+    
+    @ApiModelProperty(value = "联系方式",dataType = "String")
+    private String contactMobile;
+    
     @ApiModelProperty(value = "领养方",dataType = "String")
     private String adoptName;
 

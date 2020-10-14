@@ -340,7 +340,17 @@ public class MyServiceImpl implements MyService {
         MyTeamResultDto resultDto = this.convertTeamResult(firstUsers, secondList, thirdList);
         return BaseResponse.success(resultDto);
     }
-
+    
+    @Override
+    public BaseResponse myTeam2(Long userId){
+        //直推
+        List<Users> firstUsers = usersService.list(new QueryWrapper<Users>().eq("first_leader", userId));
+        List<Users> secondList = usersService.list(new QueryWrapper<Users>().eq("second_leader", userId));
+        List<Users> thirdList = usersService.list(new QueryWrapper<Users>().eq("third_leader", userId));
+        MyTeamResultDto2 resultDto = this.convertTeamResult2(firstUsers, secondList, thirdList);
+        return BaseResponse.success(resultDto);
+    }
+    
     @Override
     public BaseResponse checkedPayment(Long userId) {
         List<UserPayment> list = paymentService.list(new QueryWrapper<UserPayment>().eq("user_id", userId).eq("status", CommEnum.TRUE.getCode()));
@@ -390,6 +400,29 @@ public class MyServiceImpl implements MyService {
         resultDto.setUsers(resultUsers);
         resultDto.setUserNum(teamUserNum);
         return resultDto;
+    }
+    
+    private MyTeamResultDto2 convertTeamResult2(List<Users> firstList,List<Users> secondList,List<Users> thirdList) {
+    	List<MyTeamResultDto2.User> firstUsers = this.handleUser(firstList);
+    	List<MyTeamResultDto2.User> secondUsers = this.handleUser(secondList);
+    	List<MyTeamResultDto2.User> thirdUsers = this.handleUser(thirdList);
+    	MyTeamResultDto2 resultDto = new MyTeamResultDto2();
+    	resultDto.setFirstUsers(firstUsers);
+    	resultDto.setSecondUsers(secondUsers);
+    	resultDto.setThirdUsers(thirdUsers);
+    	return resultDto;
+    }
+    
+    private List<MyTeamResultDto2.User> handleUser(List<Users> users){
+    	List<MyTeamResultDto2.User> resultUsers = new LinkedList<MyTeamResultDto2.User>();
+    	for(Users user: users) {
+    		MyTeamResultDto2.User resultUser = new MyTeamResultDto2.User();
+             resultUser.setNickName(user.getNickname());
+             resultUser.setUserId(user.getCode().longValue());
+             resultUser.setMobile(user.getMobile());
+             resultUsers.add(resultUser);
+    	}
+    	return resultUsers;
     }
 
     public void handleUserNum(List<Users> users,List<Users> vailds,List<Users> invailds){

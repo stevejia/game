@@ -97,6 +97,13 @@ public interface MyService {
     * @return
     */
    BaseResponse myTeam(Long userId);
+   
+   /**
+    * 我的团队
+    * @param userId
+    * @return
+    */
+   BaseResponse myTeam2(Long userId);
 
    /**
     * 检查是否拥有合法收款方式
