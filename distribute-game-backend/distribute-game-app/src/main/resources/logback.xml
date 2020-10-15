@@ -62,5 +62,5 @@
         <appender-ref ref="fileErrorLog" />
     </root>
 
-    <logger name="com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor" level="DEBUG" />
+<!--     <logger name="com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor" level="DEBUG" /> -->
 </configuration>

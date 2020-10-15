@@ -92,6 +92,7 @@ public class AccountLogServiceImpl extends CrudServiceSupport<AccountLogMapper, 
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     public void convertAndInsert(Long userId, BigDecimal money, BigDecimal frozenMoney, Integer payPoints, BigDecimal contractReve, String desc, IncomeTypeEnum typeEnum, Long pigId,String orderNo,Long giverUserId) {
         AccountLog accountLog = new AccountLog();
         accountLog.setUserId(userId);

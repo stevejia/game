@@ -143,6 +143,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
     }
 
     @Override
+    @Transactional
     public BaseResponse robProducts(RobProductsDto param) {
         Set<Long> users;
         PigGoods goods = goodsService.getById(param.getPigId());
