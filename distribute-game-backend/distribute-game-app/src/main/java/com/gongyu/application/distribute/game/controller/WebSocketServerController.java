@@ -31,8 +31,10 @@ import org.springframework.stereotype.Component;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.gongyu.service.distribute.game.common.enums.CommEnum;
 import com.gongyu.service.distribute.game.common.enums.PayStatusEnum;
+import com.gongyu.service.distribute.game.model.entity.Config;
 import com.gongyu.service.distribute.game.model.entity.PigOrder;
 import com.gongyu.service.distribute.game.model.entity.Users;
+import com.gongyu.service.distribute.game.service.ConfigService;
 import com.gongyu.service.distribute.game.service.PigOrderService;
 import com.gongyu.service.distribute.game.service.UsersService;
 
@@ -49,7 +51,8 @@ public class WebSocketServerController {
 
 	@Autowired
 	private PigOrderService pigOrderService;
-
+	@Autowired
+	private ConfigService configService;
 	// 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
 	private static int onlineCount = 0;
 	// concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
@@ -83,6 +86,16 @@ public class WebSocketServerController {
 	public void runTask() {
 		try {
 			sendInfo("订单状态跟踪 task延时执行");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Scheduled(fixedRate = 6000) 
+	public void runTask2() {
+		try {
+			sendInfo2("版本check");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -176,7 +189,6 @@ public class WebSocketServerController {
 				json.put("shouldPayOrderCount", userShouldPayPigOrders.size());
 				json.put("shouldConfirmOrderCount", userShouldConfirmOrders.size());
 				json.put("allCount", userShouldConfirmOrders.size() + userShouldPayPigOrders.size());
-				log.info("当天的订单数" + pigOrders.size() + json.toString());
 				item.sendMessage(json.toString());
 			} catch (IOException e) {
 				continue;
@@ -184,6 +196,20 @@ public class WebSocketServerController {
 		}
 	}
 
+	private void sendInfo2(String message) throws IOException  {
+		Config config = configService.getOne(new QueryWrapper<Config>().eq("config_name", "app_version"));
+		String value = config.getConfigValue();
+		for (WebSocketServerController item : webSocketSet) {
+			try {
+				JSONObject json = new JSONObject();
+				json.put("type", 1);
+				json.put("data", value);
+				item.sendMessage(json.toString());
+			} catch (IOException e) {
+				continue;
+			}
+		}
+	}
 	public static synchronized int getOnlineCount() {
 		return onlineCount;
 	}
