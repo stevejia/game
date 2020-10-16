@@ -63,7 +63,7 @@ public class IncomeServiceImpl implements IncomeService {
 
 		for (UserExclusivePig pig : pigs) {
 			Long day = DateUtil
-					.getDay(DateUtils.format(DateUtil.getDate(pig.getBuyTime()), DateUtils.DEFAULT_DATE_TIME_FORMAT));
+					.getDay(DateUtils.format(DateUtil.getDate(pig.getBuyTime()), DateUtils.DEFAULT_DATE_FORMAT) + " 00:00:00");
 			if (day < 1) {
 				continue;
 			}

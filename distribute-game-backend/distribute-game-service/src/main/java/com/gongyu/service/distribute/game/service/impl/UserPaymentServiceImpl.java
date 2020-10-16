@@ -1,12 +1,15 @@
 package com.gongyu.service.distribute.game.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.gongyu.service.distribute.game.common.utils.DateUtil;
 import com.gongyu.service.distribute.game.mapper.UserPaymentMapper;
 import com.gongyu.service.distribute.game.model.dto.UserPaymentModifyDto;
 import com.gongyu.service.distribute.game.model.dto.UserPaymentSaveDto;
 import com.gongyu.service.distribute.game.model.entity.UserPayment;
+import com.gongyu.service.distribute.game.model.entity.UserPaymentLog;
 import com.gongyu.service.distribute.game.service.UserPaymentService;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
 import com.gongyu.snowcloud.framework.web.util.WebUtils;
@@ -21,9 +24,20 @@ import java.util.stream.Collectors;
 @Service
 public class UserPaymentServiceImpl extends CrudServiceSupport<UserPaymentMapper, UserPayment> implements UserPaymentService {
 
-    @Override
-    public IPage<UserPayment> queryUserPayment(IPage<UserPayment> page) {
-        return this.page(page, new QueryWrapper<UserPayment>().orderByDesc("id"));
+    @SuppressWarnings("unchecked")
+	@Override
+    public IPage<UserPayment> queryUserPayment(Integer userId, Integer status, IPage<UserPayment> page) {
+    	 LambdaQueryWrapper<UserPayment> qw = Wrappers.<UserPayment>lambdaQuery();
+    	if(null != userId) {
+    		qw.eq(UserPayment::getUserId, userId);
+    	}
+    	
+    	if(null != status) {
+    		qw.eq(UserPayment::getStatus, status);
+    	}
+    	
+    	qw.orderByDesc(UserPayment::getId);
+        return this.page(page, qw);
     }
 
     @Override

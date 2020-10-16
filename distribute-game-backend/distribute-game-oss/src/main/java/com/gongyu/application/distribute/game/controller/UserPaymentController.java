@@ -25,8 +25,8 @@ public class UserPaymentController {
 
     @ApiOperation(value = "【用户收款支付方式管理】列表", notes = "【用户收款支付方式管理】列表", response = UserPayment.class)
     @PostMapping("queryUserPayment")
-    public BaseResponse queryUserPayment(Page page) {
-        return BaseResponse.success(userPaymentService.queryUserPayment(page));
+    public BaseResponse queryUserPayment(@ApiParam(value = "userId", required = true) @RequestParam()Integer userId, @ApiParam(value = "status", required = true) @RequestParam()Integer status, Page page) {
+        return BaseResponse.success(userPaymentService.queryUserPayment(userId, status, page));
     }
 
     @ApiOperation(value = "【用户收款支付方式管理】详情", notes = "【用户收款支付方式管理】详情", response = UserPayment.class)

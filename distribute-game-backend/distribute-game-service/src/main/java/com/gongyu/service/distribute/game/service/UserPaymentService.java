@@ -8,7 +8,7 @@ import com.gongyu.snowcloud.framework.data.mybatis.CrudService;
 
 public interface UserPaymentService extends CrudService<UserPayment>{
 
-    IPage<UserPayment> queryUserPayment(IPage<UserPayment> page);
+    IPage<UserPayment> queryUserPayment(Integer userId, Integer status, IPage<UserPayment> page);
 
     void saveUserPayment(UserPaymentSaveDto userPaymentSaveDto);
 

@@ -289,9 +289,9 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
      */
     public List<PigReservation> luckStatus(Set<Long> users, List<Long> luckUsers, List<PigReservation> reservats) {
         for (PigReservation reservat : reservats) {
-            if (users.contains(reservat.getId())) {
+            if (users.contains(reservat.getUserId())) {
                 reservat.setIsClickBuy(IsClickBuyEnum.TRUE.getCode());
-                if (luckUsers.contains(reservat.getId())) {
+                if (luckUsers.contains(reservat.getUserId())) {
                     reservat.setReservationStatus(CommEnum.TRUE.getCode());
                 } else {
                     reservat.setReservationStatus(CommEnum.FALSE.getCode());

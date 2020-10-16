@@ -92,15 +92,15 @@ public class WebSocketServerController {
 		}
 	}
 	
-	@Scheduled(fixedRate = 6000) 
-	public void runTask2() {
-		try {
-			sendInfo2("版本check");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	@Scheduled(fixedRate = 6000) 
+//	public void runTask2() {
+//		try {
+//			sendInfo2("版本check");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 
 	// //连接打开时执行
 	// @OnOpen
@@ -196,20 +196,20 @@ public class WebSocketServerController {
 		}
 	}
 
-	private void sendInfo2(String message) throws IOException  {
-		Config config = configService.getOne(new QueryWrapper<Config>().eq("config_name", "app_version"));
-		String value = config.getConfigValue();
-		for (WebSocketServerController item : webSocketSet) {
-			try {
-				JSONObject json = new JSONObject();
-				json.put("type", 1);
-				json.put("data", value);
-				item.sendMessage(json.toString());
-			} catch (IOException e) {
-				continue;
-			}
-		}
-	}
+//	private void sendInfo2(String message) throws IOException  {
+//		Config config = configService.getOne(new QueryWrapper<Config>().eq("config_name", "app_version"));
+//		String value = config.getConfigValue();
+//		for (WebSocketServerController item : webSocketSet) {
+//			try {
+//				JSONObject json = new JSONObject();
+//				json.put("type", 1);
+//				json.put("data", value);
+//				item.sendMessage(json.toString());
+//			} catch (IOException e) {
+//				continue;
+//			}
+//		}
+//	}
 	public static synchronized int getOnlineCount() {
 		return onlineCount;
 	}

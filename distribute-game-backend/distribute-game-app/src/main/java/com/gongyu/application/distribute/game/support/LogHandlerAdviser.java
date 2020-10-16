@@ -79,13 +79,13 @@ public class LogHandlerAdviser {
                 isSuccess = "1".equals(status);
             }
 
-            if (isSuccess) {
-                logger.info("controller: {}, method: {} close", joinPoint.getTarget().getClass().getName(), method.getName());
-                logger.info("响应结果 [{}]: {}", method.getReturnType().getName(), JSON.toJSONString(resp));
-            } else {
-                logger.warn("controller: {}, method: {} close", joinPoint.getTarget().getClass().getName(), method.getName());
-                logger.warn("响应结果 [{}]: {}", method.getReturnType().getName(), JSON.toJSONString(resp));
-            }
+//            if (isSuccess) {
+//                logger.info("controller: {}, method: {} close", joinPoint.getTarget().getClass().getName(), method.getName());
+//                logger.info("响应结果 [{}]: {}", method.getReturnType().getName(), JSON.toJSONString(resp));
+//            } else {
+//                logger.warn("controller: {}, method: {} close", joinPoint.getTarget().getClass().getName(), method.getName());
+//                logger.warn("响应结果 [{}]: {}", method.getReturnType().getName(), JSON.toJSONString(resp));
+//            }
         }
 
         return resp;
