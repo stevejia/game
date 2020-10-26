@@ -33,4 +33,11 @@ public class HomeDto {
     private Integer totalUsers = 0;
     @ApiModelProperty(value = "会员总资产", dataType = "BigDecimal")
     private BigDecimal totalAmount = BigDecimal.ZERO;
+    @ApiModelProperty(value = "木材总数", dataType = "Integer")
+    private Integer totalProducts = 0;
+    @ApiModelProperty(value = "总资产", dataType = "BigDecimal")
+    private BigDecimal totalMoney = BigDecimal.ZERO;
+    
+    @ApiModelProperty(value = "总推广收益", dataType = "BigDecimal")
+    private BigDecimal totalRecomIncome = BigDecimal.ZERO;
 }

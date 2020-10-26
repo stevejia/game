@@ -72,6 +72,12 @@
         <if test="param.type != null and param.type != ''">
             AND a.type = #{param.type}
         </if>
+        <if test="param.establishTimeStart != null and param.establishTimeStart != ''">
+            AND a.establish_time &gt;= #{param.establishTimeStart}
+        </if>
+        <if test="param.establishTimeEnd != null and param.establishTimeEnd != ''">
+            AND a.establish_time &lt;= #{param.establishTimeEnd}
+        </if>
     </select>
 
 

@@ -52,5 +52,9 @@ public class PigOrderModifyDto{
 
     @ApiModelProperty(value = "木材名称",dataType = "String")
     private String goodsName;
-
+    
+    @ApiModelProperty(value = "生成订单时间start", dataType = "Integer")
+    private Integer establishTimeStart;
+    @ApiModelProperty(value = "生成订单时间end", dataType = "Integer")
+    private Integer establishTimeEnd;
 }

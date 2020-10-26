@@ -30,6 +30,7 @@ public class UserExclusivePigServiceImpl extends CrudServiceSupport<UserExclusiv
         list.forEach(item ->{
             item.setSaleStatus(SaleStatusEnum.parse(item.getIsAbleSale()).getGoodsStatus());
             item.setIsPigLockStatus(LockStatusEnum.parse(item.getIsPigLock()).getDesc());
+            item.setGoodsType(BuyTypeEnum.parse(item.getBuyType()).getDesc());
         });
         page.setRecords(list);
         return page;

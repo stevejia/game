@@ -67,6 +67,9 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	@Autowired
 	private PigOrderService pigOrderService;
 
+	@Autowired
+	private UserExclusivePigService userExclusivePigService;
+
 	@Override
 	public IPage<Users> queryUsers(IPage<Users> page, String mobile, Long id, Long regTimeStart, Long regTimeEnd) {
 		LambdaQueryWrapper<Users> eq = new LambdaQueryWrapper<>();
@@ -76,19 +79,20 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		if (id != null) {
 			eq.eq(Users::getId, id);
 		}
-		
-		if(regTimeStart!=null && regTimeEnd!=null) {
+
+		if (regTimeStart != null && regTimeEnd != null) {
 			eq.ge(Users::getRegTime, regTimeStart);
 			eq.le(Users::getRegTime, regTimeEnd);
 		}
-		
-		
+
 		return this.page(page, eq);
 	}
+
 	@Override
 	public List<Users> queryAllUsers() {
 		return this.list();
 	}
+
 	@Override
 	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
 	public Integer saveUsers(UsersSaveDto usersSaveDto) {
@@ -135,7 +139,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		users.forEach(user -> {
 			if (user.getCode() == code) {
 				this.genUserCode(users);
-				return; 
+				return;
 			}
 		});
 		return code;
@@ -238,7 +242,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 				return false;
 			}
 			score = score.multiply(new BigDecimal("1").negate());
-			after = CalculateUtils.sub(before.doubleValue(), score.doubleValue());
+			after = CalculateUtils.add(before.doubleValue(), score.doubleValue());
 		} else {
 			return false;
 		}
@@ -278,6 +282,33 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 				accountLogService.convertAndInsert(user.getId(), new BigDecimal("0"), new BigDecimal("0"),
 						reservat.getPayPoints(), new BigDecimal("0"), "抢购失败,退回积分", IncomeTypeEnum.RESERVAT,
 						reservat.getPigId(), "", null);
+			}
+		}
+		return users;
+	}
+
+	@Override
+	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
+	public List<Users> convertUserPoints2(List<PigReservation> reservats, PigGoods goods) {
+		Integer adoptiveEnergy = goods.getAdoptiveEnergy();
+		List<Users> users = new ArrayList<>();
+		for (PigReservation reservat : reservats) {
+			Users user = this.getById(reservat.getUserId());
+			if (CommEnum.FALSE.getCode() == reservat.getReservationStatus().intValue()) {
+				if (reservat.getIsClickBuy().intValue() == CommEnum.TRUE.getCode()) {
+					user.setPayPoints(user.getPayPoints() + adoptiveEnergy);
+					users.add(user);
+					accountLogService.convertAndInsert(user.getId(), new BigDecimal("0"), new BigDecimal("0"),
+							adoptiveEnergy, new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回积分(预约点击抢购用户)", IncomeTypeEnum.RESERVAT,
+							reservat.getPigId(), "", null);
+				} else if (reservat.getIsClickBuy().intValue() == CommEnum.FALSE.getCode()) {
+					user.setPayPoints(user.getPayPoints() + reservat.getPayPoints());
+					users.add(user);
+					accountLogService.convertAndInsert(user.getId(), new BigDecimal("0"), new BigDecimal("0"),
+							reservat.getPayPoints(), new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回积分(预约未点击抢购用户)",
+							IncomeTypeEnum.RESERVAT, reservat.getPigId(), "", null);
+				}
+
 			}
 		}
 		return users;
@@ -325,6 +356,47 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 
 	@Override
 	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
+	public boolean modifyPayPoints(Integer userId, int score, int direction, String remark,
+			IncomeTypeEnum incomeTypeEnum, PigGoods goods) {
+		if (score <= 0) {
+			log.info(userId + " modifyAccountScore score=" + score + " 无效的积分");
+			return false;
+		}
+		// 积分扣减
+		Users users = this.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getId, userId));
+		Assert.notNull(users, "无效的会员ID:" + userId);
+		int before = users.getPayPoints();
+		int after = 0;
+		if (direction == 1) {
+			after = before + score;
+		} else if (direction == 2) {
+			if (before < score) {
+				return false;
+			}
+			after = before - score;
+		} else {
+			return false;
+		}
+		users.setPayPoints(after);
+		updateById(users);
+		// 积分操作记录
+		if (2 == direction) {
+			score *= -1;
+		}
+		AccountLogSaveDto build = AccountLogSaveDto.builder().userId(Long.valueOf(userId)).payPoints(score).dogeMoney(0)
+				.pigCurrency(0).changeTime(DateUtil.getNowDate()).desc(remark).build();
+		if (incomeTypeEnum.equals(IncomeTypeEnum.PROMOTE)) {
+			build.setDesc(direction == 1 ? "增加积分" : "减少积分");
+		}
+		build.setType(IncomeTypeEnum.SYS_POINT.getCode());
+		build.setPigId(goods.getId());
+		accountLogService.saveAccountLog(build);
+		log.info("[积分追踪]会员ID:{},积分{}:{},变动说明:{}", userId, direction == 1 ? "增加" : "减少", score, remark);
+		return true;
+	}
+
+	@Override
+	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
 	public MemberLoginResponseDto login(String mobile, String password, String codeKey, String codeValue,
 			String loginIp) {
 		String graphVerifyCode = RedisUtils.get(codeKey);
@@ -360,7 +432,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		// 设置登录token 如果为空则未登录
 		user.setToken(MD5.getMD5Code(String.valueOf(DateUtils.currentDate().getTime())));
 		user.setLastLoginTime(DateUtils.currentDate().getTime());
-		
+
 		WebUtils.setCurrentUserId(user.getId());
 		this.updateById(user);
 		MemberLoginResponseDto build = MemberLoginResponseDto.builder().mobile(user.getMobile()).token(user.getToken())
@@ -394,12 +466,13 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		if (memberLoginRequestDto.getFirstLeader() == null) {
 			throw new BizException("邀请人ID不能为空");
 		}
-		
-		Users inviteUser = this.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getCode, memberLoginRequestDto.getFirstLeader()));
-		if(inviteUser == null) {
+
+		Users inviteUser = this
+				.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getCode, memberLoginRequestDto.getFirstLeader()));
+		if (inviteUser == null) {
 			throw new BizException("推荐人ID不存在");
 		}
-		//将firstLeader的值Code 改成用户ID
+		// 将firstLeader的值Code 改成用户ID
 		memberLoginRequestDto.setFirstLeader(inviteUser.getId().intValue());
 		// 俩次密码校验
 		if (!memberLoginRequestDto.getPassword().equals(memberLoginRequestDto.getOncePassword())) {
@@ -415,7 +488,8 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		}
 		// 分销关系建立
 		UsersSaveDto build = UsersSaveDto.builder().mobile(memberLoginRequestDto.getMobile())
-				.nickname(memberLoginRequestDto.getNickname()).password(MD5.getMD5Code(memberLoginRequestDto.getPassword()))
+				.nickname(memberLoginRequestDto.getNickname())
+				.password(MD5.getMD5Code(memberLoginRequestDto.getPassword()))
 				.paypwd(MD5.getMD5Code(memberLoginRequestDto.getPaypwd())).build();
 		if (null != memberLoginRequestDto.getFirstLeader()) {
 			build.setFirstLeader(memberLoginRequestDto.getFirstLeader());
@@ -484,10 +558,12 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		if (user == null) {
 			throw new BizException("用户信息不存在");
 		}
-		if(memberLoginRequestDto.getOperationType() == 1 && !MD5.getMD5Code(memberLoginRequestDto.getOldPassword()).equals(user.getPassword())) {
+		if (memberLoginRequestDto.getOperationType() == 1
+				&& !MD5.getMD5Code(memberLoginRequestDto.getOldPassword()).equals(user.getPassword())) {
 			throw new BizException("输入的当前登录密码不正确");
 		}
-		if(memberLoginRequestDto.getOperationType() == 2 && !MD5.getMD5Code(memberLoginRequestDto.getOldPayPwd()).equals(user.getPaypwd())) {
+		if (memberLoginRequestDto.getOperationType() == 2
+				&& !MD5.getMD5Code(memberLoginRequestDto.getOldPayPwd()).equals(user.getPaypwd())) {
 			throw new BizException("输入的当前交易密码不正确");
 		}
 		// 俩次登录密码校验
@@ -583,7 +659,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	public HomeDto home() {
 		HomeDto homeDto = new HomeDto();
 		Date date = DateUtils.parseDate(DateUtils.format(new Date(), DateUtils.DEFAULT_DATE_FORMAT));
-		long time = date.getTime();
+		long time = date.getTime() / 1000;
 
 		homeDto.setPayment(userPaymentService.count(Wrappers.<UserPayment>lambdaQuery().eq(UserPayment::getStatus, 0)));
 		homeDto.setUserIdentity(
@@ -604,8 +680,24 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		QueryWrapper<Users> contract_wrapper = new QueryWrapper<>();
 		contract_wrapper.select("sum(pay_points) as payPoints ");
 		homeDto.setTotalAmount(new BigDecimal(String.valueOf(this.getMap(contract_wrapper).get("payPoints"))));
+		
+		QueryWrapper<Users> recom_wrapper = new QueryWrapper<>();
+		recom_wrapper.select("sum(recom_income) as recomIncome ");
+		homeDto.setTotalRecomIncome(new BigDecimal(String.valueOf(this.getMap(recom_wrapper).get("recomIncome"))));
 		// 今日访问会员
 		homeDto.setTodayVisitUsers(this.count(Wrappers.<Users>lambdaQuery().ge(Users::getLastLoginTime, time)));
+
+		List<UserExclusivePig> allUserPigs = userExclusivePigService
+				.list(Wrappers.<UserExclusivePig>lambdaQuery().eq(UserExclusivePig::getIsPigLock, 0));
+
+		homeDto.setTotalProducts(allUserPigs.size());
+
+		BigDecimal totalMoney = BigDecimal.ZERO;
+
+		for (UserExclusivePig pig : allUserPigs) {
+			totalMoney = totalMoney.add(pig.getPrice());
+		}
+		homeDto.setTotalMoney(totalMoney);
 		return homeDto;
 	}
 

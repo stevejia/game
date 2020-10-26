@@ -6,6 +6,7 @@ import com.gongyu.service.distribute.game.event.DelayQueueEvent;
 import com.gongyu.service.distribute.game.model.DelayTask;
 import com.gongyu.service.distribute.game.model.entity.*;
 import com.gongyu.service.distribute.game.service.*;
+import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.base.exception.BizException;
 import com.gongyu.snowcloud.framework.data.redis.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +55,8 @@ public class RevealLuckListener implements ApplicationListener<DelayQueueEvent> 
             } finally{
                 //清除本次开奖信息
                 log.info("开奖逻辑处理完成...task:{}",JSON.toJSONString(RedisUtils.get("task:" + goods.getId())));
-                RedisUtils.remove("robProduct:" + goods.getId());
+//                RedisUtils.remove("robProduct:" + goods.getId());
+                RedisUtils2.removeBatch("robProduct:");
                 RedisUtils.remove("task:" + goods.getId());
                 lock.unlock();
             }

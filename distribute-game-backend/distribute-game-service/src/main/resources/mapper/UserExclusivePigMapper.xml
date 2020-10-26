@@ -63,7 +63,7 @@
 			AND p.is_able_sale = #{param.saleStatus}
 		</if>
 		<if test="param.isPigLock !=null">
-			AND p.is_pig_lock = #{param.isPigLock}
+			AND p.is_pig_lock = #{param-.isPigLock}
 		</if>
 		order by p.id desc
 	</select>
@@ -84,11 +84,8 @@
 		where 1=1
 		/* 出售人和收购人相同 或者
 		产品领养已到期的进入今日开奖 |（当前时间戳大于结束时间戳）*/
-		and (p.user_id = from_user_id OR
-		unix_timestamp(now()) >= p.end_time)
 		/* 木材可出售状态 */
-		and p.is_able_sale =
-		1
+		and p.is_able_sale =1
 		<if test="param.userPhone != null and param.userPhone != ''">
 			AND u.mobile like concat(#{param.userPhone}, "%")
 		</if>

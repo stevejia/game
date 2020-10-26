@@ -3,6 +3,7 @@ package com.gongyu.service.distribute.game.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.gongyu.service.distribute.game.common.enums.IncomeTypeEnum;
 import com.gongyu.service.distribute.game.model.dto.*;
+import com.gongyu.service.distribute.game.model.entity.PigGoods;
 import com.gongyu.service.distribute.game.model.entity.PigReservation;
 import com.gongyu.service.distribute.game.model.entity.Users;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudService;
@@ -39,7 +40,15 @@ public interface UsersService extends CrudService<Users> {
      * @param score
      */
     boolean modifyPayPoints(Integer userId, int score, int direction, String remark, IncomeTypeEnum incomeTypeEnum);
-
+    /**
+    * 修改积分
+    *
+    * @param userId
+    * @param direction 1增加 2减少
+    * @param score
+    */
+   boolean modifyPayPoints(Integer userId, int score, int direction, String remark, IncomeTypeEnum incomeTypeEnum, PigGoods goods);
+    
     /**
      * 修改推广收益
      *
@@ -63,6 +72,12 @@ public interface UsersService extends CrudService<Users> {
      * @return
      */
     List<Users> convertUserPoints(List<PigReservation> reservats);
+    /**
+     *  重新构建用户积分
+    *
+    * @return
+    */
+   List<Users> convertUserPoints2(List<PigReservation> reservats, PigGoods goods);
 
     /**
      * 登录
