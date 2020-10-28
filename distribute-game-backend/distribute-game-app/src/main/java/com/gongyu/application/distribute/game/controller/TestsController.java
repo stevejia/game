@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @Api(tags = "测试")
-@RequestMapping
+@RequestMapping("tests")
 public class TestsController {
 
     @Autowired

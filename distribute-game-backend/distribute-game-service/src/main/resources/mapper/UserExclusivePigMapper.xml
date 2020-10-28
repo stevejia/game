@@ -63,7 +63,7 @@
 			AND p.is_able_sale = #{param.saleStatus}
 		</if>
 		<if test="param.isPigLock !=null">
-			AND p.is_pig_lock = #{param-.isPigLock}
+			AND p.is_pig_lock = #{param.isPigLock}
 		</if>
 		order by p.id desc
 	</select>

@@ -50,7 +50,10 @@ public class IncomeServiceImpl implements IncomeService {
 	private UserLevelService levelService;
 	@Autowired
 	private ConfigService configService;
-
+	
+	@Autowired
+	private ExpenseLogService expenseLogService;
+	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void processIncome() {
@@ -60,7 +63,8 @@ public class IncomeServiceImpl implements IncomeService {
 		// 合约收入
 //        BigDecimal conIncome = new BigDecimal("0");
 		List<UserExclusivePig> pigs = pigManager.findListByUser();
-
+		Long todayZero = this.getDateZeroTime(0);
+		Long tommorowZero = this.getDateZeroTime(1);
 		for (UserExclusivePig pig : pigs) {
 			Long day = DateUtil
 					.getDay(DateUtils.format(DateUtil.getDate(pig.getBuyTime()), DateUtils.DEFAULT_DATE_FORMAT) + " 00:00:00");
@@ -73,15 +77,25 @@ public class IncomeServiceImpl implements IncomeService {
 				continue;
 			}
 			BigDecimal incom = this.calcuPigIncom(pig.getPigId(), order.getPigPrice());
-			pig.setPrice(pig.getPrice().add(incom));
+			//合约到最后一天 需要用差值来计算升值的收益 不然会有误差
+			if (pig.getEndTime().longValue() < tommorowZero.longValue() && pig.getEndTime() > todayZero) {
+				BigDecimal totalIncome = order.getPigPrice().multiply(pig.getNowIncomeRatio().divide(BigDecimal.valueOf(100)));
+				BigDecimal currentIncome = pig.getPrice().subtract( order.getPigPrice());
+				incom = totalIncome.subtract(currentIncome);
+				pig.setPrice(order.getPigPrice().add(totalIncome));
+			} else {
+				pig.setPrice(pig.getPrice().add(incom));
+			}
+			
+			
 			this.processUpgrade(pig, allPigGoods);
 //            conIncome = conIncome.add(incom);
 			// 木材合约是否到期
 //            if(!DateUtil.before(DateUtils.format(DateUtil.getDate(pig.getEndTime()),DateUtils.DEFAULT_DATE_TIME_FORMAT))){
 //                pig.setIsAbleSale(SaleStatusEnum.TRUE.getCode());
 //            }
-			Long todayZero = this.getDateZeroTime(0);
-			Long tommorowZero = this.getDateZeroTime(1);
+//			Long todayZero = this.getDateZeroTime(0);
+//			Long tommorowZero = this.getDateZeroTime(1);
 			if (pig.getEndTime().longValue() < tommorowZero.longValue() && pig.getEndTime() > todayZero) {
 				pig.setIsAbleSale(SaleStatusEnum.TRUE.getCode());
 				//合约到期 木材如果需要分裂 那么执行分裂逻辑
@@ -102,6 +116,20 @@ public class IncomeServiceImpl implements IncomeService {
 			user.setDogeMoney(user.getDogeMoney() + 1);
 			usersService.updateById(user);
 		}
+		
+//TODO::每天定时任务 记录用户上一天的积分状态
+//		List<Users> users = usersService.list();
+//		List<ExpenseLog> userPayPointsLogs = users.stream().map(user-> {
+//			ExpenseLog userPayPointLog = new ExpenseLog();
+//			userPayPointLog.setUserId(user.getId().intValue());
+//			userPayPointLog.setMoney(BigDecimal.valueOf(user.getPayPoints()));
+//			userPayPointLog.setAddtime(todayZero.intValue());
+//			return userPayPointLog;
+//		}).collect(Collectors.toList());
+		
+//		expenseLogService.saveOrUpdateBatch(userPayPointsLogs);
+		
+//		logService.saveOrUpdateBatch(userAccountLogs);
 		// 计算上级提成收\团队提成收益
 		((IncomeServiceImpl) AopContext.currentProxy()).calcuIncome(contractIncoms);
 
@@ -214,7 +242,7 @@ public class IncomeServiceImpl implements IncomeService {
 	 * @return
 	 */
 	public BigDecimal calcuRecomIncome(String rate, BigDecimal income) {
-		BigDecimal incomeRate = new BigDecimal(rate).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+		BigDecimal incomeRate = new BigDecimal(rate).divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
 		BigDecimal multiply = income.multiply(incomeRate);
 		return multiply;
 	}
@@ -229,9 +257,9 @@ public class IncomeServiceImpl implements IncomeService {
 	public BigDecimal calcuPigIncom(Long pigId, BigDecimal price) {
 		PigGoods goods = goodsService.getById(pigId);
 		// 单日收益率
-		BigDecimal divide = goods.getIncomeRatio().divide(new BigDecimal(String.valueOf(goods.getContractDays())), 2,
+		BigDecimal divide = goods.getIncomeRatio().divide(new BigDecimal(String.valueOf(goods.getContractDays())), 10,
 				RoundingMode.HALF_UP);
-		BigDecimal incomeRatio = divide.divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+		BigDecimal incomeRatio = divide.divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
 		BigDecimal income = price.multiply(incomeRatio);
 		return income;
 	}

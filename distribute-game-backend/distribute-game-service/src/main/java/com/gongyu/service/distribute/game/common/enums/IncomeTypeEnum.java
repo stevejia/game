@@ -31,7 +31,7 @@ public enum IncomeTypeEnum {
     RECOMM_WILL(13,"推荐奖"),
     PROMOTE(17,"后台充值财分"),
     SYS_POINT(18,"后台充值积分"),
-
+    USER_PAY_POINTS(19, "用户当天积分");
 
     ;
 

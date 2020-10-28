@@ -139,7 +139,9 @@ public class OrderServiceImpl implements OrderService {
 			pigReservationService.saveOrUpdateBatch(reservats);
 			// 没有中奖的预约用户退还抢购积分
 			List<Users> userPoints = usersService.convertUserPoints2(reservats, goods);
-			usersService.saveOrUpdateBatch(userPoints);
+			if (userPoints != null && userPoints.size() > 0) {
+				usersService.saveOrUpdateBatch(userPoints);
+			}
 		}
 		// 非预约用户没有抢购到退还积分
 		List<Long> notLuckUsers = this.getNotLuckUsers(users, luckUsers, reservats);

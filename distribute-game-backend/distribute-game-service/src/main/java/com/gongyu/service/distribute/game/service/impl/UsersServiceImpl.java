@@ -26,9 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -288,7 +290,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	}
 
 	@Override
-	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
+	@Transactional(rollbackFor = { Exception.class, RuntimeException.class }, propagation = Propagation.REQUIRED)
 	public List<Users> convertUserPoints2(List<PigReservation> reservats, PigGoods goods) {
 		Integer adoptiveEnergy = goods.getAdoptiveEnergy();
 		List<Users> users = new ArrayList<>();
@@ -355,7 +357,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	}
 
 	@Override
-	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
+	@Transactional(rollbackFor = { Exception.class, RuntimeException.class }, propagation = Propagation.REQUIRES_NEW)
 	public boolean modifyPayPoints(Integer userId, int score, int direction, String remark,
 			IncomeTypeEnum incomeTypeEnum, PigGoods goods) {
 		if (score <= 0) {

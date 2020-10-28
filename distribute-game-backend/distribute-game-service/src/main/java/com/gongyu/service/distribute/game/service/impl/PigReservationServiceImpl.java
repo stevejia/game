@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -154,12 +155,6 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 	@Override
 	@Transactional
 	public BaseResponse robProducts(RobProductsDto param) {
-		Long useId = RedisUtils.get("robProduct:" + param.getUserId());
-		if (useId != null) {
-			return BaseResponse.success("正在抢占中");
-		} else {
-			RedisUtils.set("robProduct:" + param.getUserId(), param.getUserId());
-		}
 //		Set<Long> users;
 		PigGoods goods = goodsService.getById(param.getPigId());
 		Assert.notNull(goods, "没有找到对应木材");
@@ -169,6 +164,10 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 				DateUtils.DEFAULT_TIME_FORMAT);
 		if (resDate.before(nowDate)) {
 			return BaseResponse.error("不在抢占时间");
+		}
+		Long useId = RedisUtils.get("robProduct:" + param.getUserId());
+		if (useId != null) {
+			return BaseResponse.success("正在抢占中");
 		}
 //		users = RedisUtils.get("robProduct:" + param.getPigId());
 //		if (!CollectionUtils.isEmpty(users) && users.contains(param.getUserId())) {
@@ -187,6 +186,9 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 		if (null == authRecord) {
 			return BaseResponse.error("还没做实名认证");
 		}
+		
+		RedisUtils.set("robProduct:" + param.getUserId(), param.getUserId());
+
 		Users user = usersService.getById(param.getUserId());
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
