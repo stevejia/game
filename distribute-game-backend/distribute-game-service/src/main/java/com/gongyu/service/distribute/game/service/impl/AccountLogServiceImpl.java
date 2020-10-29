@@ -76,7 +76,7 @@ public class AccountLogServiceImpl extends CrudServiceSupport<AccountLogMapper, 
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class, RuntimeException.class}, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     public void saveAccountLog(AccountLogSaveDto accountLogSaveDto) {
         AccountLog accountLog = new AccountLog();
         BeanUtils.copyProperties(accountLogSaveDto, accountLog);

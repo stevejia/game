@@ -357,7 +357,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	}
 
 	@Override
-	@Transactional(rollbackFor = { Exception.class, RuntimeException.class }, propagation = Propagation.REQUIRES_NEW)
+	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
 	public boolean modifyPayPoints(Integer userId, int score, int direction, String remark,
 			IncomeTypeEnum incomeTypeEnum, PigGoods goods) {
 		if (score <= 0) {
