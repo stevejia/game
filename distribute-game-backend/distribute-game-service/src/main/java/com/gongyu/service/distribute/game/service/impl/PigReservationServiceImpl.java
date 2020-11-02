@@ -105,6 +105,9 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 	public BaseResponse reservat(ReservatDto param) {
 		Long awardId = null;
 		PigGoods goods = goodsService.getById(param.getGoodsId());
+		if(goods.getIsDisplay() == 0) {
+			return BaseResponse.error("暂未开放");
+		}
 		Assert.notNull(goods, "没有找到对应木材");
 		Date nowDate = DateUtils.parse(DateUtils.format(DateUtils.currentDate(), DateUtils.DEFAULT_TIME_FORMAT),
 				DateUtils.DEFAULT_TIME_FORMAT);
@@ -122,9 +125,12 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 		if (null == authRecord) {
 			return BaseResponse.error("还没做实名认证");
 		}
-
-		boolean b = usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getReservation(), 2,
-				"预约木材:" + goods.getGoodsName(), IncomeTypeEnum.RESERVAT, goods);
+		Users user = usersService.getById(param.getUserId());
+		Assert.notNull(user, "无效的会员ID:" + param.getUserId());
+		
+		boolean b = user.getPayPoints() >= goods.getReservation();
+//		boolean b = usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getReservation(), 2,
+//				"预约木材:" + goods.getGoodsName(), IncomeTypeEnum.RESERVAT, goods);
 		if (!b) {
 			return BaseResponse.error("积分不足");
 		}
@@ -157,6 +163,9 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 	public BaseResponse robProducts(RobProductsDto param) {
 //		Set<Long> users;
 		PigGoods goods = goodsService.getById(param.getPigId());
+		if(goods.getIsDisplay() == 0) {
+			return BaseResponse.error("暂未开放");
+		}
 		Assert.notNull(goods, "没有找到对应木材");
 		Date nowDate = DateUtils.parse(DateUtils.format(DateUtils.currentDate(), DateUtils.DEFAULT_TIME_FORMAT),
 				DateUtils.DEFAULT_TIME_FORMAT);
@@ -190,17 +199,17 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 		RedisUtils.set("robProduct:" + param.getUserId(), param.getUserId());
 
 		Users user = usersService.getById(param.getUserId());
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(new Date());
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		Date zero = calendar.getTime();
-		Long startTime = zero.getTime() / 1000;
-		PigReservation reservation = reservationService
-				.getOne(new QueryWrapper<PigReservation>().eq("user_id", user.getId()).eq("pig_id", goods.getId())
-						.eq("is_click_buy", IsClickBuyEnum.FALSE.getCode()).ge("reservation_time", startTime));
-		if (null == reservation && null != user && user.getPayPoints() < goods.getAdoptiveEnergy()) {
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.setTime(new Date());
+//		calendar.set(Calendar.HOUR_OF_DAY, 0);
+//		calendar.set(Calendar.MINUTE, 0);
+//		calendar.set(Calendar.SECOND, 0);
+//		Date zero = calendar.getTime();
+//		Long startTime = zero.getTime() / 1000;
+//		PigReservation reservation = reservationService
+//				.getOne(new QueryWrapper<PigReservation>().eq("user_id", user.getId()).eq("pig_id", goods.getId())
+//						.eq("is_click_buy", IsClickBuyEnum.FALSE.getCode()).ge("reservation_time", startTime));
+		if (null != user && user.getPayPoints() < goods.getAdoptiveEnergy()) {
 			return BaseResponse.error("积分不足");
 		}
 //		if (CollectionUtils.isEmpty(users)) {
@@ -215,17 +224,17 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 		}
 //		RedisUtils.set("robProduct:" + param.getPigId(), users);
 		// 扣除积分
-		if (null == reservation) {
-			usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getAdoptiveEnergy(), 2,
-					"抢购木材:" + goods.getGoodsName(), IncomeTypeEnum.PANIC_BUY, goods);
-		} else {
-			// 扣除的积分=抢购的积分
-			usersService.modifyPayPoints(Math.toIntExact(param.getUserId()),
-					goods.getAdoptiveEnergy() - reservation.getPayPoints(), 2,
-					"抢购木材:" + goods.getGoodsName() + "(抢购积分-已预约积分)", IncomeTypeEnum.PANIC_BUY, goods);
-			reservation.setIsClickBuy(IsClickBuyEnum.TRUE.getCode());
-			reservationService.updateById(reservation);
-		}
+//		if (null == reservation) {
+//			usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getAdoptiveEnergy(), 2,
+//					"抢购木材:" + goods.getGoodsName(), IncomeTypeEnum.PANIC_BUY, goods);
+//		} else {
+//			// 扣除的积分=抢购的积分
+//			usersService.modifyPayPoints(Math.toIntExact(param.getUserId()),
+//					goods.getAdoptiveEnergy() - reservation.getPayPoints(), 2,
+//					"抢购木材:" + goods.getGoodsName() + "(抢购积分-已预约积分)", IncomeTypeEnum.PANIC_BUY, goods);
+//			reservation.setIsClickBuy(IsClickBuyEnum.TRUE.getCode());
+//			reservationService.updateById(reservation);
+//		}
 		return BaseResponse.success();
 
 	}

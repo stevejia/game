@@ -128,6 +128,7 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 			// 中奖人数
 			luckyPerson = getNum(pigAwardLog.getAwardUserList());
 			dto.setAwardUserList(pigAwardLog.getAwardUserList());
+			dto.setJoinUserList(pigAwardLog.getJoinUserList());
 		}
 		dto.setRobPerson(robPerson);
 		dto.setLuckyPerson(luckyPerson);
