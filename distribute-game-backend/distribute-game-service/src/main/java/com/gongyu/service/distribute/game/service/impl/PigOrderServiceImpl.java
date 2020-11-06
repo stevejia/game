@@ -19,6 +19,7 @@ import com.gongyu.service.distribute.game.model.entity.UserPayment;
 import com.gongyu.service.distribute.game.model.entity.Users;
 import com.gongyu.service.distribute.game.service.*;
 import com.gongyu.service.distribute.game.utils.DateUtils;
+import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.base.response.BaseResponse;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
 import com.gongyu.snowcloud.framework.data.redis.RedisUtils;
@@ -73,21 +74,35 @@ public class PigOrderServiceImpl extends CrudServiceSupport<PigOrderMapper, PigO
 
     @Override
     public BaseResponse luckStatus(Long userId, Long goodsId) {
-        PigAwardLog awardLog = awardLogService.getOne(new QueryWrapper<PigAwardLog>().eq("pig_id", goodsId).eq("open_result", OpenResultEnum.OEPN.getCode()).orderByDesc("id"));
-        log.info("获取中奖纪录信息 awardLog:{}", JSON.toJSONString(awardLog));
-        if (null == awardLog) {
-            return BaseResponse.newInstance("2").setDetail("正在开奖中");
-        }
-        Date date = DateUtil.getDate(DateUtil.getNowDate());
-        String dateFormatToString = DateUtils.getDateFormatToString(date, DateUtils.DATE_DEFAULT_FORMAT);
-        Date date1 = DateUtil.getDate(awardLog.getChangeTime());
-        String dateFormatToString1 = DateUtils.getDateFormatToString(date1, DateUtils.DATE_DEFAULT_FORMAT);
-        if (null != awardLog && OpenResultEnum.NOT_OPEN.getCode() == awardLog.getOpenResult() && dateFormatToString.equals(dateFormatToString1)) {
-            return BaseResponse.newInstance("2").setDetail("正在开奖中");
-        }
-
-        PigOrder order = orderMapper.getOrderByUser(userId, goodsId);
-        log.info("中奖者订单 order:{}", JSON.toJSONString(order));
+    	List<PigOrder> orders = RedisUtils2.get("newOrders:" + goodsId);
+    	if(orders == null) {
+    		return BaseResponse.newInstance("2").setDetail("正在开奖中");
+    	}
+    	
+    	PigOrder order = null;
+    	
+    	for(PigOrder po: orders) {
+    		if(po.getPurchaseUserId().intValue() == userId.intValue()) {
+    			order = po;
+    		}
+    	}
+    	
+    	
+//        PigAwardLog awardLog = awardLogService.getOne(new QueryWrapper<PigAwardLog>().eq("pig_id", goodsId).eq("open_result", OpenResultEnum.OEPN.getCode()).orderByDesc("id"));
+//        log.info("获取中奖纪录信息 awardLog:{}", JSON.toJSONString(awardLog));
+//        if (null == awardLog) {
+//            return BaseResponse.newInstance("2").setDetail("正在开奖中");
+//        }
+//        Date date = DateUtil.getDate(DateUtil.getNowDate());
+//        String dateFormatToString = DateUtils.getDateFormatToString(date, DateUtils.DATE_DEFAULT_FORMAT);
+//        Date date1 = DateUtil.getDate(awardLog.getChangeTime());
+//        String dateFormatToString1 = DateUtils.getDateFormatToString(date1, DateUtils.DATE_DEFAULT_FORMAT);
+//        if (null != awardLog && OpenResultEnum.NOT_OPEN.getCode() == awardLog.getOpenResult() && dateFormatToString.equals(dateFormatToString1)) {
+//            return BaseResponse.newInstance("2").setDetail("正在开奖中");
+//        }
+//
+//        PigOrder order = orderMapper.getOrderByUser(userId, goodsId);
+//        log.info("中奖者订单 order:{}", JSON.toJSONString(order));
         if (null == order) {
             return BaseResponse.error("没有抢到该商品");
         }
@@ -103,11 +118,22 @@ public class PigOrderServiceImpl extends CrudServiceSupport<PigOrderMapper, PigO
         List<UserPayment> paymentList = paymentService.list(new QueryWrapper<UserPayment>()
                 .eq("user_id", order.getSellUserId())
                 .eq("status", CommEnum.TRUE.getCode()));
+        
+        List<UserPayment> buyPaymentList = paymentService.list(new QueryWrapper<UserPayment>()
+                .eq("user_id", order.getPurchaseUserId())
+                .eq("status", CommEnum.TRUE.getCode()));
         Assert.notEmpty(paymentList, "收款人未添加收款方式");
         Assert.notNull(order, "订单不存在");
         Assert.notNull(purchaseUser, "没有找到购买人");
         Assert.notNull(sellUser, "没有找到出售人");
         OrderDetailsDto detailsDto = convert(order, purchaseUser, sellUser, paymentList);
+        String contactMobile = "";
+        for(UserPayment pay: buyPaymentList) {
+        	if(pay.getPaysalt() != null) {
+        		contactMobile = pay.getPaysalt();
+        	}
+        }
+        detailsDto.setContactMobile(contactMobile);
         return BaseResponse.success(detailsDto);
     }
 

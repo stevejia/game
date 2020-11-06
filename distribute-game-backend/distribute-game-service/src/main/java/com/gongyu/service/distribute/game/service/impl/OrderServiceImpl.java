@@ -75,6 +75,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void processTask(PigGoods goods) {
+		//初始化订单缓存
+		RedisUtils2.removeBatch("newOrders:");
 		log.info("开始处理开奖逻辑...");
 		List<PigOrder> orders;
 		List<Long> luckUsers;
@@ -185,6 +187,7 @@ public class OrderServiceImpl implements OrderService {
 
 		log.info("processTask 开奖处理，场次：{}，本场抢中用户数量：{}", goods.getId(), luckUsers.size());
 		orders = orderManager.createOrder(luckUsers, pigs);
+		RedisUtils2.set("newOrders:" + goods.getId(), orders);
 		// 插入订单数据
 //        if(!CollectionUtils.isEmpty(orders)){
 //            orderManager.insertForeach(orders);

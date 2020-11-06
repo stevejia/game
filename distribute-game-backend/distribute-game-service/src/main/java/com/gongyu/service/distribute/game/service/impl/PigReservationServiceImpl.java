@@ -16,6 +16,7 @@ import com.gongyu.service.distribute.game.model.dto.ReservatDto;
 import com.gongyu.service.distribute.game.model.dto.RobProductsDto;
 import com.gongyu.service.distribute.game.model.entity.*;
 import com.gongyu.service.distribute.game.service.*;
+import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.base.response.BaseResponse;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
 import com.gongyu.snowcloud.framework.data.redis.RedisUtils;
@@ -161,6 +162,8 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 	@Override
 	@Transactional
 	public BaseResponse robProducts(RobProductsDto param) {
+		//初始化订单缓存
+		RedisUtils2.removeBatch("newOrders:");
 //		Set<Long> users;
 		PigGoods goods = goodsService.getById(param.getPigId());
 		if(goods.getIsDisplay() == 0) {
@@ -195,8 +198,6 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 		if (null == authRecord) {
 			return BaseResponse.error("还没做实名认证");
 		}
-		
-		RedisUtils.set("robProduct:" + param.getUserId(), param.getUserId());
 
 		Users user = usersService.getById(param.getUserId());
 //		Calendar calendar = Calendar.getInstance();
@@ -222,6 +223,8 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 			RedisUtils.remove("robProduct:" + param.getPigId());
 			return BaseResponse.error("抢购失败" + goods.getGoodsName() + "已开奖或没有开奖计划");
 		}
+		RedisUtils.set("robProduct:" + param.getUserId(), param.getUserId());
+
 //		RedisUtils.set("robProduct:" + param.getPigId(), users);
 		// 扣除积分
 //		if (null == reservation) {

@@ -88,7 +88,7 @@ public class IncomeServiceImpl implements IncomeService {
 			}
 			
 			
-			this.processUpgrade(pig, allPigGoods);
+
 //            conIncome = conIncome.add(incom);
 			// 木材合约是否到期
 //            if(!DateUtil.before(DateUtils.format(DateUtil.getDate(pig.getEndTime()),DateUtils.DEFAULT_DATE_TIME_FORMAT))){
@@ -97,6 +97,8 @@ public class IncomeServiceImpl implements IncomeService {
 //			Long todayZero = this.getDateZeroTime(0);
 //			Long tommorowZero = this.getDateZeroTime(1);
 			if (pig.getEndTime().longValue() < tommorowZero.longValue() && pig.getEndTime() > todayZero) {
+				//升值结束 判断木材是否升级到下一轮
+				this.processUpgrade(pig, allPigGoods);
 				pig.setIsAbleSale(SaleStatusEnum.TRUE.getCode());
 				//合约到期 木材如果需要分裂 那么执行分裂逻辑
 				// 木材是否分裂
