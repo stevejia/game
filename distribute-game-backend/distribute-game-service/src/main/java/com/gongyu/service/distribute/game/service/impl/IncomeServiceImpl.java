@@ -159,6 +159,8 @@ public class IncomeServiceImpl implements IncomeService {
 		for (PigGoods pigGoods : allPigGoods) {
 			if(pigGoods.getSmallPrice().compareTo(price)<=0 && pigGoods.getLargePrice().compareTo(price)>0) {
 				pig.setPigId(pigGoods.getId());
+				pig.setNowContractDays(pigGoods.getContractDays());
+				pig.setNowIncomeRatio(pigGoods.getIncomeRatio());
 			}
 		}
 	}
