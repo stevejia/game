@@ -14,7 +14,7 @@ import java.util.Map;
 
 public interface UsersService extends CrudService<Users> {
 
-    IPage<Users> queryUsers(IPage<Users> page, String mobile, Long id, Long regTimeStart, Long regTimeEnd);
+    List<Users> queryUsers(IPage<Users> page, String mobile, Long id, Long regTimeStart, Long regTimeEnd);
 
     Integer saveUsers(UsersSaveDto usersSaveDto);
 

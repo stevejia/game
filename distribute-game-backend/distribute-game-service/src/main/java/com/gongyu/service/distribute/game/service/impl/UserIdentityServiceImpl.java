@@ -51,6 +51,7 @@ public class UserIdentityServiceImpl extends CrudServiceSupport<UserIdentityMapp
                 });
             }
         }
+        eq.orderByDesc(UserIdentity::getId);
         IPage<UserIdentity> page1 = this.page(page, eq);
         List<UserIdentity> records = page1.getRecords();
         List<Integer> collect = records.stream().map(UserIdentity::getUserId).collect(Collectors.toList());

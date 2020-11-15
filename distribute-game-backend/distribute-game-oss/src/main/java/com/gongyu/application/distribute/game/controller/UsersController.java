@@ -48,15 +48,16 @@ public class UsersController {
     @ApiOperation(value = "【会员管理】列表", notes = "【会员管理】列表", response = UsersResponseDto.class)
     @PostMapping("queryUsers")
     public BaseResponse queryUsers(Page page, @Valid @ModelAttribute UsersQueryDto usersQueryDto) {
-        IPage iPage = usersService.queryUsers(page, usersQueryDto.getMobile(), usersQueryDto.getId(), usersQueryDto.getRegTimeStart(), usersQueryDto.getRegTimeEnd());
-        List<Users> userList = iPage.getRecords();
+    	List<Users> userList = usersService.queryUsers(page, usersQueryDto.getMobile(), usersQueryDto.getId(), usersQueryDto.getRegTimeStart(), usersQueryDto.getRegTimeEnd());
+//        List<Users> userList = iPage.getRecords();
         List<UsersResponseDto> newList = Lists.newArrayList();
         userList.forEach(e -> {
             UsersResponseDto usersResponseDtoNew = UsersResponseDto.builder().build().convertToUser(e);
             // todo 计算总资产user_exclusive_pig  sum(price) 合约收益
-            List<UserExclusivePig> list = userExclusivePigService.list(Wrappers.<UserExclusivePig>lambdaQuery().eq(UserExclusivePig::getUserId, usersResponseDtoNew.getId()));
+            List<UserExclusivePig> list = userExclusivePigService.list(Wrappers.<UserExclusivePig>lambdaQuery().eq(UserExclusivePig::getUserId, usersResponseDtoNew.getId()).eq(UserExclusivePig::getIsPigLock, 0));
             BigDecimal reduce = list.stream().map(UserExclusivePig::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
             usersResponseDtoNew.setTotalAssets(reduce);
+            usersResponseDtoNew.setTotalProducts(list.size());
             List<Users> firstNum = usersService.list(new QueryWrapper<Users>().eq("first_leader", e.getId()));
             List<Users> twoNum = usersService.list(new QueryWrapper<Users>().eq("second_leader", e.getId()));
             List<Users> threeNum = usersService.list(new QueryWrapper<Users>().eq("third_leader", e.getId()));
@@ -72,8 +73,8 @@ public class UsersController {
             // todo 计算合约收益 account_log  type=21  sum(contract_revenue)
             newList.add(usersResponseDtoNew);
         });
-        iPage.setRecords(newList);
-        return BaseResponse.success(iPage);
+        page.setRecords(newList);
+        return BaseResponse.success(page);
     }
 
     @ApiOperation(value = "【会员管理】添加", notes = "【会员管理】添加")

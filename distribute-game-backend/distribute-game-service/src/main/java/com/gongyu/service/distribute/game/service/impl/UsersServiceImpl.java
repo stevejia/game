@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.gongyu.service.distribute.game.common.enums.CommEnum;
 import com.gongyu.service.distribute.game.common.enums.IncomeTypeEnum;
+import com.gongyu.service.distribute.game.common.enums.PhoneCodeTypeEnum;
 import com.gongyu.service.distribute.game.common.utils.DateUtil;
 import com.gongyu.service.distribute.game.mapper.RechargeMapper;
 import com.gongyu.service.distribute.game.mapper.UsersMapper;
@@ -73,21 +74,29 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	private UserExclusivePigService userExclusivePigService;
 
 	@Override
-	public IPage<Users> queryUsers(IPage<Users> page, String mobile, Long id, Long regTimeStart, Long regTimeEnd) {
-		LambdaQueryWrapper<Users> eq = new LambdaQueryWrapper<>();
-		if (!StringUtils.isEmpty(mobile)) {
-			eq.eq(Users::getMobile, mobile);
-		}
-		if (id != null) {
-			eq.eq(Users::getId, id);
-		}
+	public List<Users> queryUsers(IPage<Users> page, String mobile, Long id, Long regTimeStart, Long regTimeEnd) {
+		List<Users> users = usersMapper.queryUsers(page, mobile, id, regTimeStart, regTimeEnd);
+		
+//		LambdaQueryWrapper<Users> eq = new LambdaQueryWrapper<>();
+//		if (!StringUtils.isEmpty(mobile)) {
+//			eq.eq(Users::getMobile, mobile);
+//		}
+//		if (id != null) {
+//			eq.eq(Users::getId, id);
+//		}
+//
+//		if (regTimeStart != null && regTimeEnd != null) {
+//			eq.ge(Users::getRegTime, regTimeStart);
+//			eq.le(Users::getRegTime, regTimeEnd);
+//		}
+//		
+//		eq.select(UserExclusivePig.class, select)
+//		
+//		eq.orderByDesc(columns)
+//		
+////		eq.orderByDesc()
 
-		if (regTimeStart != null && regTimeEnd != null) {
-			eq.ge(Users::getRegTime, regTimeStart);
-			eq.le(Users::getRegTime, regTimeEnd);
-		}
-
-		return this.page(page, eq);
+		return users;
 	}
 
 	@Override
@@ -460,11 +469,11 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		 * (StringUtils.isEmpty(graphVerifyCode)) { throw new BizException("图形验证码失效"); }
 		 */
 		// 短信校验
-//        boolean b = sysSmsFpi.checkSmsCode(memberLoginRequestDto.getMobile(),
-//                memberLoginRequestDto.getSmsCode(), PhoneCodeTypeEnum.REGISTER.getCode());
-//        if (!b) {
-//            throw new BizException("短信验证码错误");
-//        }
+        boolean b = sysSmsFpi.checkSmsCode(memberLoginRequestDto.getMobile(),
+                memberLoginRequestDto.getSmsCode(), PhoneCodeTypeEnum.REGISTER.getCode());
+        if (!b) {
+            throw new BizException("短信验证码错误");
+        }
 		if (memberLoginRequestDto.getFirstLeader() == null) {
 			throw new BizException("邀请人ID不能为空");
 		}
@@ -528,6 +537,10 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 
 	@Override
 	public void sendSmsCode(String phone, String codeType, String smsTemplate, Map<String, String> templateParam) {
+		Users user = this.getOne(new QueryWrapper<Users>().eq("mobile", phone));
+		if(user != null) {
+			throw new BizException("手机号码已被注册");
+		}
 		sysSmsFpi.sendSmsCode(phone, codeType, smsTemplate, templateParam);
 	}
 

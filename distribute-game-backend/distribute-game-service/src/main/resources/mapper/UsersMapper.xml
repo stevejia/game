@@ -58,4 +58,23 @@
         WHERE a.first_leader = #{id}
         GROUP BY a.level
     </select>
+    
+    <select id="queryUsers" resultType="com.gongyu.service.distribute.game.model.entity.Users">
+        select * from game.zp_users 
+        where 1 = 1
+        <if test="mobile!=null">
+        	AND mobile = #{mobile}
+        </if>
+        <if test="id!=null">
+        	AND id = #{id}
+        </if>
+        <if test="regTimeStart!=null">
+        	AND reg_time &gt;= #{regTimeStart}
+        </if>
+        
+        <if test="regTimeEnd!=null">
+        	AND reg_time &lt;= #{regTimeEnd}
+        </if>
+         order by (select sum(price) from game.zp_user_exclusive_pig where user_id = game.zp_users.id and is_pig_lock = 0) desc, id asc
+    </select>
 </mapper>

@@ -51,6 +51,8 @@ public class UsersResponseDto extends BaseEntity {
     private String bankNumber;
     @ApiModelProperty(value = "用户编号", dataType = "Integer")
     private Integer code;
+    @ApiModelProperty(value = "可出售木材", dataType = "Integer")
+    private Integer totalProducts;
 
     @Tolerate
     public UsersResponseDto() {

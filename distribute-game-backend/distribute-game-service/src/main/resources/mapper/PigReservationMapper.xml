@@ -60,6 +60,7 @@
 			AND FROM_UNIXTIME(a.reservation_time,'%Y-%m-%d') =
 			FROM_UNIXTIME(#{param.reservationTime},'%Y-%m-%d')
 		</if>
+		order by id desc
 	</select>
 
 	<select id="findAll"

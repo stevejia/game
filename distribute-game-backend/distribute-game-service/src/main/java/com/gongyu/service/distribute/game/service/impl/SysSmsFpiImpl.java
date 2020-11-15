@@ -97,6 +97,7 @@ public class SysSmsFpiImpl extends CrudServiceSupport<PhoneCodeMapper, PhoneCode
         Date expireDate;
         if (StringUtils.equals(sms_switch, "true")) {
             expireDate = getDelayMinute(15);
+            code = templateParam.get("code");
             this.aliyunSmsSender.send(phone, SmsTemplate, templateParam);
         } else {
             code = "1234";
