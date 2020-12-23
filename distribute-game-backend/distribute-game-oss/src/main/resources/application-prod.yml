@@ -27,14 +27,14 @@ api:
 
 aliyun:
   oss:
-    accessKeyId: LTAI4G2AmjZMcwPjPpffd2Fa
-    accessKeySecret: xNXyaRPs10fKCzPau0DnVAjtQ4sy87
+    accessKeyId: LTAI4G3S6zovqdAfeeWcboQr
+    accessKeySecret: GLPAzNLuzO7MjzqnRha4ov8KSWWHiR
     endpoint : oss-accelerate.aliyuncs.com
-    bucketName : qmyl-bucket-cn
+    bucketName : chachang
   sms:
-    accessKeyId: LTAI4G2AmjZMcwPjPpffd2Fa
-    accessKeySecret: xNXyaRPs10fKCzPau0DnVAjtQ4sy87
-    freeSignName: 奇木园林
+    accessKeyId: LTAI4G3S6zovqdAfeeWcboQr
+    accessKeySecret: GLPAzNLuzO7MjzqnRha4ov8KSWWHiR
+    freeSignName: 三味茶场
     smsSwitch: on
 
 gongyu:

@@ -119,7 +119,7 @@ public class UsersController {
 //        String smsCode = RandomStringUtils.randomNumeric(4);
 //        String content = SmsTemplate.replace("code", smsCode);
 //        usersService.sendSmsCodeThirdParty(mobile, codeType, content, smsCode);
-        final String SmsTemplateCode = "SMS_205460951";
+        final String SmsTemplateCode = "SMS_206840134";
         String smsCode = RandomStringUtils.randomNumeric(4);
 //        String content = SmsTemplate.replace("code", smsCode);
         final Map<String, String> templateParam = new HashMap<String, String>() {

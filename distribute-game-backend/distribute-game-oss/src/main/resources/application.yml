@@ -34,4 +34,4 @@ mybatis-plus:
 #订单未支付超时时间
 order_time_out: 7200000
 #注册地址+邀请码
-register_url: http://app.qmyl8888.com/#/register?inviteCode=%s
+register_url: http://app.1230-games.com/#/register?inviteCode=%s
