@@ -12,7 +12,7 @@ import lombok.Data;
 public class WorkOrder extends BaseDataEntity {
     @ApiModelProperty(value = "会员ID", dataType = "Integer")
     private Long userId;
-    @ApiModelProperty(value = "积分", dataType = "String")
+    @ApiModelProperty(value = "茶籽", dataType = "String")
     private String contactInformation;
     @ApiModelProperty(value = "标题", dataType = "String")
     private String title;

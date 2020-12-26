@@ -21,7 +21,7 @@ public class AccountLogModifyDto{
     private BigDecimal userMoney;
     @ApiModelProperty(value = "冻结金额", dataType = "BigDecimal")
     private BigDecimal frozenMoney;
-    @ApiModelProperty(value = "支付积分", dataType = "Integer")
+    @ApiModelProperty(value = "支付茶籽", dataType = "Integer")
     private Integer payPoints;
     @ApiModelProperty(value = "DOGE", dataType = "Integer")
     private Integer dogeMoney;

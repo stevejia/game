@@ -23,8 +23,8 @@ public class AccountLogSaveDto {
     private BigDecimal userMoney;
     @ApiModelProperty(value = "冻结金额", dataType = "BigDecimal")
     private BigDecimal frozenMoney;
-    @ApiModelProperty(value = "支付积分", dataType = "Integer", required = true)
-    @NotNull(message = "支付积分不能为空")
+    @ApiModelProperty(value = "支付茶籽", dataType = "Integer", required = true)
+    @NotNull(message = "支付茶籽不能为空")
     private Integer payPoints;
     @ApiModelProperty(value = "DOGE", dataType = "Integer", required = true)
     @NotNull(message = "DOGE不能为空")

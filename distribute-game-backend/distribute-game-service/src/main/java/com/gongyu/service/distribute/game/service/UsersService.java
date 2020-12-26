@@ -23,17 +23,17 @@ public interface UsersService extends CrudService<Users> {
     void modifyUsersInfo(UsersModifyDto usersModifyDto);
 
     /**
-     * 修改积分
+     * 修改茶籽
      *
      * @param userId
-     * @param type      1推广收益 2积分
-     * @param direction 1增加积分 2减少积分
+     * @param type      1推广收益 2茶籽
+     * @param direction 1增加茶籽 2减少茶籽
      * @param score
      */
     void modifyAccount(Integer userId, int type, BigDecimal score, int direction, String remark, IncomeTypeEnum incomeTypeEnum);
 
     /**
-     * 修改积分
+     * 修改茶籽
      *
      * @param userId
      * @param direction 1增加 2减少
@@ -41,7 +41,7 @@ public interface UsersService extends CrudService<Users> {
      */
     boolean modifyPayPoints(Integer userId, int score, int direction, String remark, IncomeTypeEnum incomeTypeEnum);
     /**
-    * 修改积分
+    * 修改茶籽
     *
     * @param userId
     * @param direction 1增加 2减少
@@ -67,13 +67,13 @@ public interface UsersService extends CrudService<Users> {
     List<UsersTreeResponseDto> queryTreeList(Long userId, String type);
 
     /**
-     * 重新构建用户积分
+     * 重新构建用户茶籽
      *
      * @return
      */
     List<Users> convertUserPoints(List<PigReservation> reservats);
     /**
-     *  重新构建用户积分
+     *  重新构建用户茶籽
     *
     * @return
     */

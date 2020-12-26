@@ -15,7 +15,7 @@ import com.gongyu.service.distribute.game.model.entity.Users;
 @Repository
 public interface UsersMapper extends BaseMapper<Users> {
 
-	List<UsersTreeResponseDto> queryTreeList(@Param("userId") Long userId, @Param("type") String type);
+	List<UsersTreeResponseDto> queryTreeList(@Param("userId") Long userId, @Param("type") String type, @Param("todayZero")Long todayZero, @Param("threeDaysZero")Long threeDaysZero, @Param("sevenDaysZero")Long sevenDaysZero);
 
 	List<newUsersDto> newUsers(@Param("startDate") String startDate, @Param("endDate") String endDate);
 

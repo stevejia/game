@@ -41,7 +41,7 @@ public class UsersResponseDto extends BaseEntity {
     private String mobile;
     @ApiModelProperty(value = "推广收益", dataType = "BigDecimal")
     private BigDecimal extensionAmount;
-    @ApiModelProperty(value = "消费积分", dataType = "Integer")
+    @ApiModelProperty(value = "消费茶籽", dataType = "Integer")
     private Integer payPoints;
     @ApiModelProperty(value = "注册时间", dataType = "Integer")
     private Integer regTime;
@@ -53,6 +53,15 @@ public class UsersResponseDto extends BaseEntity {
     private Integer code;
     @ApiModelProperty(value = "可出售木材", dataType = "Integer")
     private Integer totalProducts;
+    
+    @ApiModelProperty(value = "当日抢购情况", dataType = "String")
+    private String todayRub;
+    
+    @ApiModelProperty(value = "近7日抢购次数", dataType = "Integer")
+    private Integer sevenDaysRub;
+    
+    @ApiModelProperty(value = "近3日抢购次数", dataType = "Integer")
+    private Integer threeDaysRub;
 
     @Tolerate
     public UsersResponseDto() {

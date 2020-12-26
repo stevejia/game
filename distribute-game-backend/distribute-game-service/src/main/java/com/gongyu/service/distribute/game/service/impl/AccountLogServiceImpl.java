@@ -213,12 +213,12 @@ public class AccountLogServiceImpl extends CrudServiceSupport<AccountLogMapper, 
             throw new BizException("转赠对象用户不存在");
         }
         if(byId.getPayPoints() < rechargeRequestDto.getAccount() + 100){
-            throw new BizException("转赠后的积分不能低于100");
+            throw new BizException("转赠后的茶籽不能低于100");
         }
-        //检查转增积分数量是否合法
+        //检查转增茶籽数量是否合法
         Config lowest = configService.getOne(new QueryWrapper<Config>().eq("config_name", "transferring"));
         if(Float.valueOf(lowest.getConfigValue()).floatValue() > rechargeRequestDto.getAccount().floatValue()){
-            throw new BizException("转增积分不得低于" + lowest.getConfigValue());
+            throw new BizException("转增茶籽不得低于" + lowest.getConfigValue());
         }
         Config ruleNum = configService.getOne(new QueryWrapper<Config>().eq("config_name", "transfer_multiple"));
         if(Math.round(rechargeRequestDto.getAccount()) % Long.valueOf(ruleNum.getConfigValue()) != 0){

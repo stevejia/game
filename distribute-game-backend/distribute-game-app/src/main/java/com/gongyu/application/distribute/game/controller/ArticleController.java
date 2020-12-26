@@ -36,7 +36,7 @@ public class ArticleController {
         return BaseResponse.success(articleService.getById(id));
     }
 
-    @ApiOperation(value = "【积分描述】详情", notes = "【积分描述】详情", response = Article.class)
+    @ApiOperation(value = "【茶籽描述】详情", notes = "【茶籽描述】详情", response = Article.class)
     @PostMapping("getPointDesc")
     public BaseResponse getPointDesc(@ApiParam(value = "cateId") @RequestParam Long cateId){
         Article article = articleService.getOne(new QueryWrapper<Article>().eq("cate_id", cateId));

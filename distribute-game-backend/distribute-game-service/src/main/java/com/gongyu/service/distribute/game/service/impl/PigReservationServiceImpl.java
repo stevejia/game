@@ -133,7 +133,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 //		boolean b = usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getReservation(), 2,
 //				"预约木材:" + goods.getGoodsName(), IncomeTypeEnum.RESERVAT, goods);
 		if (!b) {
-			return BaseResponse.error("积分不足");
+			return BaseResponse.error("茶籽不足");
 		}
 		// 找到该木材的下一场次
 		PigAwardLog awardLog = awardLogService.getOne(new QueryWrapper<PigAwardLog>()
@@ -211,7 +211,7 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 //				.getOne(new QueryWrapper<PigReservation>().eq("user_id", user.getId()).eq("pig_id", goods.getId())
 //						.eq("is_click_buy", IsClickBuyEnum.FALSE.getCode()).ge("reservation_time", startTime));
 		if (null != user && user.getPayPoints() < goods.getAdoptiveEnergy()) {
-			return BaseResponse.error("积分不足");
+			return BaseResponse.error("茶籽不足");
 		}
 //		if (CollectionUtils.isEmpty(users)) {
 //			this.addOpenLuckQueue(goods, param.getPigId());
@@ -226,15 +226,15 @@ public class PigReservationServiceImpl extends CrudServiceSupport<PigReservation
 		RedisUtils.set("robProduct:" + param.getUserId(), param.getUserId());
 
 //		RedisUtils.set("robProduct:" + param.getPigId(), users);
-		// 扣除积分
+		// 扣除茶籽
 //		if (null == reservation) {
 //			usersService.modifyPayPoints(Math.toIntExact(param.getUserId()), goods.getAdoptiveEnergy(), 2,
 //					"抢购木材:" + goods.getGoodsName(), IncomeTypeEnum.PANIC_BUY, goods);
 //		} else {
-//			// 扣除的积分=抢购的积分
+//			// 扣除的茶籽=抢购的茶籽
 //			usersService.modifyPayPoints(Math.toIntExact(param.getUserId()),
 //					goods.getAdoptiveEnergy() - reservation.getPayPoints(), 2,
-//					"抢购木材:" + goods.getGoodsName() + "(抢购积分-已预约积分)", IncomeTypeEnum.PANIC_BUY, goods);
+//					"抢购木材:" + goods.getGoodsName() + "(抢购茶籽-已预约茶籽)", IncomeTypeEnum.PANIC_BUY, goods);
 //			reservation.setIsClickBuy(IsClickBuyEnum.TRUE.getCode());
 //			reservationService.updateById(reservation);
 //		}

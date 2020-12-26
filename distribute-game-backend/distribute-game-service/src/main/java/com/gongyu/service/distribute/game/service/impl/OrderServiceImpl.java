@@ -58,6 +58,8 @@ public class OrderServiceImpl implements OrderService {
 	private DelayQueueManager delayQueueManager;
 	@Autowired
 	private AccountLogService accountLogService;
+	@Autowired
+	private ConfigService configService;
 
 	@Transactional
 	@Override
@@ -75,7 +77,19 @@ public class OrderServiceImpl implements OrderService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void processTask(PigGoods goods) {
-		//初始化订单缓存
+
+//		Config config = configService.getOne(new QueryWrapper<Config>().eq("config_name", "special_appoint_user"));
+//		List<Long> specialUsers = new LinkedList<Long>();
+//		if (config != null) {
+//			String configValue = config.getConfigValue();
+//			if (configValue != null) {
+//				String[] values = configValue.split(",");
+//				for (int i = 0; i < values.length; i++) {
+//					specialUsers.add(Long.valueOf(values[i]));
+//				}
+//			}
+//		}
+		// 初始化订单缓存
 		RedisUtils2.removeBatch("newOrders:");
 		log.info("开始处理开奖逻辑...");
 		List<PigOrder> orders;
@@ -91,11 +105,16 @@ public class OrderServiceImpl implements OrderService {
 		List<UserExclusivePig> pigs = exclusivePigService.list(new QueryWrapper<UserExclusivePig>()
 				.eq("pig_id", goods.getId()).eq("is_able_sale", SaleStatusEnum.TRUE.getCode())
 				.eq("is_pig_lock", LockStatusEnum.NOT_LOCK.getCode()));
-		// 删选掉开奖时 用户积分小于抢购积分的用户 避免扣除积分出现负数
+
+		List<Long> pointedUserIds = pigs.stream()
+				.filter(pig -> pig.getAppointUserId() != null && pig.getAppointUserId() > 0)
+				.map(pig -> pig.getAppointUserId()).collect(Collectors.toList());
+
+		// 删选掉开奖时 用户茶籽小于抢购茶籽的用户 避免扣除茶籽出现负数
 		for (Long userId : users) {
 			Users user = usersService.getById(userId);
 			if (user != null) {
-				// 如果当前用户的积分大于等于 木材的抢购积分 则用户为 合法用户
+				// 如果当前用户的茶籽大于等于 木材的抢购茶籽 则用户为 合法用户
 				if (user.getPayPoints() >= goods.getAdoptiveEnergy()) {
 					availableUsers.add(userId);
 //					boolean hasAppointed = false;
@@ -113,14 +132,14 @@ public class OrderServiceImpl implements OrderService {
 		users = availableUsers;
 		if (CollectionUtils.isEmpty(users)) {
 			log.info("木材场次：" + goods.getId() + " 没有用户点击开抢...");
-			// 退还所有预约的积分
+			// 退还所有预约的茶籽
 			PigAwardLog awardLog = awardLogService.getOne(new QueryWrapper<PigAwardLog>().eq("pig_id", goods.getId())
 					.eq("open_result", OpenResultEnum.NOT_OPEN));
 			reservats = pigReservationService
 					.list(new QueryWrapper<PigReservation>().eq("reservation_scene", awardLog.getId()));
 			awardLog.setOpenResult(OpenResultEnum.OEPN.getCode());
 			awardLogService.updateById(awardLog);
-			// 预约用户退还抢购积分-没有点击抢的用户
+			// 预约用户退还抢购茶籽-没有点击抢的用户
 //			List<Users> userPoints = usersService.convertUserPoints(reservats);
 //			if (userPoints != null && userPoints.size() > 0) {
 //
@@ -158,20 +177,20 @@ public class OrderServiceImpl implements OrderService {
 		if (null != reservats) {
 			reservats = pigReservationService.luckStatus(users, luckUsers, reservats);
 			pigReservationService.saveOrUpdateBatch(reservats);
-			// 没有中奖的预约用户退还抢购积分
+			// 没有中奖的预约用户退还抢购茶籽
 //			List<Users> userPoints = usersService.convertUserPoints2(reservats, goods);
 //			if (userPoints != null && userPoints.size() > 0) {
 //				usersService.saveOrUpdateBatch(userPoints);
 //			}
 		}
-		// 非预约用户没有抢购到退还积分
+		// 非预约用户没有抢购到退还茶籽
 //		List<Long> notLuckUsers = this.getNotLuckUsers(users, luckUsers, reservats);
 //		for (Long notLuckUserId : notLuckUsers) {
 //			Users user = usersService.getById(notLuckUserId);
 //			user.setPayPoints(user.getPayPoints() + goods.getAdoptiveEnergy());
 //			usersService.updateById(user);
 //			accountLogService.convertAndInsert(notLuckUserId, new BigDecimal("0"), new BigDecimal("0"),
-//					goods.getAdoptiveEnergy(), new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回积分",
+//					goods.getAdoptiveEnergy(), new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回茶籽",
 //					IncomeTypeEnum.RESERVAT, goods.getId(), "", null);
 //		}
 
@@ -180,7 +199,7 @@ public class OrderServiceImpl implements OrderService {
 			user.setPayPoints(user.getPayPoints() - goods.getAdoptiveEnergy());
 			usersService.updateById(user);
 			accountLogService.convertAndInsert(luckUserId, new BigDecimal("0"), new BigDecimal("0"),
-					-goods.getAdoptiveEnergy(), new BigDecimal("0"), goods.getGoodsName() + "抢购成功,扣除积分",
+					-goods.getAdoptiveEnergy(), new BigDecimal("0"), goods.getGoodsName() + "抢购成功,扣除茶籽",
 					IncomeTypeEnum.RESERVAT, goods.getId(), "", null);
 
 		}
@@ -209,6 +228,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 
 		// 更新中奖名单
+		luckUsers.addAll(pointedUserIds);
+		luckUsers = luckUsers.stream().distinct().collect(Collectors.toList());
 		awardLogService.handleAwardLog(awardLog, users, new HashSet<>(luckUsers));
 		awardLogService.updateById(awardLog);
 	}

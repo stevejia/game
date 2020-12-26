@@ -33,7 +33,7 @@ public class Users extends BaseEntity {
     private Integer mobileValidated;
     @ApiModelProperty(value = "用户金额", dataType = "BigDecimal")
     private BigDecimal userMoney;
-    @ApiModelProperty(value = "消费积分", dataType = "Integer")
+    @ApiModelProperty(value = "消费茶籽", dataType = "Integer")
     private Integer payPoints;
     @ApiModelProperty(value = "分佣金额", dataType = "BigDecimal")
     private BigDecimal distributMoney;
@@ -105,7 +105,7 @@ public class Users extends BaseEntity {
     private BigDecimal accumulatedIncome;
     @ApiModelProperty(value = "给财分加盐", dataType = "String")
     private String usermoneysalt;
-    @ApiModelProperty(value = "今天拥有的收益积分", dataType = "BigDecimal")
+    @ApiModelProperty(value = "今天拥有的收益茶籽", dataType = "BigDecimal")
     private BigDecimal todayUsermoney;
     @ApiModelProperty(value = "今天认证失败多少次", dataType = "Integer")
     private Integer todayCheckIndentityNum;

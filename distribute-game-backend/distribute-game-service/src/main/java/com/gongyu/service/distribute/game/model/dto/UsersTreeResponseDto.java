@@ -1,5 +1,7 @@
 package com.gongyu.service.distribute.game.model.dto;
 
+import java.math.BigDecimal;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
@@ -21,6 +23,17 @@ public class UsersTreeResponseDto {
     @ApiModelProperty(value = "用户名", dataType = "String")
     private String nickname;
 
+    @ApiModelProperty(value = "资产", dataType = "BigDecimal")
+    private BigDecimal assets;
+    
+    @ApiModelProperty(value = "有效产品数量", dataType = "Integer")
+    private Integer prodCount;
+    
+    @ApiModelProperty(value = "3天抢购次数", dataType = "Integer")
+    private Integer threeDaysRub;
+    
+    @ApiModelProperty(value = "7天抢购次数", dataType = "Integer")
+    private Integer sevenDaysRub;
     @Tolerate
     public UsersTreeResponseDto() {
     }

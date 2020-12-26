@@ -20,6 +20,6 @@ public class ReserveResultDto {
     @ApiModelProperty(value = "抢购状态",dataType = "String")
     private String robStatus;
 
-    @ApiModelProperty(value = "花费积分",dataType = "Integer")
+    @ApiModelProperty(value = "花费茶籽",dataType = "Integer")
     private Integer payPoints;
 }

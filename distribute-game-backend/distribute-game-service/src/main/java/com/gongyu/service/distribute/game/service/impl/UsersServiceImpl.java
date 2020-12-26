@@ -222,10 +222,10 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	public void modifyAccount(Integer userId, int type, BigDecimal score, int direction, String remark,
 			IncomeTypeEnum incomeTypeEnum) {
 		if (type == 2) {
-			// 积分增减
+			// 茶籽增减
 			boolean b = this.modifyPayPoints(userId, score.intValue(), direction, remark, incomeTypeEnum);
 			if (!b) {
-				throw new BizException("扣减积分失败");
+				throw new BizException("扣减茶籽失败");
 			}
 		}
 		if (type == 1) {
@@ -260,7 +260,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		BigDecimal bigDecimal = new BigDecimal(after);
 		users.setRecomIncome(bigDecimal);
 		this.updateById(users);
-		// 积分操作记录
+		// 茶籽操作记录
 		AccountLogSaveDto build = AccountLogSaveDto.builder().userId(Long.valueOf(userId))
 				.userMoney(new BigDecimal("0")).dogeMoney(0).pigCurrency(0).changeTime(DateUtil.getNowDate())
 				.desc(remark).build();
@@ -278,10 +278,27 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 
 	@Override
 	public List<UsersTreeResponseDto> queryTreeList(Long userId, String type) {
-		List<UsersTreeResponseDto> list = usersMapper.queryTreeList(userId, type);
+		Long todayZero = this.getDateZeroTime(0);
+		
+		Long threeDaysZero = this.getDateZeroTime(-3);
+		
+		Long sevenDaysZero = this.getDateZeroTime(-7);
+		List<UsersTreeResponseDto> list = usersMapper.queryTreeList(userId, type, todayZero, threeDaysZero, sevenDaysZero);
 		return list;
 	}
 
+	private Long getDateZeroTime(int offset) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.add(Calendar.DAY_OF_MONTH, offset);
+
+		return calendar.getTimeInMillis() / 1000;
+	}
+	
 	@Override
 	public List<Users> convertUserPoints(List<PigReservation> reservats) {
 		List<Users> users = new ArrayList<>();
@@ -291,7 +308,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 				user.setPayPoints(user.getPayPoints() + reservat.getPayPoints());
 				users.add(user);
 				accountLogService.convertAndInsert(user.getId(), new BigDecimal("0"), new BigDecimal("0"),
-						reservat.getPayPoints(), new BigDecimal("0"), "抢购失败,退回积分", IncomeTypeEnum.RESERVAT,
+						reservat.getPayPoints(), new BigDecimal("0"), "抢购失败,退回茶籽", IncomeTypeEnum.RESERVAT,
 						reservat.getPigId(), "", null);
 			}
 		}
@@ -310,13 +327,13 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 					user.setPayPoints(user.getPayPoints() + adoptiveEnergy);
 					users.add(user);
 					accountLogService.convertAndInsert(user.getId(), new BigDecimal("0"), new BigDecimal("0"),
-							adoptiveEnergy, new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回积分(预约点击抢购用户)", IncomeTypeEnum.RESERVAT,
+							adoptiveEnergy, new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回茶籽(预约点击抢购用户)", IncomeTypeEnum.RESERVAT,
 							reservat.getPigId(), "", null);
 				} else if (reservat.getIsClickBuy().intValue() == CommEnum.FALSE.getCode()) {
 					user.setPayPoints(user.getPayPoints() + reservat.getPayPoints());
 					users.add(user);
 					accountLogService.convertAndInsert(user.getId(), new BigDecimal("0"), new BigDecimal("0"),
-							reservat.getPayPoints(), new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回积分(预约未点击抢购用户)",
+							reservat.getPayPoints(), new BigDecimal("0"), goods.getGoodsName() + "抢购失败,退回茶籽(预约未点击抢购用户)",
 							IncomeTypeEnum.RESERVAT, reservat.getPigId(), "", null);
 				}
 
@@ -330,10 +347,10 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	public boolean modifyPayPoints(Integer userId, int score, int direction, String remark,
 			IncomeTypeEnum incomeTypeEnum) {
 		if (score <= 0) {
-			log.info(userId + " modifyAccountScore score=" + score + " 无效的积分");
+			log.info(userId + " modifyAccountScore score=" + score + " 无效的茶籽");
 			return false;
 		}
-		// 积分扣减
+		// 茶籽扣减
 		Users users = this.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getId, userId));
 		Assert.notNull(users, "无效的会员ID:" + userId);
 		int before = users.getPayPoints();
@@ -350,18 +367,18 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		}
 		users.setPayPoints(after);
 		updateById(users);
-		// 积分操作记录
+		// 茶籽操作记录
 		if (2 == direction) {
 			score *= -1;
 		}
 		AccountLogSaveDto build = AccountLogSaveDto.builder().userId(Long.valueOf(userId)).payPoints(score).dogeMoney(0)
 				.pigCurrency(0).changeTime(DateUtil.getNowDate()).desc(remark).build();
 		if (incomeTypeEnum.equals(IncomeTypeEnum.PROMOTE)) {
-			build.setDesc(direction == 1 ? "增加积分" : "减少积分");
+			build.setDesc(direction == 1 ? "增加茶籽" : "减少茶籽");
 		}
 		build.setType(IncomeTypeEnum.SYS_POINT.getCode());
 		accountLogService.saveAccountLog(build);
-		log.info("[积分追踪]会员ID:{},积分{}:{},变动说明:{}", userId, direction == 1 ? "增加" : "减少", score, remark);
+		log.info("[茶籽追踪]会员ID:{},茶籽{}:{},变动说明:{}", userId, direction == 1 ? "增加" : "减少", score, remark);
 		return true;
 	}
 
@@ -370,10 +387,10 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 	public boolean modifyPayPoints(Integer userId, int score, int direction, String remark,
 			IncomeTypeEnum incomeTypeEnum, PigGoods goods) {
 		if (score <= 0) {
-			log.info(userId + " modifyAccountScore score=" + score + " 无效的积分");
+			log.info(userId + " modifyAccountScore score=" + score + " 无效的茶籽");
 			return false;
 		}
-		// 积分扣减
+		// 茶籽扣减
 		Users users = this.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getId, userId));
 		Assert.notNull(users, "无效的会员ID:" + userId);
 		int before = users.getPayPoints();
@@ -390,19 +407,19 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		}
 		users.setPayPoints(after);
 		updateById(users);
-		// 积分操作记录
+		// 茶籽操作记录
 		if (2 == direction) {
 			score *= -1;
 		}
 		AccountLogSaveDto build = AccountLogSaveDto.builder().userId(Long.valueOf(userId)).payPoints(score).dogeMoney(0)
 				.pigCurrency(0).changeTime(DateUtil.getNowDate()).desc(remark).build();
 		if (incomeTypeEnum.equals(IncomeTypeEnum.PROMOTE)) {
-			build.setDesc(direction == 1 ? "增加积分" : "减少积分");
+			build.setDesc(direction == 1 ? "增加茶籽" : "减少茶籽");
 		}
 		build.setType(IncomeTypeEnum.SYS_POINT.getCode());
 		build.setPigId(goods.getId());
 		accountLogService.saveAccountLog(build);
-		log.info("[积分追踪]会员ID:{},积分{}:{},变动说明:{}", userId, direction == 1 ? "增加" : "减少", score, remark);
+		log.info("[茶籽追踪]会员ID:{},茶籽{}:{},变动说明:{}", userId, direction == 1 ? "增加" : "减少", score, remark);
 		return true;
 	}
 
@@ -521,7 +538,7 @@ public class UsersServiceImpl extends CrudServiceSupport<UsersMapper, Users> imp
 		}
 		int isSucess = this.saveUsers(build);
 		Users user = this.getOne(Wrappers.<Users>lambdaQuery().eq(Users::getMobile, build.getMobile()));
-		// 注册赠送积分
+		// 注册赠送茶籽
 		try {
 			if (isSucess > 0 && user != null) {
 

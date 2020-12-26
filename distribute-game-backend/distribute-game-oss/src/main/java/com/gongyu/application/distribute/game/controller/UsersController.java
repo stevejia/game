@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gongyu.service.distribute.game.common.enums.IncomeTypeEnum;
 import com.gongyu.service.distribute.game.manager.PersonAuthRecordManager;
+import com.gongyu.service.distribute.game.mapper.PigAwardLogMapper;
 import com.gongyu.service.distribute.game.model.dto.*;
 import com.gongyu.service.distribute.game.model.entity.*;
 import com.gongyu.service.distribute.game.service.*;
@@ -23,7 +24,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("users")
@@ -44,7 +48,11 @@ public class UsersController {
     private UserExclusivePigService userExclusivePigService;
     @Autowired
     private PersonAuthRecordManager authRecordManager;
-
+    @Autowired
+	private PigAwardLogService awardLogService;
+    
+    @Autowired
+	private PigGoodsService pigGoodsService;
     @ApiOperation(value = "【会员管理】列表", notes = "【会员管理】列表", response = UsersResponseDto.class)
     @PostMapping("queryUsers")
     public BaseResponse queryUsers(Page page, @Valid @ModelAttribute UsersQueryDto usersQueryDto) {
@@ -73,10 +81,51 @@ public class UsersController {
             // todo 计算合约收益 account_log  type=21  sum(contract_revenue)
             newList.add(usersResponseDtoNew);
         });
+        
+        Long todayZero = this.getDateZeroTime(0);
+        Long tomorrowZero = this.getDateZeroTime(1);
+        long sevenDaysZero = this.getDateZeroTime(-7);
+        Long threeDaysZero = this.getDateZeroTime(-3);
+        List<PigGoods> allGoods = pigGoodsService.list();
+        
+        List<PigAwardLog> todayAwardLogs = awardLogService.list(new QueryWrapper<PigAwardLog>().ge("change_time", todayZero).le("change_time", tomorrowZero));
+        List<PigAwardLog> sevenDaysAwardLogs = awardLogService.list(new QueryWrapper<PigAwardLog>().ge("change_time", sevenDaysZero).le("change_time", todayZero));
+        List<PigAwardLog> threeDaysAwardLogs = awardLogService.list(new QueryWrapper<PigAwardLog>().ge("change_time", threeDaysZero).le("change_time", todayZero));
+        newList.forEach(user->{
+        	List<PigAwardLog> userAwardLogs = todayAwardLogs.stream().filter(log->
+        		log.getJoinUserList()!=null && log.getJoinUserList().contains(user.getId().toString())
+        	).collect(Collectors.toList());
+        	userAwardLogs.forEach(log->{
+        		PigGoods goods = allGoods.stream().filter(pg-> pg.getId().intValue() == log.getPigId().intValue()).collect(Collectors.toList()).get(0);
+        	});
+        	String todayRub = userAwardLogs.stream().map(log-> {
+        		PigGoods goods = allGoods.stream().filter(pg-> pg.getId().intValue() == log.getPigId().intValue()).collect(Collectors.toList()).get(0);
+        		return goods.getMoneyCategoryId().toString();
+        	}).collect(Collectors.joining(","));
+        	user.setTodayRub(todayRub);
+        	Long count = sevenDaysAwardLogs.stream().filter(log-> log.getJoinUserList().contains(user.getId().toString())).count();
+        	user.setSevenDaysRub(count.intValue());
+        	
+        	Long count2 = threeDaysAwardLogs.stream().filter(log-> log.getJoinUserList().contains(user.getId().toString())).count();
+        	user.setThreeDaysRub(count2.intValue());
+        });
+        
         page.setRecords(newList);
         return BaseResponse.success(page);
     }
 
+    private Long getDateZeroTime(int offset) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.add(Calendar.DAY_OF_MONTH, offset);
+
+		return calendar.getTimeInMillis() / 1000;
+	}
+    
     @ApiOperation(value = "【会员管理】添加", notes = "【会员管理】添加")
     @PostMapping("saveUsers")
     @SysUserLog(module = "会员管理", action = "添加")
@@ -162,8 +211,8 @@ public class UsersController {
     @PostMapping("modifyAccountScore")
     public BaseResponse modifyAccountScore(@ApiParam(value = "userId") Integer userId,
                                            @ApiParam(value = "score") BigDecimal score,
-                                           @ApiParam(value = "type  1推广收益 2积分") int type,
-                                           @ApiParam(value = "direction 1增加积分 2减少积分") int direction,
+                                           @ApiParam(value = "type  1推广收益 2茶籽") int type,
+                                           @ApiParam(value = "direction 1增加茶籽 2减少茶籽") int direction,
                                            @ApiParam(value = "twoPassword ") String twoPassword,
                                            @ApiParam(value = "remark") String remark) {
         Users byId = usersService.getById(userId);

@@ -37,7 +37,41 @@
         COUNT(*)
         FROM
         zp_users
-        WHERE first_leader = a.id) AS counts
+        WHERE first_leader = a.id) AS counts,
+        
+        (SELECT
+        SUM(price)
+        FROM
+        zp_user_exclusive_pig
+        WHERE user_id = a.id and is_pig_lock = 0) AS assets,
+        (SELECT
+        COUNT(*)
+        FROM
+        zp_user_exclusive_pig
+        WHERE user_id = a.id and is_pig_lock = 0) AS prodCount,
+        
+        (SELECT COUNT(*)
+        FROM
+        zp_pig_award_log
+        WHERE 1=1
+        <if test="todayZero!=null and threeDaysZero!=null">
+            AND change_time &lt; #{todayZero} 
+            AND change_time &gt; #{threeDaysZero}
+        </if>
+        and join_user_list like concat('%', a.id, '%')
+        ) as threeDaysRub,
+        
+        (SELECT COUNT(*)
+        FROM
+        zp_pig_award_log
+        WHERE 1=1
+        <if test="todayZero!=null and sevenDaysZero!=null">
+            AND change_time &lt; #{todayZero} 
+            AND change_time &gt; #{sevenDaysZero}
+        </if>
+        and join_user_list like concat('%', a.id, '%')
+        ) as sevenDaysRub
+        
         FROM
         zp_users a
         WHERE 1=1

@@ -14,7 +14,7 @@ public class ArticleSaveDto{
     @ApiModelProperty(value = "文章标题", dataType = "String", required = true)
     @NotNull(message = "文章标题不能为空")
     private String title;
-    @ApiModelProperty(value = "文章类别 1帮助中心 2系统消息 3活动通知 4线上客服 5首页公告 6最新公告 7问题分类 8积分描述", dataType = "Integer")
+    @ApiModelProperty(value = "文章类别 1帮助中心 2系统消息 3活动通知 4线上客服 5首页公告 6最新公告 7问题分类 8茶籽描述", dataType = "Integer")
     private Integer cateId;
     @ApiModelProperty(value = "文章图片", dataType = "String")
     private String photo;

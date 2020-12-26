@@ -15,8 +15,8 @@ import java.util.List;
 @ApiModel
 public class AccountStoreDto {
 
-    @ApiModelProperty(value = "总积分", dataType = "String")
+    @ApiModelProperty(value = "总茶籽", dataType = "String")
     private String totalStore;
-    @ApiModelProperty(value = "积分流水", dataType = "List")
+    @ApiModelProperty(value = "茶籽流水", dataType = "List")
     private List<AccountStoreDetailDto> storeList;
 }

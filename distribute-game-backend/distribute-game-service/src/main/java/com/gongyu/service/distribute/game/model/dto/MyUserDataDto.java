@@ -25,7 +25,7 @@ public class MyUserDataDto {
     @ApiModelProperty(value = "手机号",dataType = "String")
     private String mobile;
 
-    @ApiModelProperty(value = "积分",dataType = "Integer")
+    @ApiModelProperty(value = "茶籽",dataType = "Integer")
     private Integer points;
 
     @ApiModelProperty(value = "用户等级",dataType = "String")

@@ -48,10 +48,10 @@ public class PigGoodsModifyDto{
     @NotNull(message = "领养时间不能为空")
     private Date secondEndTime;
     @ApiModelProperty(value = "预约数量", dataType = "Integer")
-    @NotNull(message = "预约积分数量不能为空")
+    @NotNull(message = "预约茶籽数量不能为空")
     private Integer reservation;
     @ApiModelProperty(value = "领养（抢）能量", dataType = "Integer")
-    @NotNull(message = "领养积分数量不能为空")
+    @NotNull(message = "领养茶籽数量不能为空")
     private Integer adoptiveEnergy;
     @ApiModelProperty(value = "合约收益天数", dataType = "Integer")
     @NotNull(message = "合约收益天数不能为空")

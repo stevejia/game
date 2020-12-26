@@ -15,7 +15,7 @@ public class AccountStoreDetailDto {
 
     @ApiModelProperty(value = "描述", dataType = "String")
     private String describe;
-    @ApiModelProperty(value = "积分数", dataType = "String")
+    @ApiModelProperty(value = "茶籽数", dataType = "String")
     private String store;
     @ApiModelProperty(value = "变更时间", dataType = "String")
     private String changeTime;
