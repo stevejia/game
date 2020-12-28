@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author zhaoQiXing
@@ -26,6 +27,9 @@ public class PigAwardLogPageDto extends PigAwardLogModifyDto{
 
     @ApiModelProperty(value = "实际抢购人数",dataType = "Integer")
     private Integer robPerson;
+    
+    @ApiModelProperty(value = "正在抢购人数",dataType = "List<Long>")
+    private List<Long> rubingPersons;
 
     @ApiModelProperty(value = "中奖人数",dataType = "Integer")
     private Integer luckyPerson;
