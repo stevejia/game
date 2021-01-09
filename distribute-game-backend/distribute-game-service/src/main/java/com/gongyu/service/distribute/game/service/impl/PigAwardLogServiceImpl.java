@@ -20,6 +20,7 @@ import com.gongyu.service.distribute.game.service.PigAwardLogService;
 import com.gongyu.service.distribute.game.service.PigGoodsService;
 import com.gongyu.service.distribute.game.service.PigReservationService;
 import com.gongyu.service.distribute.game.service.UserExclusivePigService;
+import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
 import com.gongyu.snowcloud.framework.util.DateUtils;
 import lombok.SneakyThrows;
@@ -90,6 +91,7 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 				.collect(Collectors.toList());
 		List<PigAwardLogPageDto> pigAwardLogPageList = new ArrayList<PigAwardLogPageDto>();
 
+		List<Long> userList = RedisUtils2.getList("robProduct:");
 		pigGoodsList.forEach(pigGoods -> {
 			Long pigGoodsId = pigGoods.getId();
 			PigAwardLog pigAwardLog = null;
@@ -108,6 +110,7 @@ public class PigAwardLogServiceImpl extends CrudServiceSupport<PigAwardLogMapper
 					.filter(uep -> uep.getPigId() == pigGoodsId).collect(Collectors.toList());
 			PigAwardLogPageDto newDto = convertResultDto(pigAwardLog, pigGoods, matchedPigReservationList,
 					matchedUserExclusivePigDTOList, matchedUserAllExclusivePigDTOList);
+			newDto.setRubingPersons(userList);
 			pigAwardLogPageList.add(newDto);
 		});
 
