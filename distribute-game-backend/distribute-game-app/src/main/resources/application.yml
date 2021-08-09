@@ -51,3 +51,4 @@ game:
 order_time_out: 7200000
 #注册地址+邀请码
 register_url: http://app.kekejj.com/#/register?inviteCode=%s
+
