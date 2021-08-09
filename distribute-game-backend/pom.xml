@@ -414,7 +414,6 @@
     <version>1.0.0-SNAPSHOT</version>
     <modules>
         <module>distribute-game-oss</module>
-        <module>distribute-game-app</module>
         <module>distribute-game-service</module>
     </modules>
 
