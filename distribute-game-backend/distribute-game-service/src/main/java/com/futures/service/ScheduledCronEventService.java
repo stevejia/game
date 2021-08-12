@@ -1,0 +1,27 @@
+package com.futures.service;
+
+import com.futures.event.ScheduledCronEvent;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author zhaoQiXing
+ * @version 1.0
+ * @date 2020/6/24 13:50
+ */
+@Service
+public class ScheduledCronEventService implements ApplicationContextAware {
+
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    public void addEvent(Object data){
+        applicationContext.publishEvent(new ScheduledCronEvent(data));
+    }
+}

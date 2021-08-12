@@ -1,0 +1,16 @@
+package com.futures.service;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.futures.model.dto.ConfigModifyDto;
+import com.futures.model.dto.ConfigSaveDto;
+import com.futures.model.entity.Config;
+import com.gongyu.snowcloud.framework.data.mybatis.CrudService;
+
+public interface ConfigService extends CrudService<Config> {
+
+    IPage<Config> queryConfig(IPage<Config> page, Integer configGroup);
+
+    void saveConfig(ConfigSaveDto configSaveDto);
+
+    void modifyConfig(ConfigModifyDto configModifyDto);
+}
