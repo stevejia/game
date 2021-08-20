@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: root
-    password: Jx19910209
-    url: jdbc:mysql://localhost:3306/game?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
+    username: yesun
+    password: yesun741852
+    url: jdbc:mysql://60.174.227.204:3306/futures?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 1
     minIdle: 3
