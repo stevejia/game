@@ -1,5 +1,7 @@
 package com.gongyu.service.distribute.game.service.impl;
 
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +41,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		// List<KlineDto> dtoList = MockData.mockTDBuyDataNineKLine();
 		// 要比较4天前的收盘价 所以索引从第4天开始
 		// 不然没有比较的必要
-		this.processReversal(dtoList, 4);
+		this.processReversal(dtoList, 5);
 		return dtoList;
 	}
 
@@ -52,12 +54,12 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 	private void processReversal(List<KlineDto> kLineList, int startIndex) {
 		// 当前k线后如果没有6根线 则不需要继续
-		if (kLineList == null || kLineList.size() < 6 || startIndex > kLineList.size() - 6) {
+		if (kLineList == null || kLineList.size() < 6 || startIndex > kLineList.size() - 7) {
 			return;
 		}
 
 		// 取当前k线索引后的6跟k线
-		List<KlineDto> sixList = kLineList.subList(startIndex - 4, startIndex + 2);
+		List<KlineDto> sixList = kLineList.subList(startIndex - 5, startIndex + 1);
 
 		// k1线对应list的最后一个元素
 		KlineDto k1 = sixList.get(5);
@@ -80,7 +82,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 			log.info("熊市反转" + startIndex);
 
-			boolean isTDBuy = this.processTD(kLineList, true, startIndex + 2);
+			boolean isTDBuy = this.processTD(kLineList, true, startIndex);
 			// 如果满足TD买入结构条件
 			if (isTDBuy) {
 				log.info("满足TD买入结构" + startIndex);
@@ -92,7 +94,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 			log.info("牛市反转" + startIndex);
 
-			boolean isTDSale = this.processTD(kLineList, false, startIndex + 2);
+			boolean isTDSale = this.processTD(kLineList, false, startIndex);
 
 			// 如果满足TD卖出结构条件
 			if (isTDSale) {
@@ -115,12 +117,12 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	 * @return boolean 是否满足TD 买入or卖出结构
 	 */
 	private boolean processTD(List<KlineDto> kLineList, boolean isReversal, int startIndex) {
-		if (kLineList == null || kLineList.size() < 9 || kLineList.size() - 9 < startIndex) {
+		if (kLineList == null || kLineList.size() < 9 || kLineList.size() - 10 < startIndex) {
 			return false;
 		}
 
 		// startIndex-5表示找到 第一根K线的4天前的k线 startIndex+9表示 第一根k线后的9根k线 总共14根
-		List<KlineDto> fourteenList = kLineList.subList(startIndex - 5, startIndex + 9);
+		List<KlineDto> fourteenList = kLineList.subList(startIndex - 4, startIndex + 10);
 		boolean isTDStructure = true;
 		// 循环thirteenList startIndex初始化成4表示当前比较的K线在第五条
 		int newStartIndex = 4;
@@ -140,6 +142,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 				return kline.getId().toString();
 			}).collect(Collectors.joining(","));
 			log.info("(" + klineIds + ")");
+			this.isTDPerfect(kLineList, startIndex, isReversal);
 		}
 		return isTDStructure;
 	}
@@ -161,6 +164,107 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 		// 牛市反转 TD买入结构条件 当前K线的收盘价高于4天前的收盘价
 		return currentClosePrice > fourDayAgoClosePrice;
+	}
+
+	private boolean isTDPerfect(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+		int klineLen = klineList.size();
+
+		if (klineList == null || klineList.size() < startIndex + 9) {
+			return false;
+		}
+
+		int endIndex = startIndex + 13 > klineLen ? klineLen : startIndex + 13;
+
+		List<KlineDto> thirteenList = klineList.subList(startIndex, endIndex);
+
+		// 获取满足TD结构的第6和第7根k线
+		KlineDto kline6 = thirteenList.get(5);
+		KlineDto kline7 = thirteenList.get(6);
+
+		/**
+		 * 熊市反转的情况下 计算买入TD结构是否完善
+		 */
+		if (isReversal) {
+			/**
+			 * 从第8根k线开始只要有一根k线满足：kn.lowestPrice < min(k6.lowestPrice, k7.lowestPrice)
+			 */
+			// 比较第6根和第7根k线最低价，取最小值
+			// min(k6.lowestPrice, k7.lowestPrice)
+			double kline6LowestPrice = kline6.getLowestprice();
+			double kline7LowestPrice = kline7.getLowestprice();
+			double lowestPrice = Math.min(kline6LowestPrice, kline7LowestPrice);
+
+			boolean isLowestPrice = false;
+
+			for (int i = 7; i < thirteenList.size(); i++) {
+				KlineDto kline = thirteenList.get(i);
+				double klineLowestPrice = kline.getLowestprice();
+				isLowestPrice = isLowestPrice || klineLowestPrice < lowestPrice;
+			}
+
+			if (isLowestPrice) {
+				log.info("买入结构完善" + startIndex);
+				this.isSatisfyOpenPosition(klineList, startIndex, isReversal);
+			}
+
+			return isLowestPrice;
+		}
+		/**
+		 * 从第8根k线开始只要有一根k线满足：kn.highestPrice > max(k6.highestPrice, k7.highestPrice)
+		 */
+		double kline6HighestPrice = kline6.getHighestprice();
+		double kline7HighestPrice = kline7.getHighestprice();
+		double highestPrice = Math.max(kline6HighestPrice, kline7HighestPrice);
+
+		boolean isHighestPrice = false;
+
+		for (int i = 7; i < thirteenList.size(); i++) {
+			KlineDto kline = thirteenList.get(i);
+			double klineHighestPrice = kline.getHighestprice();
+			isHighestPrice = isHighestPrice || klineHighestPrice > highestPrice;
+		}
+
+		if (isHighestPrice) {
+			log.info("卖出结构完善" + startIndex);
+		}
+		return isHighestPrice;
+	}
+
+	private boolean isSatisfyOpenPosition(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+		// 计算TD买入结构支撑线(价格)
+		List<KlineDto> tenList = klineList.subList(startIndex - 1, startIndex + 9);
+
+		KlineDto kline1 = tenList.get(1);
+
+		KlineDto klineYesterdayDto = tenList.get(0);
+
+		double yesterdayClosePrice = klineYesterdayDto.getCloseprice();
+
+		double kline1LowestPrice = kline1.getLowestprice();
+		
+		
+
+		double lowestPrice = Math.min(yesterdayClosePrice, kline1LowestPrice);
+
+		log.info("趋势支撑线价格："+ lowestPrice);
+		
+		boolean upperLowestPrice = true;
+		for (int i = 1; i < tenList.size(); i++) {
+			KlineDto kline = tenList.get(i);
+			double klineClosePrice = kline.getCloseprice();
+
+			if (klineClosePrice < lowestPrice) {
+				upperLowestPrice = false;
+				break;
+			}
+		}
+
+		if (upperLowestPrice) {
+			log.info("不低于支撑线" + startIndex);
+			
+		}
+
+		return false;
 	}
 
 	public static class MockData {
