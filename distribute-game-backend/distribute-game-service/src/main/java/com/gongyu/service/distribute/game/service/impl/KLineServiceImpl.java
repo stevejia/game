@@ -2,9 +2,15 @@ package com.gongyu.service.distribute.game.service.impl;
 
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
+import com.gongyu.service.distribute.game.model.entity.KlineExample;
 import com.gongyu.service.distribute.game.model.entity.Rb2110Kline;
 import com.gongyu.service.distribute.game.model.entity.Rb2110KlineExample;
 import com.gongyu.service.distribute.game.service.KlineService;
 import com.gongyu.service.distribute.game.utils.BeanCopyUtils;
+import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
 
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice.This;
-import oracle.jdbc.Const;
 
 @Service
 @Slf4j
@@ -33,16 +39,49 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	@Override
 	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
 	public List<KlineDto> queryRbKLine(Rb2110KlineExample params) {
-		List<Rb2110Kline> rb2110KLines = rb2110KlineMapper.selectByExample(params);
 
-		List<KlineDto> dtoList = new ArrayList<KlineDto>();
+		String classFullName = "com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper";
 
-		BeanCopyUtils.copyList(rb2110KLines, dtoList, KlineDto.class);
-		// List<KlineDto> dtoList = MockData.mockTDBuyDataNineKLine();
-		// 要比较4天前的收盘价 所以索引从第4天开始
-		// 不然没有比较的必要
-		this.processReversal(dtoList, 5);
-		return dtoList;
+		try {
+
+			Class<?> cls = Class.forName(classFullName);
+
+			Field field = this.getClass().getDeclaredField("rb2110KlineMapper");
+
+			Object mapper = field.get(this);
+
+//			List<KlineDto> dtoList2 = this.queryKline(params, mapper, "selectByExample", KlineDto.class);
+
+			List<Rb2110Kline> rb2110KLines = rb2110KlineMapper.selectByExample(params);
+
+			List<KlineDto> dtoList = new ArrayList<KlineDto>();
+
+			BeanCopyUtils.copyList(rb2110KLines, dtoList, KlineDto.class);
+			// List<KlineDto> dtoList = MockData.mockTDBuyDataNineKLine();
+			// 要比较4天前的收盘价 所以索引从第4天开始
+			// 不然没有比较的必要
+			this.processReversal(dtoList, 5);
+			return dtoList;
+		} catch (NoSuchFieldException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<KlineDto> queryRbKLine2(KlineExample params, String tableName) {
+		 List<KlineDto> klineList = this.queryKline(params, tableName, "selectByExample", KlineDto.class);
+		 return klineList;
 	}
 
 	/**
@@ -241,13 +280,11 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		double yesterdayClosePrice = klineYesterdayDto.getCloseprice();
 
 		double kline1LowestPrice = kline1.getLowestprice();
-		
-		
 
 		double lowestPrice = Math.min(yesterdayClosePrice, kline1LowestPrice);
 
-		log.info("趋势支撑线价格："+ lowestPrice);
-		
+		log.info("趋势支撑线价格：" + lowestPrice);
+
 		boolean upperLowestPrice = true;
 		for (int i = 1; i < tenList.size(); i++) {
 			KlineDto kline = tenList.get(i);
@@ -261,10 +298,39 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 		if (upperLowestPrice) {
 			log.info("不低于支撑线" + startIndex);
-			
+
 		}
 
 		return false;
+	}
+
+	public <D, K, M> List<D> queryKline(K k, String tableName, String methodName, Class<D> dClass) {
+		List<D> dtoList = null;
+		try {
+			String packageStr = "com.gongyu.service.distribute.game";
+			String firstStr = tableName.substring(0, 1);
+			String mapperName = tableName.replaceFirst(firstStr, firstStr.toLowerCase()) + "Mapper";
+
+			String exampleCls = packageStr + ".model.entity." + tableName + "Example";
+
+			Class<?> ExampleClass = Class.forName(exampleCls);
+
+			Field mapperField = this.getClass().getDeclaredField(mapperName);
+			Object mapper = mapperField.get(this);
+
+			Method method = mapper.getClass().getMethod(methodName, ExampleClass);
+
+			List<?> entities = (List<?>) method.invoke(mapper, BeanCopyUtils.copyObject(k, ExampleClass));
+			dtoList = new ArrayList<D>();
+
+			BeanCopyUtils.copyList(entities, dtoList, dClass);
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException
+				| IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return dtoList;
+
 	}
 
 	public static class MockData {
@@ -281,6 +347,62 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 			return mockKlineList;
 		}
+	}
+
+	@Override
+	public List<KlineDto> refreshKline(KlineExample params) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+		
+		String formatDate = dateFormat.format(new Date());
+		List<KlineDto> newKlineList = new ArrayList<KlineDto>();
+		String originFormatDate = RedisUtils2.get("rb2110_real_time");
+		if(!formatDate.equals(originFormatDate)) {
+			String newKlineString = this.mockRedisKline("rb2110", formatDate);
+			RedisUtils2.set("rb2110_real_60", newKlineString);
+			RedisUtils2.set("rb2110_real_time", formatDate);
+			newKlineList.add(this.generateKline(newKlineString));
+		}
+		return newKlineList;
+	}
+	
+	private String mockRedisKline(String instrumentId, String dateFormat) {
+		double lowPrice = 5200.00;
+		double highPrice = 5280.0;
+		double diffPrice = highPrice - lowPrice;
+		
+		Random rand = new Random();
+		
+		double openPrice = lowPrice + diffPrice * rand.nextDouble();
+		double closePrice = lowPrice + diffPrice* rand.nextDouble();
+		
+		double lowestPrice = lowPrice + diffPrice * rand.nextDouble();
+		
+		double highestPrice = lowestPrice + diffPrice/2*rand.nextDouble();
+		
+		int turnover = rand.nextInt(1000);
+		
+		String[] klineItems = new String[] {instrumentId, dateFormat+"00", String.valueOf(dateFormat), String.valueOf(openPrice), String.valueOf(closePrice), String.valueOf(highestPrice), String.valueOf(lowestPrice), String.valueOf(turnover), "60" };
+		
+		
+		
+		String klineString = String.join(",", klineItems);
+		
+		return klineString;
+	}
+	
+	private KlineDto generateKline(String klineString) {
+		KlineDto kline = new KlineDto();
+		String[] klineItems = klineString.split(",");
+		kline.setInstrumentid(klineItems[0]);
+		kline.setLocalTime(klineItems[1]);
+		kline.setKlineTime(klineItems[2]);
+		kline.setOpenprice(Double.valueOf(klineItems[3]));
+		kline.setCloseprice(Double.valueOf(klineItems[4]));
+		kline.setHighestprice(Double.valueOf(klineItems[5]));
+		kline.setLowestprice(Double.valueOf(klineItems[6]));
+		kline.setVolume(Integer.valueOf(klineItems[7]));
+		kline.setPeriod(Integer.valueOf(klineItems[8]));
+		return kline;
 	}
 
 }
