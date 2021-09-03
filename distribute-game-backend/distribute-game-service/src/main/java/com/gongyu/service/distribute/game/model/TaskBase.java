@@ -23,7 +23,16 @@ public class TaskBase implements Serializable {
      * 1 开奖
      */
     private Integer taskType;
-
+    
+    /**
+     * task instrumentId 用于标识合约
+     */
+    private String instrumentId;
+    
+    /**
+     * task period 用于标识 周期
+     */
+    private Integer period;
     /**
      * 执行数据
      */

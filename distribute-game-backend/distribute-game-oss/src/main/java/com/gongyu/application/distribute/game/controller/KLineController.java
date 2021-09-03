@@ -15,6 +15,7 @@ import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
 import com.gongyu.service.distribute.game.model.entity.Rb2110KlineExample;
 import com.gongyu.service.distribute.game.service.KlineService;
+import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.base.response.BaseResponse;
 
 import io.swagger.annotations.Api;
@@ -30,13 +31,25 @@ public class KLineController {
 
 	@ApiOperation(value = "查询k线列表", notes = "查询k线列表", response = KlineDto.class)
 	@PostMapping("querykline")
-	public BaseResponse queryKLine(@Valid @ModelAttribute @RequestBody KlineDto queryModel) {
+	public BaseResponse queryKLine(@Valid @ModelAttribute KlineDto queryModel) {
 //    	Rb2110KlineExample param = new Rb2110KlineExample();
 		KlineExample param = new KlineExample();
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
 //    	List<KlineDto> kLines = klineService.queryRbKLine(param);
 		List<KlineDto> kLines = klineService.queryRbKLine2(param, "Rb2110Kline");
+		return BaseResponse.success(kLines);
+	}
+	
+	@ApiOperation(value = "查询k线列表", notes = "查询k线列表", response = KlineDto.class)
+	@PostMapping("querykline2")
+	public BaseResponse queryKLine2(@Valid @ModelAttribute KlineDto queryModel) {
+//    	Rb2110KlineExample param = new Rb2110KlineExample();
+		KlineExample param = new KlineExample();
+		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
+
+//    	List<KlineDto> kLines = klineService.queryRbKLine(param);
+		List<KlineDto> kLines = klineService.queryRbKLine(param);
 		return BaseResponse.success(kLines);
 	}
 

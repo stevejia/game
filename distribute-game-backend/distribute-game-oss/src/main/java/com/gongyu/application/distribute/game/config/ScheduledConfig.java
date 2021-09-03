@@ -21,7 +21,7 @@ public class ScheduledConfig {
     /**
      * 收益定时
      */
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(fixedRate = 3000)
     public void incomeCron() {
         cronEventService.addEvent(ScheduledTypeEnum.INCOME);
     }

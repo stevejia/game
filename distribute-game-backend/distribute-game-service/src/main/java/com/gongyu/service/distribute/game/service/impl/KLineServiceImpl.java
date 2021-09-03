@@ -1,7 +1,5 @@
 package com.gongyu.service.distribute.game.service.impl;
 
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,15 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
 import com.gongyu.service.distribute.game.model.entity.Rb2110Kline;
-import com.gongyu.service.distribute.game.model.entity.Rb2110KlineExample;
 import com.gongyu.service.distribute.game.service.KlineService;
 import com.gongyu.service.distribute.game.utils.BeanCopyUtils;
 import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,50 +38,35 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 	@Override
 	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
-	public List<KlineDto> queryRbKLine(Rb2110KlineExample params) {
+	public List<KlineDto> queryRbKLine(KlineExample params) {
 
-		String classFullName = "com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper";
+//		String classFullName = "com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper";
+		RedisUtils2.remove("rb2110_30_td");
 
-		try {
-
-			Class<?> cls = Class.forName(classFullName);
-
-			Field field = this.getClass().getDeclaredField("rb2110KlineMapper");
-
-			Object mapper = field.get(this);
-
-//			List<KlineDto> dtoList2 = this.queryKline(params, mapper, "selectByExample", KlineDto.class);
-
-			List<Rb2110Kline> rb2110KLines = rb2110KlineMapper.selectByExample(params);
-
-			List<KlineDto> dtoList = new ArrayList<KlineDto>();
-
-			BeanCopyUtils.copyList(rb2110KLines, dtoList, KlineDto.class);
-			// List<KlineDto> dtoList = MockData.mockTDBuyDataNineKLine();
-			// 要比较4天前的收盘价 所以索引从第4天开始
-			// 不然没有比较的必要
-			this.processReversal(dtoList, 5);
-			return dtoList;
-		} catch (NoSuchFieldException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		List<KlineDto> klineList = this.queryKline(params, "rb2110", 30, "selectByExample", KlineDto.class);
+		this.processReversal(klineList, 0);
 		return null;
 	}
 
 	@Override
 	public List<KlineDto> queryRbKLine2(KlineExample params, String tableName) {
-		 List<KlineDto> klineList = this.queryKline(params, tableName, "selectByExample", KlineDto.class);
-		 return klineList;
+		List<KlineDto> klineList = this.queryKline(params, tableName, 30, "selectByExample", KlineDto.class);
+		return klineList;
+	}
+
+	@Override
+	public List<KlineDto> queryKline(KlineExample params, String tableName, int period) {
+		List<KlineDto> klineList = this.queryKline(params, tableName, period, "selectByExample", KlineDto.class);
+		return klineList;
+	}
+
+	@Override
+	public void processKlineTD(String instrumentId, int period) {
+		KlineExample param = new KlineExample();
+		param.createCriteria().andPeriodEqualTo(period);
+
+		List<KlineDto> klineList = this.queryKline(param, instrumentId, period, "selectByExample", KlineDto.class);
+		this.processReversal(klineList, 0);
 	}
 
 	/**
@@ -91,58 +76,79 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	 * @param startIndex K线开始索引
 	 */
 
-	private void processReversal(List<KlineDto> kLineList, int startIndex) {
-		// 当前k线后如果没有6根线 则不需要继续
-		if (kLineList == null || kLineList.size() < 6 || startIndex > kLineList.size() - 7) {
+	private void processReversal(List<KlineDto> kLineList, int index) {
+		if (kLineList == null) { 
 			return;
 		}
-
-		// 取当前k线索引后的6跟k线
-		List<KlineDto> sixList = kLineList.subList(startIndex - 5, startIndex + 1);
-
-		// k1线对应list的最后一个元素
-		KlineDto k1 = sixList.get(5);
-		// k2线对应list的倒数第二个元素
-		KlineDto k2 = sixList.get(4);
-		// k5线对应list的第二个元素
-		KlineDto k5 = sixList.get(1);
-		// k6线对应list的第一个元素
-		KlineDto k6 = sixList.get(0);
-
-		// 获取k1、k2、k5、k6的收盘价 closePrice
-		double k1ClosePrice = k1.getCloseprice();
-		double k2ClosePrice = k2.getCloseprice();
-		double k5ClosePrice = k5.getCloseprice();
-		double k6ClosePrice = k6.getCloseprice();
-
-		// 熊市反转条件 如果k1.closePrice < k5.closePrice & k2.closePrice > k6.closePrice
-
-		if (k1ClosePrice < k5ClosePrice && k2ClosePrice > k6ClosePrice) {
-
-			log.info("熊市反转" + startIndex);
-
-			boolean isTDBuy = this.processTD(kLineList, true, startIndex);
-			// 如果满足TD买入结构条件
-			if (isTDBuy) {
-				log.info("满足TD买入结构" + startIndex);
+		int klineSize =  kLineList.size();
+		int startIndex  = index;
+		long startTime = System.nanoTime();
+		for (;startIndex < klineSize; startIndex++) {
+			// k线列表为空 或者 当前k线后如果没有6根线 则不需要继续 
+			if (startIndex + 6 > kLineList.size()) {
+				log.info("执行耗时：" + String.valueOf(System.nanoTime() - startTime));
+				return;
 			}
+			// 取当前k线索引后的6根k线 用以计算牛(熊)市反转
+			List<KlineDto> sixList = kLineList.subList(startIndex, startIndex + 6);
 
-		}
-		// 熊市反转条件 如果k1.closePrice >< k5.closePrice & k2.closePrice < k6.closePrice
-		if (k1ClosePrice > k5ClosePrice && k2ClosePrice < k6ClosePrice) {
+			// k1线对应list的最后一个元素
+			KlineDto k1 = sixList.get(5);
+			// k2线对应list的倒数第二个元素
+			KlineDto k2 = sixList.get(4);
+			// k5线对应list的第二个元素
+			KlineDto k5 = sixList.get(1);
+			// k6线对应list的第一个元素
+			KlineDto k6 = sixList.get(0); 
 
-			log.info("牛市反转" + startIndex);
+			// 获取k1、k2、k5、k6的收盘价 closePrice
+			double k1ClosePrice = k1.getCloseprice();
+			double k2ClosePrice = k2.getCloseprice();
+			double k5ClosePrice = k5.getCloseprice();
+			double k6ClosePrice = k6.getCloseprice();
 
-			boolean isTDSale = this.processTD(kLineList, false, startIndex);
+			// 熊市反转条件 如果k1.closePrice < k5.closePrice & k2.closePrice > k6.closePrice
 
-			// 如果满足TD卖出结构条件
-			if (isTDSale) {
-				log.info("满足TD卖出结构" + startIndex);
+			if (k1ClosePrice < k5ClosePrice && k2ClosePrice > k6ClosePrice) {
+
+//				log.info("熊市反转" + startIndex);
+
+				/**
+				 * 如果满足了熊市反转 那么 第6根k线所在的索引作为 熊市反转点同后续的8根k线分别与之4天前的收盘价比较 startIndex开始的第6根k线的索引 =
+				 * startIndex + sixLine.size() - 1 即 startIndex+5
+				 */
+//				boolean isTDBuy = this.processTD(kLineList, true, startIndex + 5);
+				List<KlineDto> tdStructureList = this.processTD(kLineList, true, startIndex + 5);
+
+				// 如果满足TD卖出结构条件
+				if (tdStructureList!= null && tdStructureList.size() > 0) {
+//					log.info("满足TD卖出结构" + startIndex);
+				}
+				// 如果满足TD买入结构条件
+				if (tdStructureList!= null && tdStructureList.size() > 0) {
+//					log.info("满足TD买入结构" + (startIndex + 5));
+				}
+
+			}
+			// 熊市反转条件 如果k1.closePrice >< k5.closePrice & k2.closePrice < k6.closePrice
+			if (k1ClosePrice > k5ClosePrice && k2ClosePrice < k6ClosePrice) {
+
+//				log.info("牛市反转" + (startIndex + 5));
+
+				List<KlineDto> tdStructureList = this.processTD(kLineList, false, startIndex + 5);
+
+				// 如果满足TD卖出结构条件
+				if (tdStructureList!= null && tdStructureList.size() > 0) {
+//					log.info("满足TD卖出结构" + startIndex);
+				}
 			}
 		}
 
-		// 按照索引递增依次跑下去
-		this.processReversal(kLineList, ++startIndex);
+		log.info("执行耗时：" + String.valueOf(System.nanoTime() - startTime));
+//		
+//
+//		// 按照索引递增依次跑下去
+//		this.processReversal(kLineList, ++startIndex);
 
 	}
 
@@ -155,20 +161,21 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	 * 
 	 * @return boolean 是否满足TD 买入or卖出结构
 	 */
-	private boolean processTD(List<KlineDto> kLineList, boolean isReversal, int startIndex) {
-		if (kLineList == null || kLineList.size() < 9 || kLineList.size() - 10 < startIndex) {
-			return false;
+	private List<KlineDto> processTD(List<KlineDto> kLineList, boolean isReversal, int startIndex) {
+		// 如果klineList为空 或者 startIndex开始之后没有9根k线 结束此td结构尝试
+		if (kLineList == null || kLineList.size() - 9 < startIndex) {
+			return null;
 		}
 
-		// startIndex-5表示找到 第一根K线的4天前的k线 startIndex+9表示 第一根k线后的9根k线 总共14根
-		List<KlineDto> fourteenList = kLineList.subList(startIndex - 4, startIndex + 10);
+		// startIndex-4表示找到 第一根K线的4天前的k线 startIndex+9表示 第一根k线后的9根k线 总共14根
+		List<KlineDto> thirteenList = kLineList.subList(startIndex - 4, startIndex + 9);
 		boolean isTDStructure = true;
 		// 循环thirteenList startIndex初始化成4表示当前比较的K线在第五条
 		int newStartIndex = 4;
-		for (int i = newStartIndex; i < newStartIndex + 9; i++) {
+		for (int i = newStartIndex; i < thirteenList.size(); i++) {
 
-			KlineDto currentKline = fourteenList.get(i);
-			KlineDto fourDayAgoKline = fourteenList.get(i - 4);
+			KlineDto currentKline = thirteenList.get(i);
+			KlineDto fourDayAgoKline = thirteenList.get(i - 4);
 
 			// 当前K线的收盘价
 			double currentClosePrice = currentKline.getCloseprice();
@@ -176,14 +183,37 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 			isTDStructure = isTDStructure && this.comparePrice(currentClosePrice, fourDayAgoClosePrice, isReversal);
 		}
-		if (isTDStructure) {
-			String klineIds = fourteenList.stream().map(kline -> {
-				return kline.getId().toString();
-			}).collect(Collectors.joining(","));
-			log.info("(" + klineIds + ")");
+		if (isTDStructure) { 
+
+			List<KlineDto> tdStructureList = thirteenList.subList(4, thirteenList.size());
+//
+//			KlineDto firstItemDto = tdStructureList.get(0);
+//			String instrumentId = firstItemDto.getInstrumentid();
+//			int period = firstItemDto.getPeriod();
+
+//			Gson gson = new Gson();
+//
+//			final String key = instrumentId + "_" + period + "_td";
+//			List<KlineDto> allTdStructureList = null;
+//			String allTdStructureJSON = RedisUtils2.get(key);
+//			if (allTdStructureJSON != null) {
+//				allTdStructureList = gson.fromJson(allTdStructureJSON, new TypeToken<List<KlineDto>>() {
+//				}.getType());
+//				allTdStructureList.addAll(tdStructureList);
+//			} else {
+//				allTdStructureList = tdStructureList;
+//			}
+//
+//			RedisUtils2.set(key, gson.toJson(allTdStructureList));
+
+//			String klineIds = thirteenList.stream().map(kline -> {
+//				return kline.getId().toString();
+//			}).collect(Collectors.joining(","));
+//			log.info("(" + klineIds + ")");
 			this.isTDPerfect(kLineList, startIndex, isReversal);
+			return tdStructureList;
 		}
-		return isTDStructure;
+		return null;
 	}
 
 	/**
@@ -242,7 +272,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			}
 
 			if (isLowestPrice) {
-				log.info("买入结构完善" + startIndex);
+//				log.info("买入结构完善" + startIndex);
 				this.isSatisfyOpenPosition(klineList, startIndex, isReversal);
 			}
 
@@ -264,7 +294,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		}
 
 		if (isHighestPrice) {
-			log.info("卖出结构完善" + startIndex);
+//			log.info("卖出结构完善" + startIndex);
 		}
 		return isHighestPrice;
 	}
@@ -283,7 +313,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 		double lowestPrice = Math.min(yesterdayClosePrice, kline1LowestPrice);
 
-		log.info("趋势支撑线价格：" + lowestPrice);
+//		log.info("趋势支撑线价格：" + lowestPrice);
 
 		boolean upperLowestPrice = true;
 		for (int i = 1; i < tenList.size(); i++) {
@@ -297,21 +327,27 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		}
 
 		if (upperLowestPrice) {
-			log.info("不低于支撑线" + startIndex);
+//			log.info("不低于支撑线" + startIndex);
 
 		}
 
 		return false;
 	}
 
-	public <D, K, M> List<D> queryKline(K k, String tableName, String methodName, Class<D> dClass) {
-		List<D> dtoList = null;
+	public <D, K, M> List<D> queryKline(K k, String instrumentId, int period, String methodName, Class<D> dClass) {
+		// 合约Id_周期作为redis缓存的key
+		String redisKlineKey = instrumentId + "_" + period;
+		List<D> dtoList = this.getRedisKline(redisKlineKey, dClass);
+		if (dtoList != null && dtoList.size() > 0) {
+			return dtoList;
+		}
 		try {
 			String packageStr = "com.gongyu.service.distribute.game";
-			String firstStr = tableName.substring(0, 1);
-			String mapperName = tableName.replaceFirst(firstStr, firstStr.toLowerCase()) + "Mapper";
+			String firstStr = instrumentId.substring(0, 1);
+			String mapperName = instrumentId.replaceFirst(firstStr, firstStr.toLowerCase()) + "KlineMapper";
 
-			String exampleCls = packageStr + ".model.entity." + tableName + "Example";
+			String exampleCls = packageStr + ".model.entity."
+					+ instrumentId.replaceFirst(firstStr, firstStr.toUpperCase()) + "KlineExample";
 
 			Class<?> ExampleClass = Class.forName(exampleCls);
 
@@ -324,6 +360,8 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			dtoList = new ArrayList<D>();
 
 			BeanCopyUtils.copyList(entities, dtoList, dClass);
+			Gson gson = new Gson();
+			RedisUtils2.set(redisKlineKey, gson.toJson(dtoList));
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException
 				| IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			// TODO Auto-generated catch block
@@ -331,6 +369,27 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		}
 		return dtoList;
 
+	}
+
+	private <D> List<D> getRedisKline(String redisKlineKey, Class<D> cls) {
+		List<D> klineList = null;
+		String json = RedisUtils2.get(redisKlineKey);
+		
+//		JsonConvert.DeserializeObject<JsonData<List<Students>>>(json)
+		if (json != null) {  
+			klineList = klineList = JSONObject.parseArray(json, cls);
+//			Gson gson = new Gson();
+//			JsonElement jsonEl = new JsonParser().parse(json);
+//			klineList = (List<D>)gson.fromJson(jsonEl, new TypeToken<List<D>>() {
+//			}.getType());
+//			klineList = (List<D>) json;
+		}
+		return klineList;
+	}
+
+	private <D> void getRedisKline(String redisKlineKey, List<D> dtoList) {
+		Gson gson = new Gson();
+		RedisUtils2.set(redisKlineKey, gson.toJson(dtoList));
 	}
 
 	public static class MockData {
@@ -352,11 +411,11 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	@Override
 	public List<KlineDto> refreshKline(KlineExample params) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
-		
+
 		String formatDate = dateFormat.format(new Date());
 		List<KlineDto> newKlineList = new ArrayList<KlineDto>();
 		String originFormatDate = RedisUtils2.get("rb2110_real_time");
-		if(!formatDate.equals(originFormatDate)) {
+		if (!formatDate.equals(originFormatDate)) {
 			String newKlineString = this.mockRedisKline("rb2110", formatDate);
 			RedisUtils2.set("rb2110_real_60", newKlineString);
 			RedisUtils2.set("rb2110_real_time", formatDate);
@@ -364,32 +423,32 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		}
 		return newKlineList;
 	}
-	
+
 	private String mockRedisKline(String instrumentId, String dateFormat) {
 		double lowPrice = 5200.00;
 		double highPrice = 5280.0;
 		double diffPrice = highPrice - lowPrice;
-		
+
 		Random rand = new Random();
-		
+
 		double openPrice = lowPrice + diffPrice * rand.nextDouble();
-		double closePrice = lowPrice + diffPrice* rand.nextDouble();
-		
+		double closePrice = lowPrice + diffPrice * rand.nextDouble();
+
 		double lowestPrice = lowPrice + diffPrice * rand.nextDouble();
-		
-		double highestPrice = lowestPrice + diffPrice/2*rand.nextDouble();
-		
+
+		double highestPrice = lowestPrice + diffPrice / 2 * rand.nextDouble();
+
 		int turnover = rand.nextInt(1000);
-		
-		String[] klineItems = new String[] {instrumentId, dateFormat+"00", String.valueOf(dateFormat), String.valueOf(openPrice), String.valueOf(closePrice), String.valueOf(highestPrice), String.valueOf(lowestPrice), String.valueOf(turnover), "60" };
-		
-		
-		
+
+		String[] klineItems = new String[] { instrumentId, dateFormat + "00", String.valueOf(dateFormat),
+				String.valueOf(openPrice), String.valueOf(closePrice), String.valueOf(highestPrice),
+				String.valueOf(lowestPrice), String.valueOf(turnover), "60" };
+
 		String klineString = String.join(",", klineItems);
-		
+
 		return klineString;
 	}
-	
+
 	private KlineDto generateKline(String klineString) {
 		KlineDto kline = new KlineDto();
 		String[] klineItems = klineString.split(",");

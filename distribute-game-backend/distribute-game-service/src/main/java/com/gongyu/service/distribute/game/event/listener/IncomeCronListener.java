@@ -31,19 +31,19 @@ public class IncomeCronListener implements ApplicationListener<ScheduledCronEven
     public void onApplicationEvent(ScheduledCronEvent scheduledCronEvent) {
         log.info("IncomeCronListener onApplicationEvent start...");
         ScheduledTypeEnum scheduledTypeEnum = (ScheduledTypeEnum) scheduledCronEvent.getSource();
-        RLock lock = redission.getLock("IncomeCronListener");
-        if(scheduledTypeEnum.equals(ScheduledTypeEnum.INCOME)){
-            try{
-                if(lock.tryLock()){
-                    incomeService.processIncome();
-                    log.info("IncomeCronListener onApplicationEvent end...");
-                }
-            }finally {
-                if(lock != null && lock.isHeldByCurrentThread()){
-                    lock.unlock();
-                }
-            }
-        }
+//        RLock lock = redission.getLock("IncomeCronListener");
+//        if(scheduledTypeEnum.equals(ScheduledTypeEnum.INCOME)){
+//            try{
+//                if(lock.tryLock()){
+//                    incomeService.processIncome();
+//                    log.info("IncomeCronListener onApplicationEvent end...");
+//                }
+//            }finally {
+//                if(lock != null && lock.isHeldByCurrentThread()){
+//                    lock.unlock();
+//                }
+//            }
+//        }
     }
 
 }

@@ -2,17 +2,23 @@ package com.gongyu.service.distribute.game.manager;
 
 import com.alibaba.fastjson.JSON;
 import com.gongyu.service.distribute.game.common.enums.DelayTaskEnum;
+import com.gongyu.service.distribute.game.common.utils.DateUtil;
+import com.gongyu.service.distribute.game.event.KlineTaskEvent;
 import com.gongyu.service.distribute.game.model.DelayTask;
+import com.gongyu.service.distribute.game.model.TaskBase;
 import com.gongyu.service.distribute.game.model.entity.PigGoods;
 import com.gongyu.service.distribute.game.model.entity.PigOrder;
 import com.gongyu.service.distribute.game.service.DelayQueueEventService;
 import com.gongyu.service.distribute.game.service.PigReservationService;
 import com.gongyu.snowcloud.framework.data.redis.RedisUtils;
+
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.DelayQueue;
@@ -72,35 +78,53 @@ public class DelayQueueManager implements CommandLineRunner {
     @Override
     public void run(String... args) {
         log.info("准备初始化延时队列...");
+        List<DelayTask> tasks = this.initTasks();
         Executors.newSingleThreadExecutor().execute(new Thread(this::excuteThread));
-        //初始化Redis中数据加入到延时队列中
-        Set<String> keys = RedisUtils.getRedisTemplate().keys("task:*");
-        List<DelayTask> tasks = RedisUtils.getRedisTemplate().opsForValue().multiGet(keys);
-        //将开奖任务场次加入到队列中
-        // TODO: 2020/7/9 测试注释 
+        
+        
          for(DelayTask task : tasks){
             //计算延时执行时间
 
-            if(DelayTaskEnum.REVEAL_LUCKY.getCode().intValue() == task.getData().getTaskType().intValue()){
-                PigGoods goods = (PigGoods) task.getData().getData();
-                //重新计算保存时间
-                long exectTime = reservationService.exectTime(goods);
-                if(exectTime < 0){
-                    log.info(goods.getId() + " " + goods.getGoodsName() + " 开奖时间已过期");
-                    log.info("清理请抢购人员缓存：{}",JSON.toJSONString(RedisUtils.get("robProduct:" + goods.getId())));
-                    RedisUtils.remove("robProduct:" + goods.getId());
-                    RedisUtils.remove("task:" + goods.getId());
-                    continue;
-                }
-                task = luckyManager.convertTaskBase(goods, DelayTaskEnum.REVEAL_LUCKY,exectTime);
-                put(task);
-            }else if(DelayTaskEnum.CANCEL_ORDER.getCode().intValue() == task.getData().getTaskType().intValue()){
-                PigOrder order = (PigOrder)task.getData().getData();
-                task = luckyManager.convertTaskBase(order, DelayTaskEnum.CANCEL_ORDER,7200000L);// TODO: 2020/6/23 暂时固定时间 18000
-                put(task);
-            }
+            log.info("333333");
             log.info("加入到队列成功：{}", JSON.toJSONString(task));
         }
         log.info("队列初始化完成...");
+    }
+    
+    private List<DelayTask> initTasks(){
+    	//mock instrument
+    	List<TestInstrumentsClass> instrumentList = new ArrayList<TestInstrumentsClass>();
+    	TestInstrumentsClass instrument = new TestInstrumentsClass();
+    	instrument.setInstrumentId("rb2110");
+    	instrument.setPeriod(30);
+    	instrumentList.add(instrument);
+    	List<DelayTask> tasks = new ArrayList<DelayTask>();
+    	for(TestInstrumentsClass item : instrumentList) {
+    		KlineTaskEvent event = new KlineTaskEvent();
+    		event.setInstrumentId(item.getInstrumentId());
+    		event.setPeriod(item.getPeriod());
+    	}
+    	return tasks;
+    }
+    
+    public DelayTask convertDelayTask(TaskBase taskBase,Long exectTime){
+        DelayTask task = new DelayTask(taskBase,exectTime);
+        return task;
+    }
+
+    public DelayTask convertTaskBase(Object o,Long exectTime){
+        TaskBase base = new TaskBase();
+        base.setIdentifier(String.valueOf(DateUtil.getNowDate()));
+        base.setData(o);
+        DelayTask task = convertDelayTask(base,exectTime);
+        return task;
+    }
+    
+    
+    @Data
+    public class TestInstrumentsClass{
+    	private String instrumentId;
+    	
+    	private Integer period;
     }
 }

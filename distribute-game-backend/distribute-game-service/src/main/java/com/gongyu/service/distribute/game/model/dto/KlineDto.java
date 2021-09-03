@@ -1,6 +1,8 @@
 package com.gongyu.service.distribute.game.model.dto;
 
-public class KlineDto {
+import java.io.Serializable;
+
+public class KlineDto implements Serializable {
     private Integer id;
 
     private String instrumentid;
