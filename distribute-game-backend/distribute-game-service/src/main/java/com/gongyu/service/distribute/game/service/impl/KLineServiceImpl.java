@@ -16,16 +16,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
+import com.gongyu.service.distribute.game.model.entity.KlineOpenPosition;
+import com.gongyu.service.distribute.game.model.entity.KlineTdStructure;
 import com.gongyu.service.distribute.game.model.entity.Rb2110Kline;
 import com.gongyu.service.distribute.game.service.KlineService;
 import com.gongyu.service.distribute.game.utils.BeanCopyUtils;
 import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.data.mybatis.CrudServiceSupport;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,14 +79,15 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	 */
 
 	private void processReversal(List<KlineDto> kLineList, int index) {
-		if (kLineList == null) { 
+		if (kLineList == null) {
 			return;
 		}
-		int klineSize =  kLineList.size();
-		int startIndex  = index;
+
+		int klineSize = kLineList.size();
+		int startIndex = index;
 		long startTime = System.nanoTime();
-		for (;startIndex < klineSize; startIndex++) {
-			// k线列表为空 或者 当前k线后如果没有6根线 则不需要继续 
+		for (; startIndex < klineSize; startIndex++) {
+			// k线列表为空 或者 当前k线后如果没有6根线 则不需要继续
 			if (startIndex + 6 > kLineList.size()) {
 				log.info("执行耗时：" + String.valueOf(System.nanoTime() - startTime));
 				return;
@@ -99,7 +102,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			// k5线对应list的第二个元素
 			KlineDto k5 = sixList.get(1);
 			// k6线对应list的第一个元素
-			KlineDto k6 = sixList.get(0); 
+			KlineDto k6 = sixList.get(0);
 
 			// 获取k1、k2、k5、k6的收盘价 closePrice
 			double k1ClosePrice = k1.getCloseprice();
@@ -121,11 +124,11 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 				List<KlineDto> tdStructureList = this.processTD(kLineList, true, startIndex + 5);
 
 				// 如果满足TD卖出结构条件
-				if (tdStructureList!= null && tdStructureList.size() > 0) {
+				if (tdStructureList != null && tdStructureList.size() > 0) {
 //					log.info("满足TD卖出结构" + startIndex);
 				}
 				// 如果满足TD买入结构条件
-				if (tdStructureList!= null && tdStructureList.size() > 0) {
+				if (tdStructureList != null && tdStructureList.size() > 0) {
 //					log.info("满足TD买入结构" + (startIndex + 5));
 				}
 
@@ -138,7 +141,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 				List<KlineDto> tdStructureList = this.processTD(kLineList, false, startIndex + 5);
 
 				// 如果满足TD卖出结构条件
-				if (tdStructureList!= null && tdStructureList.size() > 0) {
+				if (tdStructureList != null && tdStructureList.size() > 0) {
 //					log.info("满足TD卖出结构" + startIndex);
 				}
 			}
@@ -162,13 +165,17 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	 * @return boolean 是否满足TD 买入or卖出结构
 	 */
 	private List<KlineDto> processTD(List<KlineDto> kLineList, boolean isReversal, int startIndex) {
+		KlineTdStructure tdStructure = null;
 		// 如果klineList为空 或者 startIndex开始之后没有9根k线 结束此td结构尝试
 		if (kLineList == null || kLineList.size() - 9 < startIndex) {
 			return null;
 		}
 
+		// 是否满足td结构的情况 需要持续关注 不满9跟k线的时候也需要去匹配 因为存在动态k线的情况
+		int endIndex = startIndex + 9 > kLineList.size() ? kLineList.size() : startIndex + 9;
+
 		// startIndex-4表示找到 第一根K线的4天前的k线 startIndex+9表示 第一根k线后的9根k线 总共14根
-		List<KlineDto> thirteenList = kLineList.subList(startIndex - 4, startIndex + 9);
+		List<KlineDto> thirteenList = kLineList.subList(startIndex - 4, endIndex);
 		boolean isTDStructure = true;
 		// 循环thirteenList startIndex初始化成4表示当前比较的K线在第五条
 		int newStartIndex = 4;
@@ -183,10 +190,18 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 			isTDStructure = isTDStructure && this.comparePrice(currentClosePrice, fourDayAgoClosePrice, isReversal);
 		}
-		if (isTDStructure) { 
+		List<KlineDto> tdStructureList = thirteenList.subList(4, thirteenList.size());
 
-			List<KlineDto> tdStructureList = thirteenList.subList(4, thirteenList.size());
-//
+		if (isTDStructure) {
+			boolean isCompletedTDStructure = tdStructureList.size() == 9;
+
+			String klineTimes = tdStructureList.stream().map(item -> item.getKlineTime())
+					.collect(Collectors.joining(","));
+			KlineDto startKline = tdStructureList.get(0);
+
+			tdStructure = KlineTdStructure.builder().index(startIndex).klineTime(startKline.getKlineTime())
+					.klineTimes(klineTimes).isReversal(isReversal).isStructureComplete(isCompletedTDStructure).build();
+			//
 //			KlineDto firstItemDto = tdStructureList.get(0);
 //			String instrumentId = firstItemDto.getInstrumentid();
 //			int period = firstItemDto.getPeriod();
@@ -210,7 +225,25 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 //				return kline.getId().toString();
 //			}).collect(Collectors.joining(","));
 //			log.info("(" + klineIds + ")");
-			this.isTDPerfect(kLineList, startIndex, isReversal);
+			/**
+			 * TD结构完善之后才能进入后续逻辑
+			 */
+			if (isCompletedTDStructure) {
+				TwoTuple<Boolean, Boolean> result = this.isTDPerfect(kLineList, startIndex, isReversal);
+				Boolean isTDPerfect = result.getFirst();
+				Boolean isPerfectComplete = result.getSecond();
+				tdStructure.setPerfect(isTDPerfect);
+				tdStructure.setPerfectComplete(isPerfectComplete);
+				if (isTDPerfect) {
+					KlineOpenPosition openPosition = this.isSatisfyOpenPosition(kLineList, startIndex, isReversal);
+					tdStructure.setSatisfyOpen(false);
+					if (openPosition != null) {
+						tdStructure.setSatisfyOpen(true);
+						log.info("满足开仓条件了");
+					}
+				}
+			}
+
 			return tdStructureList;
 		}
 		return null;
@@ -235,17 +268,30 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		return currentClosePrice > fourDayAgoClosePrice;
 	}
 
-	private boolean isTDPerfect(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+	/**
+	 * 计算TD结构是否完善
+	 * 
+	 * @param klineList
+	 * @param startIndex
+	 * @param isReversal
+	 * @return <Boolean, Boolean> first, second first: 是否完善 second: TD结构完善是否完成
+	 */
+	private TwoTuple<Boolean, Boolean> isTDPerfect(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+
+		TwoTuple<Boolean, Boolean> result = new TwoTuple<Boolean, Boolean>(false, false);
+
 		int klineLen = klineList.size();
 
 		if (klineList == null || klineList.size() < startIndex + 9) {
-			return false;
+			return result;
 		}
 
 		int endIndex = startIndex + 13 > klineLen ? klineLen : startIndex + 13;
 
 		List<KlineDto> thirteenList = klineList.subList(startIndex, endIndex);
-
+		if (thirteenList.size() == 13) {
+			result.setSecond(true);
+		}
 		// 获取满足TD结构的第6和第7根k线
 		KlineDto kline6 = thirteenList.get(5);
 		KlineDto kline7 = thirteenList.get(6);
@@ -274,10 +320,13 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			if (isLowestPrice) {
 //				log.info("买入结构完善" + startIndex);
 				this.isSatisfyOpenPosition(klineList, startIndex, isReversal);
+				result.setFirst(true);
+				result.setSecond(true);
 			}
 
-			return isLowestPrice;
+			return result;
 		}
+
 		/**
 		 * 从第8根k线开始只要有一根k线满足：kn.highestPrice > max(k6.highestPrice, k7.highestPrice)
 		 */
@@ -295,11 +344,16 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 		if (isHighestPrice) {
 //			log.info("卖出结构完善" + startIndex);
+			result.setFirst(true);
+			result.setSecond(true);
 		}
-		return isHighestPrice;
+		return result;
 	}
 
-	private boolean isSatisfyOpenPosition(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+	private final double diffNum = 0.5;
+
+	private KlineOpenPosition isSatisfyOpenPosition(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+		KlineOpenPosition openPosition = null;
 		// 计算TD买入结构支撑线(价格)
 		List<KlineDto> tenList = klineList.subList(startIndex - 1, startIndex + 9);
 
@@ -311,27 +365,113 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 		double kline1LowestPrice = kline1.getLowestprice();
 
-		double lowestPrice = Math.min(yesterdayClosePrice, kline1LowestPrice);
+		// 趋势支撑线
+		double supportPrice = Math.min(yesterdayClosePrice, kline1LowestPrice);
+
+		double kline1HighestPrice = kline1.getHighestprice();
+
+		// 趋势压力线
+		double pressurePrice = Math.max(yesterdayClosePrice, kline1HighestPrice);
 
 //		log.info("趋势支撑线价格：" + lowestPrice);
 
+		double tdLowestPrice = Double.MAX_VALUE;
+		int tdLowestPriceIndex = 0;
+
 		boolean upperLowestPrice = true;
+
+		boolean belowHighestPrice = true;
+		double tdHighestPrice = Double.MIN_VALUE;
+		int tdHighestPriceIndex = 0;
 		for (int i = 1; i < tenList.size(); i++) {
 			KlineDto kline = tenList.get(i);
 			double klineClosePrice = kline.getCloseprice();
 
-			if (klineClosePrice < lowestPrice) {
-				upperLowestPrice = false;
-				break;
+			if (isReversal) {
+				// 任一一根k线的收盘价都不低于趋势支撑线对应价格
+				if (klineClosePrice < supportPrice) {
+					upperLowestPrice = false;
+					break;
+				}
+
+				double klineLowestPrice = kline.getLowestprice();
+
+				if (tdLowestPrice > klineLowestPrice) {
+					tdLowestPriceIndex = i;
+				}
+
+				tdLowestPrice = Math.min(tdLowestPrice, klineLowestPrice);
+			} else {
+				double klineHighestPrice = kline.getHighestprice();
+				if (klineClosePrice > pressurePrice) {
+					belowHighestPrice = false;
+					break;
+				}
+
+				if (tdHighestPrice < klineHighestPrice) {
+					tdHighestPriceIndex = i;
+				}
+				tdHighestPrice = Math.max(tdHighestPrice, klineHighestPrice);
+			}
+		}
+		KlineDto kline9 = tenList.get(9);
+		String instrumentId = kline9.getInstrumentid();
+		Integer period = kline9.getPeriod();
+		if (upperLowestPrice && isReversal) {
+
+			double kline9ClosePrice = kline9.getCloseprice();
+			// 第9根k线收盘价极其靠近趋势支撑线
+			boolean isNearSupport = Math.abs(kline9ClosePrice - supportPrice) < this.diffNum;
+			if (isNearSupport) {
+				KlineDto lowestPriceKline = tenList.get(tdHighestPriceIndex);
+				KlineDto lpYesterdayKline = tenList.get(tdHighestPriceIndex - 1);
+				double lpYesterdayClosePrice = lpYesterdayKline.getCloseprice();
+				double lpLowestPrice = lowestPriceKline.getLowestprice();
+				double lpHighestPrice = lowestPriceKline.getHighestprice();
+				double realWave = Math.max(lpHighestPrice - lpLowestPrice, lpHighestPrice - lpYesterdayClosePrice);
+				realWave = Math.max(realWave, lpYesterdayClosePrice - lpLowestPrice);
+				double realLowestPrice = Math.min(lpLowestPrice, lpYesterdayClosePrice);
+
+				double stopLossBuyPrice = realLowestPrice - realWave;
+
+				boolean canOpenBuy = Math
+						.abs((kline9ClosePrice - pressurePrice) / (kline9ClosePrice - stopLossBuyPrice)) > 1.5;
+				if (canOpenBuy) {
+					openPosition = KlineOpenPosition.builder().instrumentId(instrumentId).period(period)
+							.commodityName("test品种").openTime("3333").openPrice(stopLossBuyPrice)
+							.stopLossPrice(stopLossBuyPrice).openType(0).build();
+				}
 			}
 		}
 
-		if (upperLowestPrice) {
-//			log.info("不低于支撑线" + startIndex);
+		if (belowHighestPrice && isReversal) {
+			double kline9ClosePrice = kline9.getCloseprice();
+			// 第9根k线收盘价极其靠近趋势压力线
+			boolean isNearSupport = Math.abs(kline9ClosePrice - pressurePrice) < this.diffNum;
+			if (isNearSupport) {
+				KlineDto hpKline = tenList.get(tdLowestPriceIndex);
+				KlineDto hpYesterdayKline = tenList.get(tdLowestPriceIndex - 1);
+				double hpYesterdayClosePrice = hpYesterdayKline.getCloseprice();
+				double hpLowestPrice = hpKline.getLowestprice();
+				double hpHighestPrice = hpKline.getHighestprice();
+				double realWave = Math.max(hpHighestPrice - hpLowestPrice, hpHighestPrice - hpYesterdayClosePrice);
+				realWave = Math.max(realWave, hpYesterdayClosePrice - hpLowestPrice);
+				double realHighestPrice = Math.max(hpHighestPrice, hpYesterdayClosePrice);
 
+				double stopLossSalePrice = realHighestPrice + realWave;
+
+				boolean canOpenSale = Math
+						.abs((kline9ClosePrice - supportPrice) / (kline9ClosePrice - stopLossSalePrice)) > 1.5;
+				if (canOpenSale) {
+					openPosition = KlineOpenPosition.builder().instrumentId(instrumentId).period(period)
+							.commodityName("test品种").openTime("3333").openPrice(stopLossSalePrice)
+							.stopLossPrice(stopLossSalePrice).openType(1).build();
+				}
+
+			}
 		}
 
-		return false;
+		return openPosition;
 	}
 
 	public <D, K, M> List<D> queryKline(K k, String instrumentId, int period, String methodName, Class<D> dClass) {
@@ -374,9 +514,9 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	private <D> List<D> getRedisKline(String redisKlineKey, Class<D> cls) {
 		List<D> klineList = null;
 		String json = RedisUtils2.get(redisKlineKey);
-		
+
 //		JsonConvert.DeserializeObject<JsonData<List<Students>>>(json)
-		if (json != null) {  
+		if (json != null) {
 			klineList = klineList = JSONObject.parseArray(json, cls);
 //			Gson gson = new Gson();
 //			JsonElement jsonEl = new JsonParser().parse(json);
