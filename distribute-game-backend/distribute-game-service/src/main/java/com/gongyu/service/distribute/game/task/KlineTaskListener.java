@@ -34,7 +34,7 @@ public class KlineTaskListener implements ApplicationRunner {
          * 3、20秒执行一次
          */
         List<KlineTask> tasks = Arrays.asList(
-        		KlineTask.builder().taskId("10003").expression("*/3 * * * * ?").instrumentId("rb2110").period(30).build()
+//        		KlineTask.builder().taskId("10003").expression("*/3 * * * * ?").instrumentId("rb2110").period(30).build()
 //        		KlineTask.builder().taskId("10004").expression("*/4 * * * * ?").instrumentId("rb2110").period(60).build(),
 //        		KlineTask.builder().taskId("10005").expression("*/5 * * * * ?").instrumentId("rb2110").period(90).build()
         );

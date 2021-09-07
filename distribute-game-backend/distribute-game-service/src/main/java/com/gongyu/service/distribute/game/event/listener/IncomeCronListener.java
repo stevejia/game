@@ -29,7 +29,7 @@ public class IncomeCronListener implements ApplicationListener<ScheduledCronEven
     @Async("commonExecutor")
     @Override
     public void onApplicationEvent(ScheduledCronEvent scheduledCronEvent) {
-        log.info("IncomeCronListener onApplicationEvent start...");
+//        log.info("IncomeCronListener onApplicationEvent start...");
         ScheduledTypeEnum scheduledTypeEnum = (ScheduledTypeEnum) scheduledCronEvent.getSource();
 //        RLock lock = redission.getLock("IncomeCronListener");
 //        if(scheduledTypeEnum.equals(ScheduledTypeEnum.INCOME)){
