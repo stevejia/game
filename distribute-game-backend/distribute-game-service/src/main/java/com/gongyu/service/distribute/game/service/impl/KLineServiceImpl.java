@@ -448,8 +448,8 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			// 第9根k线收盘价极其靠近趋势支撑线
 			boolean isNearSupport = Math.abs(kline9ClosePrice - supportPrice) < this.diffNum;
 			if (isNearSupport) {
-				KlineDto lowestPriceKline = tenList.get(tdHighestPriceIndex);
-				KlineDto lpYesterdayKline = tenList.get(tdHighestPriceIndex - 1);
+				KlineDto lowestPriceKline = tenList.get(tdLowestPriceIndex);
+				KlineDto lpYesterdayKline = tenList.get(tdLowestPriceIndex - 1);
 				double lpYesterdayClosePrice = lpYesterdayKline.getCloseprice();
 				double lpLowestPrice = lowestPriceKline.getLowestprice();
 				double lpHighestPrice = lowestPriceKline.getHighestprice();
@@ -469,13 +469,13 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			}
 		}
 
-		if (belowHighestPrice && isReversal) {
+		if (belowHighestPrice && !isReversal) {
 			double kline9ClosePrice = kline9.getCloseprice();
 			// 第9根k线收盘价极其靠近趋势压力线
 			boolean isNearSupport = Math.abs(kline9ClosePrice - pressurePrice) < this.diffNum;
 			if (isNearSupport) {
-				KlineDto hpKline = tenList.get(tdLowestPriceIndex);
-				KlineDto hpYesterdayKline = tenList.get(tdLowestPriceIndex - 1);
+				KlineDto hpKline = tenList.get(tdHighestPriceIndex);
+				KlineDto hpYesterdayKline = tenList.get(tdHighestPriceIndex - 1);
 				double hpYesterdayClosePrice = hpYesterdayKline.getCloseprice();
 				double hpLowestPrice = hpKline.getLowestprice();
 				double hpHighestPrice = hpKline.getHighestprice();
