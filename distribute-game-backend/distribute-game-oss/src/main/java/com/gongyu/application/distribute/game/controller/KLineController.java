@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gongyu.application.distribute.game.model.RefreshKlineModel;
+import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
+import com.gongyu.service.distribute.game.model.entity.KlineTdStructure;
 import com.gongyu.service.distribute.game.model.entity.Rb2110KlineExample;
 import com.gongyu.service.distribute.game.service.KlineService;
 import com.gongyu.service.distribute.game.utils.RedisUtils2;
@@ -37,7 +40,7 @@ public class KLineController {
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
 //    	List<KlineDto> kLines = klineService.queryRbKLine(param);
-		List<KlineDto> kLines = klineService.queryRbKLine2(param, "Rb2110Kline");
+		List<KlineDto> kLines = klineService.queryRbKLine2(param, "rb2110");
 		return BaseResponse.success(kLines);
 	}
 	
@@ -61,7 +64,8 @@ public class KLineController {
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
 //    	List<KlineDto> kLines = klineService.queryRbKLine(param);
-		List<KlineDto> kLines = klineService.refreshKline(param);
-		return BaseResponse.success(kLines);
+		TwoTuple<List<KlineDto>, List<KlineTdStructure>> result = klineService.refreshKline(param);
+		RefreshKlineModel response = RefreshKlineModel.builder().klines(result.getFirst()).tdStructures(result.getSecond()).build();
+		return BaseResponse.success(response);
 	}
 }

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
@@ -78,6 +79,14 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		List<KlineTdStructure> tdStructures = this.processTdStructures(kLineList, reversalMap);
 		this.isStructuresPerfect(kLineList, tdStructures);
 		List<KlineOpenPosition> openPositions = this.isStructuresSatisfyOpenPosition(kLineList, tdStructures);
+		if (tdStructures.size() > 0) {
+			KlineTdStructure tdStructure = tdStructures.get(0);
+			String instrumentId = tdStructure.getInstrumentId();
+			Integer period = tdStructure.getPeriod();
+			String redisKey = instrumentId + "_" + period + "_td";
+			RedisUtils2.remove(redisKey);
+			RedisUtils2.set(redisKey, JSONObject.toJSONString(tdStructures));
+		}
 	}
 
 	/**
@@ -228,7 +237,8 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			KlineDto startKline = tdStructureList.get(0);
 
 			tdStructure = KlineTdStructure.builder().index(startIndex).klineTime(startKline.getKlineTime())
-					.klineTimes(klineTimes).isReversal(isReversal).isStructureComplete(isCompletedTDStructure).build();
+					.klineTimes(klineTimes).isReversal(isReversal).isStructureComplete(isCompletedTDStructure)
+					.instrumentId(startKline.getInstrumentid()).period(startKline.getPeriod()).build();
 			log.info("满足td{}结构{}", isReversal ? "买入" : "卖出",
 					isCompletedTDStructure ? "有9根k线" : "只有" + tdStructureList.size() + "根k线");
 
@@ -575,7 +585,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	}
 
 	@Override
-	public List<KlineDto> refreshKline(KlineExample params) {
+	public TwoTuple<List<KlineDto>, List<KlineTdStructure>> refreshKline(KlineExample params) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 
 		String formatDate = dateFormat.format(new Date());
@@ -587,7 +597,17 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 			RedisUtils2.set("rb2110_real_time", formatDate);
 			newKlineList.add(this.generateKline(newKlineString));
 		}
-		return newKlineList;
+
+		String redisTdKey = "rb2110_30_td";
+
+		String redisTdJson = RedisUtils2.get(redisTdKey);
+
+		List<KlineTdStructure> tdStructures = JSONObject.parseArray(redisTdJson, KlineTdStructure.class);
+
+		TwoTuple<List<KlineDto>, List<KlineTdStructure>> result = new TwoTuple<List<KlineDto>, List<KlineTdStructure>>(
+				newKlineList, tdStructures);
+
+		return result;
 	}
 
 	private String mockRedisKline(String instrumentId, String dateFormat) {
