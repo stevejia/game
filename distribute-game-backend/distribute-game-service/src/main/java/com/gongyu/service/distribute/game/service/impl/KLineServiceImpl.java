@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.FourTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
@@ -471,7 +470,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		String instrumentId = kline9.getInstrumentid();
 		Integer period = kline9.getPeriod();
 		if (upperLowestPrice && isReversal) {
-
+ 
 			double kline9ClosePrice = kline9.getCloseprice();
 			// 第9根k线收盘价极其靠近趋势支撑线
 			boolean isNearSupport = Math.abs(kline9ClosePrice - supportPrice) < this.diffNum;

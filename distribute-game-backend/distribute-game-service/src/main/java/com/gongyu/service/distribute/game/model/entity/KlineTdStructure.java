@@ -1,7 +1,5 @@
 package com.gongyu.service.distribute.game.model.entity;
 
-import com.gongyu.service.distribute.game.task.KlineTask;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
