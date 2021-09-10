@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.gongyu.service.distribute.game.common.utils.TupleUtil.FourTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
@@ -241,6 +242,18 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 					.instrumentId(startKline.getInstrumentid()).period(startKline.getPeriod()).build();
 			log.info("满足td{}结构{}", isReversal ? "买入" : "卖出",
 					isCompletedTDStructure ? "有9根k线" : "只有" + tdStructureList.size() + "根k线");
+			if(isCompletedTDStructure) { 
+				KlineDto k0Line = kLineList.get(startIndex - 1);
+				//td结构开始k线的前一天收盘价
+				KlineDto k1Line = thirteenList.get(0);
+				double k1LowestPrice = k1Line.getLowestprice();
+				double k1HighestPrice = k1Line.getHighestprice();
+				double k0ClosePrice = k0Line.getCloseprice();
+				double supportPrice = Math.min(k0ClosePrice, k1LowestPrice);
+				double pressurePrice = Math.max(k0ClosePrice, k1HighestPrice);
+				tdStructure.setSupportPrice(supportPrice);
+				tdStructure.setPressurePrice(pressurePrice);
+			}
 
 		} else {
 			log.info("不满足td{}结构", isReversal ? "买入" : "卖出");
@@ -286,9 +299,11 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	 * @param isReversal
 	 * @return <Boolean, Boolean> first, second first: 是否完善 second: TD结构完善是否完成
 	 */
-	private TwoTuple<Boolean, Boolean> isTDPerfect(List<KlineDto> klineList, int startIndex, boolean isReversal) {
+	private FourTuple<Boolean, Boolean, Double, Double> isTDPerfect(List<KlineDto> klineList, int startIndex,
+			boolean isReversal) {
 
-		TwoTuple<Boolean, Boolean> result = new TwoTuple<Boolean, Boolean>(false, false);
+		FourTuple<Boolean, Boolean, Double, Double> result = new FourTuple<Boolean, Boolean, Double, Double>(false,
+				false, null, null);
 
 		int klineLen = klineList.size();
 
@@ -297,7 +312,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		}
 
 		int endIndex = startIndex + 13 > klineLen ? klineLen : startIndex + 13;
-
+		
 		List<KlineDto> thirteenList = klineList.subList(startIndex, endIndex);
 		if (thirteenList.size() == 13) {
 			result.setSecond(true);
@@ -358,6 +373,9 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 		if (isHighestPrice) {
 //			log.info("卖出结构完善" + startIndex);
+			KlineDto k1Line = thirteenList.get(0);
+			double k1LowestPrice = k1Line.getLowestprice();
+			double k1HighestPrice = k1Line.getHighestprice();
 			result.setFirst(true);
 			result.setSecond(true);
 			log.info("TD买出结构完善");

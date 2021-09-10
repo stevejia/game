@@ -67,4 +67,14 @@ public class KlineTdStructure {
 	 * 是否满足开仓条件
 	 */
 	private boolean isSatisfyOpen;
+
+	/**
+	 * 支撑价
+	 */
+	private double supportPrice;
+
+	/**
+	 * 压力价
+	 */
+	private double pressurePrice;
 }
