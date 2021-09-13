@@ -1,18 +1,8 @@
 package com.gongyu.application.distribute.game.controller;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -21,22 +11,9 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
-import org.apache.commons.collections.CollectionUtils;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.gongyu.service.distribute.game.common.enums.CommEnum;
-import com.gongyu.service.distribute.game.common.enums.PayStatusEnum;
-import com.gongyu.service.distribute.game.model.entity.Config;
-import com.gongyu.service.distribute.game.model.entity.PigOrder;
-import com.gongyu.service.distribute.game.model.entity.Users;
-import com.gongyu.service.distribute.game.service.ConfigService;
-import com.gongyu.service.distribute.game.service.PigOrderService;
-import com.gongyu.service.distribute.game.service.UsersService;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
@@ -46,13 +23,7 @@ import net.sf.json.JSONObject;
 @Component
 @ServerEndpoint(value = "/websocket/{code}")
 public class WebSocketServerController {
-	@Autowired
-	private UsersService usersService;
-
-	@Autowired
-	private PigOrderService pigOrderService;
-	@Autowired
-	private ConfigService configService;
+	
 	// 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
 	private static int onlineCount = 0;
 	// concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
