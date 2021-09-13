@@ -3,6 +3,7 @@ package com.gongyu.service.distribute.game.service;
 import java.util.List;
 import java.util.Map;
 
+import com.gongyu.service.distribute.game.common.utils.TupleUtil.ThreeTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
@@ -17,7 +18,7 @@ public interface KlineService extends CrudService<Rb2110Kline>{
 	
 	List<KlineDto> queryRbKLine2(KlineExample params, String tableName);
 	
-	TwoTuple<List<KlineDto>, List<KlineTdStructure>> refreshKline(KlineExample params);
+	ThreeTuple<List<KlineDto>, List<KlineTdStructure>, List<KlineOpenPosition>> refreshKline(KlineDto queryParams);
 	
 	List<KlineDto> queryKline(KlineExample params, String tableName, int period);
 	

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.FourTuple;
+import com.gongyu.service.distribute.game.common.utils.TupleUtil.ThreeTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
@@ -79,13 +80,16 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		List<KlineTdStructure> tdStructures = this.processTdStructures(kLineList, reversalMap);
 		this.isStructuresPerfect(kLineList, tdStructures);
 		List<KlineOpenPosition> openPositions = this.isStructuresSatisfyOpenPosition(kLineList, tdStructures);
-		if (tdStructures.size() > 0) {
-			KlineTdStructure tdStructure = tdStructures.get(0);
-			String instrumentId = tdStructure.getInstrumentId();
-			Integer period = tdStructure.getPeriod();
+		if (kLineList != null && kLineList.size() > 0) {
+			KlineDto kline = kLineList.get(0);
+			String instrumentId = kline.getInstrumentid();
+			Integer period = kline.getPeriod(); 
 			String redisKey = instrumentId + "_" + period + "_td";
-			RedisUtils2.remove(redisKey);
 			RedisUtils2.set(redisKey, JSONObject.toJSONString(tdStructures));
+
+			String openPositionKey = instrumentId + "_" + period + "_op";
+			RedisUtils2.remove(openPositionKey);
+			RedisUtils2.set(openPositionKey, JSONObject.toJSONString(openPositions));
 		}
 	}
 
@@ -241,9 +245,9 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 					.instrumentId(startKline.getInstrumentid()).period(startKline.getPeriod()).build();
 			log.info("满足td{}结构{}", isReversal ? "买入" : "卖出",
 					isCompletedTDStructure ? "有9根k线" : "只有" + tdStructureList.size() + "根k线");
-			if(isCompletedTDStructure) { 
+			if (isCompletedTDStructure) {
 				KlineDto k0Line = kLineList.get(startIndex - 1);
-				//td结构开始k线的前一天收盘价
+				// td结构开始k线的前一天收盘价
 				KlineDto k1Line = thirteenList.get(0);
 				double k1LowestPrice = k1Line.getLowestprice();
 				double k1HighestPrice = k1Line.getHighestprice();
@@ -311,7 +315,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		}
 
 		int endIndex = startIndex + 13 > klineLen ? klineLen : startIndex + 13;
-		
+
 		List<KlineDto> thirteenList = klineList.subList(startIndex, endIndex);
 		if (thirteenList.size() == 13) {
 			result.setSecond(true);
@@ -470,7 +474,7 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		String instrumentId = kline9.getInstrumentid();
 		Integer period = kline9.getPeriod();
 		if (upperLowestPrice && isReversal) {
- 
+
 			double kline9ClosePrice = kline9.getCloseprice();
 			// 第9根k线收盘价极其靠近趋势支撑线
 			boolean isNearSupport = Math.abs(kline9ClosePrice - supportPrice) < this.diffNum;
@@ -602,27 +606,35 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	}
 
 	@Override
-	public TwoTuple<List<KlineDto>, List<KlineTdStructure>> refreshKline(KlineExample params) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+	public ThreeTuple<List<KlineDto>, List<KlineTdStructure>, List<KlineOpenPosition>> refreshKline(KlineDto queryParams) {
+//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+//
+//		String formatDate = dateFormat.format(new Date());
+//		List<KlineDto> newKlineList = new ArrayList<KlineDto>();
+//		String originFormatDate = RedisUtils2.get("rb2110_real_time");
+//		if (!formatDate.equals(originFormatDate)) {
+//			String newKlineString = this.mockRedisKline("rb2110", formatDate);
+//			RedisUtils2.set("rb2110_real_60", newKlineString);
+//			RedisUtils2.set("rb2110_real_time", formatDate);
+//			newKlineList.add(this.generateKline(newKlineString));
+//		}
+		
+		String instrumentId = queryParams.getInstrumentid();
+		Integer period = queryParams.getPeriod();
 
-		String formatDate = dateFormat.format(new Date());
-		List<KlineDto> newKlineList = new ArrayList<KlineDto>();
-		String originFormatDate = RedisUtils2.get("rb2110_real_time");
-		if (!formatDate.equals(originFormatDate)) {
-			String newKlineString = this.mockRedisKline("rb2110", formatDate);
-			RedisUtils2.set("rb2110_real_60", newKlineString);
-			RedisUtils2.set("rb2110_real_time", formatDate);
-			newKlineList.add(this.generateKline(newKlineString));
-		}
-
-		String redisTdKey = "rb2110_30_td";
+		String redisTdKey = instrumentId + "_"+period+"_td";
 
 		String redisTdJson = RedisUtils2.get(redisTdKey);
+		
 
 		List<KlineTdStructure> tdStructures = JSONObject.parseArray(redisTdJson, KlineTdStructure.class);
 
-		TwoTuple<List<KlineDto>, List<KlineTdStructure>> result = new TwoTuple<List<KlineDto>, List<KlineTdStructure>>(
-				newKlineList, tdStructures);
+		String openPositionKey = instrumentId + "_"+period + "_op";
+		
+		String redisOpJson = RedisUtils2.get(openPositionKey);
+		List<KlineOpenPosition> openPositions = JSONObject.parseArray(redisOpJson, KlineOpenPosition.class);
+		ThreeTuple<List<KlineDto>, List<KlineTdStructure>, List<KlineOpenPosition>> result = new ThreeTuple<List<KlineDto>, List<KlineTdStructure>, List<KlineOpenPosition>>(
+				new ArrayList<KlineDto>(), tdStructures, openPositions);
 
 		return result;
 	}

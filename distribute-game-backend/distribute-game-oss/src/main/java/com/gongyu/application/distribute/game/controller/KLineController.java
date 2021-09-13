@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gongyu.application.distribute.game.model.RefreshKlineModel;
+import com.gongyu.service.distribute.game.common.utils.TupleUtil.ThreeTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
+import com.gongyu.service.distribute.game.model.entity.KlineOpenPosition;
 import com.gongyu.service.distribute.game.model.entity.KlineTdStructure;
 import com.gongyu.service.distribute.game.model.entity.Rb2110KlineExample;
 import com.gongyu.service.distribute.game.service.KlineService;
@@ -43,7 +45,7 @@ public class KLineController {
 		List<KlineDto> kLines = klineService.queryRbKLine2(param, "rb2110");
 		return BaseResponse.success(kLines);
 	}
-	
+
 	@ApiOperation(value = "查询k线列表", notes = "查询k线列表", response = KlineDto.class)
 	@PostMapping("querykline2")
 	public BaseResponse queryKLine2(@Valid @ModelAttribute KlineDto queryModel) {
@@ -56,7 +58,7 @@ public class KLineController {
 		return BaseResponse.success(kLines);
 	}
 
-	@ApiOperation(value = "刷新K线列表", notes = "刷新K线列表", response = KlineDto.class)
+	@ApiOperation(value = "刷新K线列表", notes = "刷新K线列表")
 	@PostMapping("refreshKline")
 	public BaseResponse refreshKline(@Valid @ModelAttribute @RequestBody KlineDto queryModel) {
 //    	Rb2110KlineExample param = new Rb2110KlineExample();
@@ -64,8 +66,10 @@ public class KLineController {
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
 //    	List<KlineDto> kLines = klineService.queryRbKLine(param);
-		TwoTuple<List<KlineDto>, List<KlineTdStructure>> result = klineService.refreshKline(param);
-		RefreshKlineModel response = RefreshKlineModel.builder().klines(result.getFirst()).tdStructures(result.getSecond()).build();
+		ThreeTuple<List<KlineDto>, List<KlineTdStructure>, List<KlineOpenPosition>> result = klineService
+				.refreshKline(queryModel);
+		RefreshKlineModel response = RefreshKlineModel.builder().klines(result.getFirst())
+				.tdStructures(result.getSecond()).openPositions(result.getThird()).build();
 		return BaseResponse.success(response);
 	}
 }
