@@ -34,7 +34,7 @@ public class ScheduledTask implements SchedulingConfigurer {
 	
 	@Autowired
 	private KlineService klineService;
-
+	
     private volatile ScheduledTaskRegistrar registrar;
 
     private final ConcurrentHashMap<String, ScheduledFuture<?>> scheduledFutures = new ConcurrentHashMap<>();

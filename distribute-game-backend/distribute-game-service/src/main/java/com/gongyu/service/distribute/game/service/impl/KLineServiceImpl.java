@@ -534,9 +534,8 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 		// 合约Id_周期作为redis缓存的key
 		String redisKlineKey = instrumentId + "_" + period;
 		List<D> dtoList = this.getRedisKline(redisKlineKey, dClass);
-		if (dtoList != null && dtoList.size() > 0) {
-			return dtoList;
-		}
+		
+		String countByExample = "countByExample"; 
 		try {
 			String packageStr = "com.gongyu.service.distribute.game";
 			String firstStr = instrumentId.substring(0, 1);
@@ -552,6 +551,12 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 
 			Method method = mapper.getClass().getMethod(methodName, ExampleClass);
 
+			Method countMethod = mapper.getClass().getMethod(countByExample, ExampleClass); 
+			
+			int count = (int)countMethod.invoke(mapper, BeanCopyUtils.copyObject(k, ExampleClass));
+			if (dtoList != null && dtoList.size() >= count) {
+				return dtoList;
+			}
 			List<?> entities = (List<?>) method.invoke(mapper, BeanCopyUtils.copyObject(k, ExampleClass));
 			dtoList = new ArrayList<D>();
 

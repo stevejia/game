@@ -33,39 +33,23 @@ public class KLineController {
 
 	@Autowired
 	private KlineService klineService;
-
+	
 	@ApiOperation(value = "查询k线列表", notes = "查询k线列表", response = KlineDto.class)
 	@PostMapping("querykline")
 	public BaseResponse queryKLine(@Valid @ModelAttribute KlineDto queryModel) {
-//    	Rb2110KlineExample param = new Rb2110KlineExample();
 		KlineExample param = new KlineExample();
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
-//    	List<KlineDto> kLines = klineService.queryRbKLine(param);
-		List<KlineDto> kLines = klineService.queryRbKLine2(param, "rb2110");
-		return BaseResponse.success(kLines);
-	}
-
-	@ApiOperation(value = "查询k线列表", notes = "查询k线列表", response = KlineDto.class)
-	@PostMapping("querykline2")
-	public BaseResponse queryKLine2(@Valid @ModelAttribute KlineDto queryModel) {
-//    	Rb2110KlineExample param = new Rb2110KlineExample();
-		KlineExample param = new KlineExample();
-		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
-
-//    	List<KlineDto> kLines = klineService.queryRbKLine(param);
-		List<KlineDto> kLines = klineService.queryRbKLine(param);
+		List<KlineDto> kLines = klineService.queryKline(param, queryModel.getInstrumentid(), queryModel.getPeriod());
 		return BaseResponse.success(kLines);
 	}
 
 	@ApiOperation(value = "刷新K线列表", notes = "刷新K线列表")
 	@PostMapping("refreshKline")
 	public BaseResponse refreshKline(@Valid @ModelAttribute @RequestBody KlineDto queryModel) {
-//    	Rb2110KlineExample param = new Rb2110KlineExample();
 		KlineExample param = new KlineExample();
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
-//    	List<KlineDto> kLines = klineService.queryRbKLine(param);
 		ThreeTuple<List<KlineDto>, List<KlineTdStructure>, List<KlineOpenPosition>> result = klineService
 				.refreshKline(queryModel);
 		RefreshKlineModel response = RefreshKlineModel.builder().klines(result.getFirst())
