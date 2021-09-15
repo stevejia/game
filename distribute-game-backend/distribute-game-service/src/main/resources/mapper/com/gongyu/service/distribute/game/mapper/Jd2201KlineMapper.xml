@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.Jd2201KlineMapper" >
+  <resultMap id="BaseResultMap" type="com.gongyu.service.distribute.game.model.entity.Jd2201Kline" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="InstrumentID" property="instrumentid" jdbcType="VARCHAR" />
+    <result column="local_time" property="localTime" jdbcType="VARCHAR" />
+    <result column="Instrumen1" property="instrumen1" jdbcType="VARCHAR" />
+    <result column="TradingDay" property="tradingday" jdbcType="VARCHAR" />
+    <result column="start_time" property="startTime" jdbcType="VARCHAR" />
+    <result column="end_time" property="endTime" jdbcType="VARCHAR" />
+    <result column="kline_time" property="klineTime" jdbcType="VARCHAR" />
+    <result column="period" property="period" jdbcType="INTEGER" />
+    <result column="OpenPrice" property="openprice" jdbcType="DOUBLE" />
+    <result column="ClosePrice" property="closeprice" jdbcType="DOUBLE" />
+    <result column="HighestPrice" property="highestprice" jdbcType="DOUBLE" />
+    <result column="LowestPrice" property="lowestprice" jdbcType="DOUBLE" />
+    <result column="Volume" property="volume" jdbcType="INTEGER" />
+    <result column="AO" property="ao" jdbcType="DOUBLE" />
+    <result column="AC" property="ac" jdbcType="DOUBLE" />
+    <result column="AO_Mark" property="aoMark" jdbcType="INTEGER" />
+    <result column="AC_Mark" property="acMark" jdbcType="INTEGER" />
+    <result column="sell" property="sell" jdbcType="INTEGER" />
+    <result column="buy" property="buy" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, InstrumentID, local_time, Instrumen1, TradingDay, start_time, end_time, kline_time, 
+    period, OpenPrice, ClosePrice, HighestPrice, LowestPrice, Volume, AO, AC, AO_Mark, 
+    AC_Mark, sell, buy
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201KlineExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from jd2201_kline
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from jd2201_kline
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from jd2201_kline
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201KlineExample" >
+    delete from jd2201_kline
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201Kline" >
+    insert into jd2201_kline (id, InstrumentID, local_time, 
+      Instrumen1, TradingDay, start_time, 
+      end_time, kline_time, period, 
+      OpenPrice, ClosePrice, HighestPrice, 
+      LowestPrice, Volume, AO, 
+      AC, AO_Mark, AC_Mark, 
+      sell, buy)
+    values (#{id,jdbcType=INTEGER}, #{instrumentid,jdbcType=VARCHAR}, #{localTime,jdbcType=VARCHAR}, 
+      #{instrumen1,jdbcType=VARCHAR}, #{tradingday,jdbcType=VARCHAR}, #{startTime,jdbcType=VARCHAR}, 
+      #{endTime,jdbcType=VARCHAR}, #{klineTime,jdbcType=VARCHAR}, #{period,jdbcType=INTEGER}, 
+      #{openprice,jdbcType=DOUBLE}, #{closeprice,jdbcType=DOUBLE}, #{highestprice,jdbcType=DOUBLE}, 
+      #{lowestprice,jdbcType=DOUBLE}, #{volume,jdbcType=INTEGER}, #{ao,jdbcType=DOUBLE}, 
+      #{ac,jdbcType=DOUBLE}, #{aoMark,jdbcType=INTEGER}, #{acMark,jdbcType=INTEGER}, 
+      #{sell,jdbcType=INTEGER}, #{buy,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201Kline" >
+    insert into jd2201_kline
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="instrumentid != null" >
+        InstrumentID,
+      </if>
+      <if test="localTime != null" >
+        local_time,
+      </if>
+      <if test="instrumen1 != null" >
+        Instrumen1,
+      </if>
+      <if test="tradingday != null" >
+        TradingDay,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="klineTime != null" >
+        kline_time,
+      </if>
+      <if test="period != null" >
+        period,
+      </if>
+      <if test="openprice != null" >
+        OpenPrice,
+      </if>
+      <if test="closeprice != null" >
+        ClosePrice,
+      </if>
+      <if test="highestprice != null" >
+        HighestPrice,
+      </if>
+      <if test="lowestprice != null" >
+        LowestPrice,
+      </if>
+      <if test="volume != null" >
+        Volume,
+      </if>
+      <if test="ao != null" >
+        AO,
+      </if>
+      <if test="ac != null" >
+        AC,
+      </if>
+      <if test="aoMark != null" >
+        AO_Mark,
+      </if>
+      <if test="acMark != null" >
+        AC_Mark,
+      </if>
+      <if test="sell != null" >
+        sell,
+      </if>
+      <if test="buy != null" >
+        buy,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="instrumentid != null" >
+        #{instrumentid,jdbcType=VARCHAR},
+      </if>
+      <if test="localTime != null" >
+        #{localTime,jdbcType=VARCHAR},
+      </if>
+      <if test="instrumen1 != null" >
+        #{instrumen1,jdbcType=VARCHAR},
+      </if>
+      <if test="tradingday != null" >
+        #{tradingday,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=VARCHAR},
+      </if>
+      <if test="klineTime != null" >
+        #{klineTime,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null" >
+        #{period,jdbcType=INTEGER},
+      </if>
+      <if test="openprice != null" >
+        #{openprice,jdbcType=DOUBLE},
+      </if>
+      <if test="closeprice != null" >
+        #{closeprice,jdbcType=DOUBLE},
+      </if>
+      <if test="highestprice != null" >
+        #{highestprice,jdbcType=DOUBLE},
+      </if>
+      <if test="lowestprice != null" >
+        #{lowestprice,jdbcType=DOUBLE},
+      </if>
+      <if test="volume != null" >
+        #{volume,jdbcType=INTEGER},
+      </if>
+      <if test="ao != null" >
+        #{ao,jdbcType=DOUBLE},
+      </if>
+      <if test="ac != null" >
+        #{ac,jdbcType=DOUBLE},
+      </if>
+      <if test="aoMark != null" >
+        #{aoMark,jdbcType=INTEGER},
+      </if>
+      <if test="acMark != null" >
+        #{acMark,jdbcType=INTEGER},
+      </if>
+      <if test="sell != null" >
+        #{sell,jdbcType=INTEGER},
+      </if>
+      <if test="buy != null" >
+        #{buy,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201KlineExample" resultType="java.lang.Integer" >
+    select count(*) from jd2201_kline
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update jd2201_kline
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.instrumentid != null" >
+        InstrumentID = #{record.instrumentid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.localTime != null" >
+        local_time = #{record.localTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.instrumen1 != null" >
+        Instrumen1 = #{record.instrumen1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tradingday != null" >
+        TradingDay = #{record.tradingday,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startTime != null" >
+        start_time = #{record.startTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.endTime != null" >
+        end_time = #{record.endTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.klineTime != null" >
+        kline_time = #{record.klineTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.period != null" >
+        period = #{record.period,jdbcType=INTEGER},
+      </if>
+      <if test="record.openprice != null" >
+        OpenPrice = #{record.openprice,jdbcType=DOUBLE},
+      </if>
+      <if test="record.closeprice != null" >
+        ClosePrice = #{record.closeprice,jdbcType=DOUBLE},
+      </if>
+      <if test="record.highestprice != null" >
+        HighestPrice = #{record.highestprice,jdbcType=DOUBLE},
+      </if>
+      <if test="record.lowestprice != null" >
+        LowestPrice = #{record.lowestprice,jdbcType=DOUBLE},
+      </if>
+      <if test="record.volume != null" >
+        Volume = #{record.volume,jdbcType=INTEGER},
+      </if>
+      <if test="record.ao != null" >
+        AO = #{record.ao,jdbcType=DOUBLE},
+      </if>
+      <if test="record.ac != null" >
+        AC = #{record.ac,jdbcType=DOUBLE},
+      </if>
+      <if test="record.aoMark != null" >
+        AO_Mark = #{record.aoMark,jdbcType=INTEGER},
+      </if>
+      <if test="record.acMark != null" >
+        AC_Mark = #{record.acMark,jdbcType=INTEGER},
+      </if>
+      <if test="record.sell != null" >
+        sell = #{record.sell,jdbcType=INTEGER},
+      </if>
+      <if test="record.buy != null" >
+        buy = #{record.buy,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update jd2201_kline
+    set id = #{record.id,jdbcType=INTEGER},
+      InstrumentID = #{record.instrumentid,jdbcType=VARCHAR},
+      local_time = #{record.localTime,jdbcType=VARCHAR},
+      Instrumen1 = #{record.instrumen1,jdbcType=VARCHAR},
+      TradingDay = #{record.tradingday,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=VARCHAR},
+      end_time = #{record.endTime,jdbcType=VARCHAR},
+      kline_time = #{record.klineTime,jdbcType=VARCHAR},
+      period = #{record.period,jdbcType=INTEGER},
+      OpenPrice = #{record.openprice,jdbcType=DOUBLE},
+      ClosePrice = #{record.closeprice,jdbcType=DOUBLE},
+      HighestPrice = #{record.highestprice,jdbcType=DOUBLE},
+      LowestPrice = #{record.lowestprice,jdbcType=DOUBLE},
+      Volume = #{record.volume,jdbcType=INTEGER},
+      AO = #{record.ao,jdbcType=DOUBLE},
+      AC = #{record.ac,jdbcType=DOUBLE},
+      AO_Mark = #{record.aoMark,jdbcType=INTEGER},
+      AC_Mark = #{record.acMark,jdbcType=INTEGER},
+      sell = #{record.sell,jdbcType=INTEGER},
+      buy = #{record.buy,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201Kline" >
+    update jd2201_kline
+    <set >
+      <if test="instrumentid != null" >
+        InstrumentID = #{instrumentid,jdbcType=VARCHAR},
+      </if>
+      <if test="localTime != null" >
+        local_time = #{localTime,jdbcType=VARCHAR},
+      </if>
+      <if test="instrumen1 != null" >
+        Instrumen1 = #{instrumen1,jdbcType=VARCHAR},
+      </if>
+      <if test="tradingday != null" >
+        TradingDay = #{tradingday,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null" >
+        start_time = #{startTime,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=VARCHAR},
+      </if>
+      <if test="klineTime != null" >
+        kline_time = #{klineTime,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null" >
+        period = #{period,jdbcType=INTEGER},
+      </if>
+      <if test="openprice != null" >
+        OpenPrice = #{openprice,jdbcType=DOUBLE},
+      </if>
+      <if test="closeprice != null" >
+        ClosePrice = #{closeprice,jdbcType=DOUBLE},
+      </if>
+      <if test="highestprice != null" >
+        HighestPrice = #{highestprice,jdbcType=DOUBLE},
+      </if>
+      <if test="lowestprice != null" >
+        LowestPrice = #{lowestprice,jdbcType=DOUBLE},
+      </if>
+      <if test="volume != null" >
+        Volume = #{volume,jdbcType=INTEGER},
+      </if>
+      <if test="ao != null" >
+        AO = #{ao,jdbcType=DOUBLE},
+      </if>
+      <if test="ac != null" >
+        AC = #{ac,jdbcType=DOUBLE},
+      </if>
+      <if test="aoMark != null" >
+        AO_Mark = #{aoMark,jdbcType=INTEGER},
+      </if>
+      <if test="acMark != null" >
+        AC_Mark = #{acMark,jdbcType=INTEGER},
+      </if>
+      <if test="sell != null" >
+        sell = #{sell,jdbcType=INTEGER},
+      </if>
+      <if test="buy != null" >
+        buy = #{buy,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gongyu.service.distribute.game.model.entity.Jd2201Kline" >
+    update jd2201_kline
+    set InstrumentID = #{instrumentid,jdbcType=VARCHAR},
+      local_time = #{localTime,jdbcType=VARCHAR},
+      Instrumen1 = #{instrumen1,jdbcType=VARCHAR},
+      TradingDay = #{tradingday,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=VARCHAR},
+      end_time = #{endTime,jdbcType=VARCHAR},
+      kline_time = #{klineTime,jdbcType=VARCHAR},
+      period = #{period,jdbcType=INTEGER},
+      OpenPrice = #{openprice,jdbcType=DOUBLE},
+      ClosePrice = #{closeprice,jdbcType=DOUBLE},
+      HighestPrice = #{highestprice,jdbcType=DOUBLE},
+      LowestPrice = #{lowestprice,jdbcType=DOUBLE},
+      Volume = #{volume,jdbcType=INTEGER},
+      AO = #{ao,jdbcType=DOUBLE},
+      AC = #{ac,jdbcType=DOUBLE},
+      AO_Mark = #{aoMark,jdbcType=INTEGER},
+      AC_Mark = #{acMark,jdbcType=INTEGER},
+      sell = #{sell,jdbcType=INTEGER},
+      buy = #{buy,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

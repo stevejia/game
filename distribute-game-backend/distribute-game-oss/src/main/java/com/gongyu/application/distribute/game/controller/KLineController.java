@@ -1,5 +1,6 @@
 package com.gongyu.application.distribute.game.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gongyu.application.distribute.game.model.KlineModel;
 import com.gongyu.application.distribute.game.model.RefreshKlineModel;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.ThreeTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
@@ -20,6 +22,7 @@ import com.gongyu.service.distribute.game.model.entity.KlineOpenPosition;
 import com.gongyu.service.distribute.game.model.entity.KlineTdStructure;
 import com.gongyu.service.distribute.game.model.entity.Rb2110KlineExample;
 import com.gongyu.service.distribute.game.service.KlineService;
+import com.gongyu.service.distribute.game.utils.BeanCopyUtils;
 import com.gongyu.service.distribute.game.utils.RedisUtils2;
 import com.gongyu.snowcloud.framework.base.response.BaseResponse;
 
@@ -41,7 +44,11 @@ public class KLineController {
 		param.createCriteria().andPeriodEqualTo(queryModel.getPeriod());
 
 		List<KlineDto> kLines = klineService.queryKline(param, queryModel.getInstrumentid(), queryModel.getPeriod());
-		return BaseResponse.success(kLines);
+		
+		List<KlineModel> klineModels = new ArrayList<KlineModel>();
+		
+		BeanCopyUtils.copyList(kLines, klineModels, KlineModel.class);
+		return BaseResponse.success(klineModels);
 	}
 
 	@ApiOperation(value = "刷新K线列表", notes = "刷新K线列表")
