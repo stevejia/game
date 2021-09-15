@@ -10,14 +10,15 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
+
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-@SpringBootApplication(scanBasePackages = {
-        "com.gongyu.snowcloud.framework",
-        "com.gongyu.service.distribute.game",
-        "com.gongyu.application.distribute.game",
-        "com.gongyu.bizworks.*"})
-@MapperScan(basePackages = {"com.gongyu.*.**.mapper"})
+@SpringBootApplication(scanBasePackages = { "com.gongyu.snowcloud.framework", "com.gongyu.service.distribute.game",
+		"com.gongyu.application.distribute.game",
+		"com.gongyu.bizworks.*" }, exclude = DruidDataSourceAutoConfigure.class)
+@MapperScan(basePackages = { "com.gongyu.*.**.mapper" })
 @EnableTransactionManagement
 @EnableSwagger2
 @EnableAsync
@@ -26,9 +27,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class DistributeGameOssApplication extends SpringBootServletInitializer {
 
-    public static void main(String[] args) {
-        SpringApplication.run(DistributeGameOssApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(DistributeGameOssApplication.class, args);
+	}
 
 //    @Bean
 //    public FilterRegistrationBean filterRegistrationBean() {
@@ -41,8 +42,8 @@ public class DistributeGameOssApplication extends SpringBootServletInitializer {
 //        return registrationBean;
 //    }
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(DistributeGameOssApplication.class);
-    }
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(DistributeGameOssApplication.class);
+	}
 }

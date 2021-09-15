@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.FourTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.ThreeTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
@@ -37,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@DS("futures")
 public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb2110Kline> implements KlineService {
 
 	@Autowired

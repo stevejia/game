@@ -1,7 +1,7 @@
 server:
   servlet:
     context-path: /distribute-game-oss
-  port: 8080
+  port: 8060
 spring:
   profiles:
     active: dev

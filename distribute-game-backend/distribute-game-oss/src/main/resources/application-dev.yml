@@ -1,12 +1,32 @@
 spring:
   datasource:
-    username: yesun
-    password: yesun741852
-    url: jdbc:mysql://60.174.227.204:3306/futures?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
-    type: com.alibaba.druid.pool.DruidDataSource
-    initialSize: 1
-    minIdle: 3
-    maxActive: 20
+#    username: yesun
+#    password: yesun741852
+#    url: jdbc:mysql://60.174.227.204:3306/futures?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    initialSize: 1
+#    minIdle: 3
+#    maxActive: 20
+    dynamic:
+      primary: futures # 配置默认数据库
+      datasource:
+        futures: # 数据源1配置
+          url: jdbc:mysql://60.174.227.204:3306/futures?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
+          username: yesun
+          password: yesun741852
+          driver-class-name: com.mysql.jdbc.Driver
+        config: # 数据源2配置
+          url: jdbc:mysql://60.174.227.204:3306/config?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useLocalSessionState=true
+          username: yesun
+          password: yesun741852
+          driver-class-name: com.mysql.jdbc.Driver
+      durid:
+        initial-size: 1
+        max-active: 20
+        min-idle: 1
+        max-wait: 60000
+
+
   redis:
     database: 0
     host: localhost
