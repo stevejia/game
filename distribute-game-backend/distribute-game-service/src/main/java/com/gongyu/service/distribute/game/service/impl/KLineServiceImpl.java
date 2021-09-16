@@ -22,6 +22,9 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.FourTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.ThreeTuple;
 import com.gongyu.service.distribute.game.common.utils.TupleUtil.TwoTuple;
+import com.gongyu.service.distribute.game.mapper.Ap110KlineMapper;
+import com.gongyu.service.distribute.game.mapper.Ap201KlineMapper;
+import com.gongyu.service.distribute.game.mapper.C2109KlineMapper;
 import com.gongyu.service.distribute.game.mapper.Rb2110KlineMapper;
 import com.gongyu.service.distribute.game.model.dto.KlineDto;
 import com.gongyu.service.distribute.game.model.entity.KlineExample;
@@ -44,6 +47,15 @@ public class KLineServiceImpl extends CrudServiceSupport<Rb2110KlineMapper, Rb21
 	@Autowired
 	private Rb2110KlineMapper rb2110KlineMapper;
 
+	@Autowired
+	private Ap110KlineMapper ap110KlineMapper;
+	
+	@Autowired
+	private Ap201KlineMapper ap201KlineMapper;
+	
+	@Autowired
+	private C2109KlineMapper c2109KlineMapper;
+	
 	@Override
 	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
 	public List<KlineDto> queryRbKLine(KlineExample params) {

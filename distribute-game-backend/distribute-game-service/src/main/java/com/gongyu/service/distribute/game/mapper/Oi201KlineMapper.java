@@ -1,11 +1,13 @@
 package com.gongyu.service.distribute.game.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gongyu.service.distribute.game.model.entity.Ma201Kline;
 import com.gongyu.service.distribute.game.model.entity.Oi201Kline;
 import com.gongyu.service.distribute.game.model.entity.Oi201KlineExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-public interface Oi201KlineMapper {
+public interface Oi201KlineMapper extends BaseMapper<Oi201Kline> {
     int countByExample(Oi201KlineExample example);
 
     int deleteByExample(Oi201KlineExample example);

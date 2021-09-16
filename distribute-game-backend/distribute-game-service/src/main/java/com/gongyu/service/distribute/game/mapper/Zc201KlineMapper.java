@@ -1,30 +1,32 @@
 package com.gongyu.service.distribute.game.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gongyu.service.distribute.game.model.entity.Zc109Kline;
 import com.gongyu.service.distribute.game.model.entity.Zc201Kline;
 import com.gongyu.service.distribute.game.model.entity.Zc201KlineExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-public interface Zc201KlineMapper {
-    int countByExample(Zc201KlineExample example);
+public interface Zc201KlineMapper extends BaseMapper<Zc201Kline> {
+	int countByExample(Zc201KlineExample example);
 
-    int deleteByExample(Zc201KlineExample example);
+	int deleteByExample(Zc201KlineExample example);
 
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Integer id);
 
-    int insert(Zc201Kline record);
+	int insert(Zc201Kline record);
 
-    int insertSelective(Zc201Kline record);
+	int insertSelective(Zc201Kline record);
 
-    List<Zc201Kline> selectByExample(Zc201KlineExample example);
+	List<Zc201Kline> selectByExample(Zc201KlineExample example);
 
-    Zc201Kline selectByPrimaryKey(Integer id);
+	Zc201Kline selectByPrimaryKey(Integer id);
 
-    int updateByExampleSelective(@Param("record") Zc201Kline record, @Param("example") Zc201KlineExample example);
+	int updateByExampleSelective(@Param("record") Zc201Kline record, @Param("example") Zc201KlineExample example);
 
-    int updateByExample(@Param("record") Zc201Kline record, @Param("example") Zc201KlineExample example);
+	int updateByExample(@Param("record") Zc201Kline record, @Param("example") Zc201KlineExample example);
 
-    int updateByPrimaryKeySelective(Zc201Kline record);
+	int updateByPrimaryKeySelective(Zc201Kline record);
 
-    int updateByPrimaryKey(Zc201Kline record);
+	int updateByPrimaryKey(Zc201Kline record);
 }
