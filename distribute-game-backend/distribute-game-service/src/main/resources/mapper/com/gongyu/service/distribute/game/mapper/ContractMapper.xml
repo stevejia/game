@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gongyu.service.distribute.game.mapper.ContractMapper" >
+  <resultMap id="BaseResultMap" type="com.gongyu.service.distribute.game.model.entity.Contract" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="InstrumentID" property="instrumentid" jdbcType="VARCHAR" />
+    <result column="InstrumentName" property="instrumentname" jdbcType="VARCHAR" />
+    <result column="AM_TIME" property="amTime" jdbcType="VARCHAR" />
+    <result column="PM_TIME" property="pmTime" jdbcType="VARCHAR" />
+    <result column="NIGHT_TIME" property="nightTime" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, InstrumentID, InstrumentName, AM_TIME, PM_TIME, NIGHT_TIME
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.gongyu.service.distribute.game.model.entity.ContractExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from contract
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from contract
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.gongyu.service.distribute.game.model.entity.ContractExample" >
+    delete from contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.gongyu.service.distribute.game.model.entity.Contract" >
+    insert into contract (id, InstrumentID, InstrumentName, 
+      AM_TIME, PM_TIME, NIGHT_TIME
+      )
+    values (#{id,jdbcType=INTEGER}, #{instrumentid,jdbcType=VARCHAR}, #{instrumentname,jdbcType=VARCHAR}, 
+      #{amTime,jdbcType=VARCHAR}, #{pmTime,jdbcType=VARCHAR}, #{nightTime,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.gongyu.service.distribute.game.model.entity.Contract" >
+    insert into contract
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="instrumentid != null" >
+        InstrumentID,
+      </if>
+      <if test="instrumentname != null" >
+        InstrumentName,
+      </if>
+      <if test="amTime != null" >
+        AM_TIME,
+      </if>
+      <if test="pmTime != null" >
+        PM_TIME,
+      </if>
+      <if test="nightTime != null" >
+        NIGHT_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="instrumentid != null" >
+        #{instrumentid,jdbcType=VARCHAR},
+      </if>
+      <if test="instrumentname != null" >
+        #{instrumentname,jdbcType=VARCHAR},
+      </if>
+      <if test="amTime != null" >
+        #{amTime,jdbcType=VARCHAR},
+      </if>
+      <if test="pmTime != null" >
+        #{pmTime,jdbcType=VARCHAR},
+      </if>
+      <if test="nightTime != null" >
+        #{nightTime,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.gongyu.service.distribute.game.model.entity.ContractExample" resultType="java.lang.Integer" >
+    select count(*) from contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update contract
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.instrumentid != null" >
+        InstrumentID = #{record.instrumentid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.instrumentname != null" >
+        InstrumentName = #{record.instrumentname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.amTime != null" >
+        AM_TIME = #{record.amTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pmTime != null" >
+        PM_TIME = #{record.pmTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nightTime != null" >
+        NIGHT_TIME = #{record.nightTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update contract
+    set id = #{record.id,jdbcType=INTEGER},
+      InstrumentID = #{record.instrumentid,jdbcType=VARCHAR},
+      InstrumentName = #{record.instrumentname,jdbcType=VARCHAR},
+      AM_TIME = #{record.amTime,jdbcType=VARCHAR},
+      PM_TIME = #{record.pmTime,jdbcType=VARCHAR},
+      NIGHT_TIME = #{record.nightTime,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gongyu.service.distribute.game.model.entity.Contract" >
+    update contract
+    <set >
+      <if test="instrumentid != null" >
+        InstrumentID = #{instrumentid,jdbcType=VARCHAR},
+      </if>
+      <if test="instrumentname != null" >
+        InstrumentName = #{instrumentname,jdbcType=VARCHAR},
+      </if>
+      <if test="amTime != null" >
+        AM_TIME = #{amTime,jdbcType=VARCHAR},
+      </if>
+      <if test="pmTime != null" >
+        PM_TIME = #{pmTime,jdbcType=VARCHAR},
+      </if>
+      <if test="nightTime != null" >
+        NIGHT_TIME = #{nightTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gongyu.service.distribute.game.model.entity.Contract" >
+    update contract
+    set InstrumentID = #{instrumentid,jdbcType=VARCHAR},
+      InstrumentName = #{instrumentname,jdbcType=VARCHAR},
+      AM_TIME = #{amTime,jdbcType=VARCHAR},
+      PM_TIME = #{pmTime,jdbcType=VARCHAR},
+      NIGHT_TIME = #{nightTime,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
